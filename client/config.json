@@ -1,0 +1,21 @@
+{
+    "local": [
+        {
+            "offline": "/Users/baidu/wmcode/diffdev/goods/",
+            "online": "/home/users/rentiansheng/tmp/odp_goods/app/goods",
+            "exts": [".php", ".js"],
+            "auto":1
+        },
+        {
+            "offline": "/Users/baidu/wmcode/diffdev/goods1/",
+            "online": "/home/users/rentiansheng/tmp/odp_goods/app/goods1",
+            "exts": [".php", ".js"],
+            "auto":1
+        }
+    ],
+    "server": {
+        "host": "xxxx.baidu.com",
+        "port": "8484"
+    }
+}
+

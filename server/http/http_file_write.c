@@ -1,0 +1,112 @@
+#include "http_file_write.h"
+
+
+
+int _mkdir(char *root, pool_t *p)
+{
+    int len = strlen(root);
+    char * dir = (char *) palloc(p, len+1);
+    char *end = dir + len;
+    struct stat buf;
+
+    memcpy(dir, root, len+1);
+
+    while(end > dir) {
+        if(*end == '/') {
+            *end= '\0';
+            break;
+        }
+
+        end--;
+    }
+
+    if(stat(root, &buf) != 0 ) {
+        _mkdir(dir, p);
+    } else {
+        return 0;
+    }
+    mkdir(root, S_IRWXU | S_IRGRP | S_IXGRP | S_IROTH | S_IXOTH);
+
+    return 0;
+}
+
+
+int  open_write_file(http_connect_t *con)
+{
+    request * in;
+    response *out;
+    buffer *uri, *tmp, *dir;
+    char *ptr ;
+    FILE * fp;
+    pool_t *p = con->p;
+    int count = 0;
+
+    in = con->in;
+    out = con->out;
+
+
+    uri = buffer_init(p);
+    uri->ptr = in->uri->ptr;
+    uri->used = uri->size = in->uri->size;
+
+
+    dir = buffer_create_size(con->p, in->uri->size);
+    memcpy(dir->ptr, uri->ptr, uri->used);
+    ptr = dir->ptr + uri->used;
+    dir->used = uri->used;
+    while(ptr >= dir->ptr) {
+        if(*ptr == '/') {
+            *ptr = '\0';
+            break;
+        }
+        ptr--;
+        dir->used--;
+
+    }
+
+    uri->ptr[uri->used] = '\0';
+    if(dir->used) {
+        _mkdir(dir->ptr, p);
+    }
+
+    ptr = (char *) palloc(p, sizeof(char)*2048);
+    fp = fopen(uri->ptr, "w");
+    con->write_file.fp = fp;
+    con->write_file.len = 0;
+
+    return 0;
+}
+
+int  write_file_content(http_connect_t * con)
+{
+    request * in;
+    response *out;
+    char *ptr ;
+    pool_t *p = con->p;
+    int count = 0;
+
+   in = con->in;
+   out = con->out;
+    while((count = read(con->fd, ptr, 2048)) > 0) {
+        if(fwrite(ptr, count, 1, con->write_file.fp) != 1) {
+            fclose(con->write_file.fp);
+            con->next_handle = NULL;
+            con->out->status_code = HTTP_WRITE_FILE_FAIL;
+            return ;
+        }
+        con->write_file.len += count;
+    }
+    if(in->content_length <= con->write_file.len) {
+         fclose(con->write_file.fp);
+         con->next_handle =  send_put_result;
+         con->out->status_code = HTTP_OK;
+    }
+
+    return 0;
+}
+
+
+
+
+
+
