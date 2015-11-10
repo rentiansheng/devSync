@@ -17,7 +17,7 @@ int send_put_result(http_connect_t * con)
    write (con->fd, msg, strlen(msg));
 
    con->next_handle = NULL;
-   return 0;
+   return -1;
 }
 
 

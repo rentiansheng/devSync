@@ -90,9 +90,9 @@ int  write_file_content(http_connect_t * con)
     while((count = read(con->fd, ptr, 2048)) > 0) {
         if(fwrite(ptr, count, 1, con->write_file.fp) != 1) {
             fclose(con->write_file.fp);
-            con->next_handle = NULL;
+            con->next_handle =  send_put_result;
             con->out->status_code = HTTP_WRITE_FILE_FAIL;
-            return ;
+            return con->next_handle(con);
         }
         con->write_file.len += count;
     }
@@ -100,6 +100,8 @@ int  write_file_content(http_connect_t * con)
          fclose(con->write_file.fp);
          con->next_handle =  send_put_result;
          con->out->status_code = HTTP_OK;
+         return con->next_handle(con);
+
     }
 
     return 0;

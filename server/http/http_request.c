@@ -227,11 +227,11 @@ int start_accept(http_conf *g)
 							accept_handler(g, con, ev+count);
 						}
 						if(con->next_handle != NULL) {
-                            con->next_handle(con);
-						} else {
-						    epoll_del_fd(g->epfd, ev);
-						    close(con->fd);
-                            pool_destroy(con->p);
+                            if(con->next_handle(con) == -1) {
+                            	epoll_del_fd(g->epfd, ev);
+                                close(con->fd);
+                                pool_destroy(con->p);
+                            }
 						}
 	 					break;
 					case CGIFD: {
