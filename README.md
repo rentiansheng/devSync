@@ -33,6 +33,6 @@ the local machine andmachine synchronization code
 
  主要要根据自己的情况修改 server/http/reagehttp.c文件中第13行，conf.port来确定端口。
 
- 也可以通过运行函数的时候使用参数自定端口号  -p port(2015-11-04)
+ 也可以通过运行函数的时候使用参数自定端口号  -p port   (2015-11-04)
 
  目前 没有写守护进程。想后台运行用nohup和&组合吧
