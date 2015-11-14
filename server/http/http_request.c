@@ -68,6 +68,7 @@ static int read_http_header(buffer *header, pool_t *p, int fd)
 	char *c ;
 	char *ptr;
 
+	c = palloc(p,sizeof(char));
 	header->ptr = palloc(p, palloc_size);
 	header->size = palloc_size;
 

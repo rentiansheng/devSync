@@ -85,8 +85,9 @@ int  write_file_content(http_connect_t * con)
     pool_t *p = con->p;
     int count = 0;
 
-   in = con->in;
-   out = con->out;
+    ptr = palloc(p, sizeof(int)*2048);
+    in = con->in;
+    out = con->out;
     while((count = read(con->fd, ptr, 2048)) > 0) {
         if(fwrite(ptr, count, 1, con->write_file.fp) != 1) {
             fclose(con->write_file.fp);
