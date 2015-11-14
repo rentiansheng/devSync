@@ -9,6 +9,7 @@ var fileWatcher = (function() {
   function listenToChange(dir, offline, online, exts) {
     dir = path.resolve(dir);
     function onChg (event, filename) {
+
       if(filename[0] == '.') return;
       var ext = path.extname(filename);
       if(exts && exts.indexOf(ext) === -1) return;
@@ -18,19 +19,24 @@ var fileWatcher = (function() {
 
         console.log(servfile);
         console.log(content.length);
-        var client = net.connect(
-            {host: config.server.host, port: config.server.port},
-            function() { //'connect' listener
-              client.write('put '+servfile+'\n'+content.length+'\n\n'+content);
-            }
-        );
+        try{
+          var client = net.connect(
+              {host: config.server.host, port: config.server.port},
+              function() { //'connect' listener
+                client.write('put '+servfile+'\n'+content.length+'\n\n'+content);
+              }
+          );
 
-        client.on('data', function(data) {
-          client.end();
-        });
-        client.on('end', function() {
-          console.log('disconnected from server');
-        });
+          client.on('data', function(data) {
+            client.end();
+          });
+          client.on('end', function() {
+            console.log('disconnected from server');
+          });
+        }catch(err) {
+          console.log(err);
+        }
+
       });
     }
 
