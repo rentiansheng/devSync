@@ -38,6 +38,6 @@ the local machine andmachine synchronization code
  目前 没有写守护进程。想后台运行用nohup和&组合吧
  
  
- ### 注意
+### 注意
  
   **文件目录较多时候，容易出现问题，请设置可以打开的文件个数 ulimit -n 1024 **
