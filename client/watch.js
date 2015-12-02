@@ -13,7 +13,7 @@ var fileWatcher = (function() {
       if(filename[0] == '.') return;
       var ext = path.extname(filename);
       if(exts && exts.indexOf(ext) === -1) return;
-      fs.readFile(dir+'/'+filename, function (err, content) {
+      fs.readFile(dir+'/'+filename, 'utf8', function (err, content) {
         if(err) { return false;}
         var servfile  = online +'/'+path.relative(offline, dir)+'/'+filename;
 
@@ -50,7 +50,7 @@ var fileWatcher = (function() {
     listenToChange(root, offline, online, exts);
     fs.lstat(root, function (err, stats) {
       if (stats.isDirectory()) {
-        fs.readdir(root, function (err, files) {
+        fs.readdir(root, 'utf8', function (err, files) {
           if (err) return;
           files.forEach(function (file) {
             if(file[0] == '.'){ return ;}
