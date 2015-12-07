@@ -163,15 +163,12 @@ typedef struct epoll_cgi {
 	int fd;
 	struct list_buffer *cgi_data;
 	list_buffer *out;
-	
-	
 }epoll_cgi_t;
 
 
-#define _Server "Rhttp" 
-#define _Auth_desc "Rhttp test" 
-#define _Version "0.2.0" 
-
-
+#define _Server "DevSync"
+#define _Auth_desc "DevSync"
+#define _Version "0.2.1"
+#define DS_LINEEND "\x0a"
 
 #endif
