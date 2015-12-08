@@ -35,7 +35,8 @@ the local machine andmachine synchronization code
 
  也可以通过运行函数的时候使用参数自定端口号  -p port   (2015-11-04)
 
- 目前 没有写守护进程。想后台运行用nohup和&组合吧
+ //目前 没有写守护进程。想后台运行用nohup和&组合吧 (2015-12-08已经加上daemon)
+ 缺少日志
  
  
 ### 注意
