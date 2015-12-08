@@ -19,7 +19,7 @@ socket_listen(char *ip, unsigned short int port)
 	address.sin_addr.s_addr = htonl(INADDR_ANY);
 	
 	res = bind(res_socket, (struct sockaddr *)&address, sizeof(address));
-	if(res) {printf("port is used, not to repear bind %s\n", strerror(errno));}
+	if(res) {printf("port is used, not to repear bind %s\n", strerror(errno)); exit(0);}
 	res = listen(res_socket, MAX_CONNECT);
 
 	return res_socket;

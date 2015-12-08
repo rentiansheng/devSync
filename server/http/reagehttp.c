@@ -2,7 +2,8 @@
 #include <string.h>
 #include "config.h"
 #include "base.h"
-#include "http_request.h" 
+#include "http_request.h"
+#include "modules/ds_daemon.h"
 
 
 static int ds_version;
@@ -39,6 +40,9 @@ int main(int argc, char *argv[])
 
 
 	conf.port = ds_port;
+
+	ds_daemon(&conf);
+
 	start_accept(&conf);
 
 	return 0;
