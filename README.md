@@ -1,9 +1,14 @@
-#本地代码同步到开发机
+# devSync
+---
+the local machine andmachine synchronization code
 
+
+#本地代码同步到开发机
+---
 有两部分组成 Client和Server；
 
 ### Client放在本地有nodejs开发
-
+---
  **依赖nodejs。**
  
 #### client 配置
@@ -35,12 +40,11 @@ Client 需要配置 config.json，config.json 是个数组，其中包含server�
  
  
  
- **使用方法 直接 node watch.js  **
+	 **使用方法 直接 node watch.js  **
  
  
- 
- 
- #### 同步到服务器固定目录
+####同步到服务器固定目录
+
 
  将运行程序的目录数据改动同步到path配置的开发机的路径中
  
@@ -56,13 +60,9 @@ Client 需要配置 config.json，config.json 是个数组，其中包含server�
  	
 
 
- 
-
-
-
 
 ### Server放在开发机有C语言写
-
+---
  **只能在支持epoll的系统使用**
 
  用C语言编写，需要自己编译，进入到server目录下make就行了
@@ -78,3 +78,5 @@ Client 需要配置 config.json，config.json 是个数组，其中包含server�
 ### 注意
  
   **文件目录较多时候，容易出现问题，请设置可以打开的文件个数 ulimit -n 1024**
+
+ 
