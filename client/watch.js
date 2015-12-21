@@ -13,7 +13,7 @@ var fileWatcher = (function() {
       if(filename[0] == '.') return;
       var ext = path.extname(filename);
       if(exts && exts.indexOf(ext) === -1) return;
-      fs.readFile(dir+'/'+filename, 'utf8', function (err, content) {
+      fs.readFile(dir+'/'+filename, function (err, content) {
         if(err) { return false;}
         var servfile  = online +'/'+path.relative(offline, dir)+'/'+filename;
 
@@ -31,6 +31,7 @@ var fileWatcher = (function() {
             client.end();
           });
           client.on('end', function() {
+            client.end();
             console.log('disconnected from server');
           });
         }catch(err) {
@@ -39,7 +40,6 @@ var fileWatcher = (function() {
 
       });
     }
-
 
     fs.watch(dir, onChg);
   }
@@ -50,11 +50,10 @@ var fileWatcher = (function() {
     listenToChange(root, offline, online, exts);
     fs.lstat(root, function (err, stats) {
       if (stats.isDirectory()) {
-        fs.readdir(root, 'utf8', function (err, files) {
+        fs.readdir(root, function (err, files) {
           if (err) return;
           files.forEach(function (file) {
             if(file[0] == '.'){ return ;}
-
             file = root + '/' + file;
             fs.lstat(file, function (err, stats) {
               if (err) return;
@@ -73,11 +72,34 @@ var fileWatcher = (function() {
 
 
   return function() {
-    config.local.forEach(function(item){
-      if(item.auto) {
-        watchDir(item.offline, item.offline, item.online, item.exts);
+    var options = process.argv
+    var len = options.length;
+    var i ;
+    var argv = {'d':'','v':''}
+
+    for(i = 0; i< len; i++ ) {
+      if(options[i] == '-d') {
+        argv.d = options[++i];
       }
-    });
+    }
+
+    if(argv.d != '') {
+      console.dir(process.env.PWD);
+      if(argv.d in config.path ) {
+        item = config.path[argv.d];
+        item.offline = process.env.PWD;
+        watchDir(item.offline, item.offline, item.online, item.exts);
+      } else {
+        console.log("error:"+argv.d+"配置不存在");
+      }
+
+    }else {
+      config.local.forEach(function (item) {
+        if (item.auto) {
+          watchDir(item.offline, item.offline, item.online, item.exts);
+        }
+      });
+    }
   }
 
 })();

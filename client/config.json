@@ -13,6 +13,18 @@
             "auto":1
         }
     ],
+    "path": {
+        "audit":
+        {
+            "online":  "/home/users/rentiansheng_iwm/dev1/odp_wmaudit/app/wmaudit/",
+            "exts": [".php",".log"]
+        },
+        "goods":
+        {
+            "online": "/home/users/rentiansheng_iwm/dev1/odp_goods/app/goods/",
+            "exts": [".php",".log"]
+        }
+    },
     "server": {
         "host": "xxxx.baidu.com",
         "port": "8484"
