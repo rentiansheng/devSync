@@ -73,7 +73,7 @@ Client 需要配置 config.json，config.json 是个数组，其中包含server�
 
  //目前 没有写守护进程。想后台运行用nohup和&组合吧 (2015-12-08已经加上daemon)
 
- 为区分错误和正常日志，日志固定放在 /tmp/devSync.log中(2015-12-23)//缺少日志
+ 未区分错误和正常日志，日志统一放在/tmp/devSync.log中(2015-12-23)//缺少日志
 
 
  
