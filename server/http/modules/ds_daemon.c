@@ -40,13 +40,13 @@ int ds_daemon(http_conf * conf)
         exit(0);
     }
 
-    fd = open("/tmp/devSync_error1.log", O_RDWR|O_CREAT, 0777);
+    fd = open("/tmp/devSync_error.log", O_RDWR|O_CREAT, 0777);
     if (dup2(fd, STDERR_FILENO) == -1) {
         printf("dup2(STDERR) failed" DS_LINEEND);
         exit(0);
     }
 
-    fd = open("/tmp/devSync1.log", O_RDWR|O_CREAT,0777);
+    fd = open("/tmp/devSync.log", O_RDWR|O_CREAT,0777);
     if (dup2(fd, STDOUT_FILENO) == -1) {
         printf("dup2(STDOUT) failed" DS_LINEEND);
         exit(0);
