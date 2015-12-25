@@ -5,7 +5,9 @@ int ds_daemon(http_conf * conf)
 {
     int ds_pid = 0;
     int fd;
+    int uid = 0;
 
+    uid = getuid();
     switch(fork()) {
         case -1:
             printf("fork failed!" DS_LINEEND);
@@ -24,7 +26,7 @@ int ds_daemon(http_conf * conf)
     }
 
     umask(0);
-
+    setuid(uid);
     //打开文件/dev/null,使得其拥有守护进程的0，1，2。这样防止守护进程在终端设备上显示输出
     fd = open("/dev/null", O_RDWR);
     if (fd == -1) {
@@ -38,13 +40,13 @@ int ds_daemon(http_conf * conf)
         exit(0);
     }
 
-    fd = open("/tmp/devSync_error.log", O_RDWR|O_CREAT);
+    fd = open("/tmp/devSync_error1.log", O_RDWR|O_CREAT, 0777);
     if (dup2(fd, STDERR_FILENO) == -1) {
         printf("dup2(STDERR) failed" DS_LINEEND);
         exit(0);
     }
 
-    fd = open("/tmp/devSync.log", O_RDWR|O_CREAT);
+    fd = open("/tmp/devSync1.log", O_RDWR|O_CREAT,0777);
     if (dup2(fd, STDOUT_FILENO) == -1) {
         printf("dup2(STDOUT) failed" DS_LINEEND);
         exit(0);
