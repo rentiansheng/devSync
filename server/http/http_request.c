@@ -225,7 +225,7 @@ int start_accept(http_conf *g)
 						if(con->in == NULL) {
 							//accept_handler(g, con, ev+count);
 							epoll_edit_fd(g->epfd, ev, EPOLL_W);
-                            epoll_del_fd(g->epfd, ev);
+                            //epoll_del_fd(g->epfd, ev);
 						}
 						if(con->next_handle != NULL) {
                             if(con->next_handle(con) == -1) {
