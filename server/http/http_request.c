@@ -167,7 +167,7 @@ static void parse_header(http_connect_t * con)
 }
 
 
-int accept_handler(http_conf *g, http_connect_t *con, struct epoll_event *ev)
+int accept_handler(http_conf *g, http_connect_t *con)
 {
 
  	con->in = (request *)request_init(con->p);
@@ -176,15 +176,12 @@ int accept_handler(http_conf *g, http_connect_t *con, struct epoll_event *ev)
 
 	read_header(con);
 	parse_header(con);
-	epoll_edit_fd(g->epfd, ev, EPOLL_W);
-	epoll_del_fd(g->epfd, ev);
 	if(con->in->http_method == _PUT) {
 		open_write_file(con);
 		con->next_handle = write_file_content;
+	} else {
+		con->next_handle = NULL;
 	}
-
-	/*close(con->fd);
-	pool_destroy(con->p);*/
 
 	return 0;
 }
@@ -213,6 +210,7 @@ int start_accept(http_conf *g)
 				con = (http_connect_t *) palloc(p, sizeof(http_connect_t));//换成初始化函数，
 				con->p= p;
 				con->fd = confd;
+				con->next_handle = accept_handler;
 				data_ptr->type = SOCKFD;
 				data_ptr->ptr = (void *) con;
 				epoll_add_fd(g->epfd, confd, EPOLL_R, (void *)data_ptr);//对epoll data结构指向的结构体重新封装，分websit
@@ -225,7 +223,9 @@ int start_accept(http_conf *g)
 				switch(epoll_data->type) {
 					case SOCKFD:
 						if(con->in == NULL) {
-							accept_handler(g, con, ev+count);
+							//accept_handler(g, con, ev+count);
+							epoll_edit_fd(g->epfd, ev, EPOLL_W);
+                            epoll_del_fd(g->epfd, ev);
 						}
 						if(con->next_handle != NULL) {
                             if(con->next_handle(con) == -1) {

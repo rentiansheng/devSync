@@ -10,6 +10,8 @@
 #include "buffer.h"
 #include "pool.h"
 #include "http_mod_connect.h"
+#include "ds_log.h"
+
 
 #define OK 0
 #define FILE_NO_EXIST 1
@@ -33,6 +35,10 @@
 #define HTTP_BAD_GATEWAY 502
 #define HTTP_UNDEFINED 544
 #define HTTP_WRITE_FILE_FAIL 406
+
+#define HANDLE_STATUS_OK 0
+#define HANDLE_STATUS_CONTINUE 1
+#define HANDLE_STATUS_FAILD -1
 
 
 
