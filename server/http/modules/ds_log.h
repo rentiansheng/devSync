@@ -12,12 +12,12 @@
 
 #define  LOG_STR_MAX_LEN (255)
 
-static int logFileId,logFileErrorId;
+int logFileId;
+int logFileErrorId;
 char logStr[LOG_STR_MAX_LEN];
 
 int ds_log(http_conf * conf, char * str, int level);
 int ds_log_error(http_conf * conf, char * str);
 int ds_init(http_conf * conf);
-
 
 #endif

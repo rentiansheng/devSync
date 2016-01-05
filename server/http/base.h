@@ -10,8 +10,6 @@
 #include "buffer.h"
 #include "pool.h"
 #include "http_mod_connect.h"
-#include "ds_log.h"
-
 
 #define OK 0
 #define FILE_NO_EXIST 1
