@@ -167,7 +167,7 @@ static void parse_header(http_connect_t * con)
 }
 
 
-int accept_handler(http_conf *g, http_connect_t *con)
+int accept_handler(http_connect_t *con)
 {
 
  	con->in = (request *)request_init(con->p);
