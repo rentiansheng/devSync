@@ -9,7 +9,7 @@ the local machine andmachine synchronization code
 
 ### Client放在本地有nodejs开发
 ---
- **依赖nodejs。**
+ **依赖nodejs。建议装比较搞的版本，避免监控文件过多，出现错误**
  
 #### client 配置
 
