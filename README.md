@@ -67,14 +67,18 @@ Client 需要配置 config.json，config.json 是个数组，其中包含server�
 
  用C语言编写，需要自己编译，进入到server目录下make就行了
 
- 主要要根据自己的情况修改 server/http/reagehttp.c文件中第13行，conf.port来确定端口。
+ 主要要根据自己的情况修改 server/http/reagehttp.c文件中第11行，conf.port来确定端口。
 
  也可以通过运行函数的时候使用参数自定端口号  -p port   (2015-11-04)
 
- //目前 没有写守护进程。想后台运行用nohup和&组合吧 (2015-12-08已经加上daemon)
+
 
  未区分错误和正常日志，日志统一放在/tmp/devSync.log中(2015-12-23)//缺少日志
 
+ 使用方法
+
+ 	cd obj
+ 	./devSync
 
  
 ### 注意
