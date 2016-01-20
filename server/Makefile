@@ -11,7 +11,7 @@ OBJ=obj/reagehttp.o obj/config.o obj/config.o obj/base64.o obj/buffer.o obj/pool
 
 DST=obj/
 
-obj/reagehttp:$(OBJ)
+obj/devsync:$(OBJ)
 	echo $^
 	gcc  $(CFLAGS) $@ $^ 
 
