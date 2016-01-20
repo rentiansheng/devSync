@@ -1,4 +1,4 @@
-all:obj/reagehttp
+all:obj/devSync
 
 
 
@@ -11,7 +11,7 @@ OBJ=obj/reagehttp.o obj/config.o obj/config.o obj/base64.o obj/buffer.o obj/pool
 
 DST=obj/
 
-obj/devsync:$(OBJ)
+obj/devSync:$(OBJ)
 	echo $^
 	gcc  $(CFLAGS) $@ $^ 
 
