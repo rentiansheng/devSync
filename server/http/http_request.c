@@ -190,7 +190,7 @@ int start_accept(http_conf *g)
 {
 	int count;
 	struct epoll_event ev[MAX_EVENT];
-	struct epoll_event evfd ;
+	struct epoll_event *evfd ;
 	epoll_extra_data_t *epoll_data;
 	
 	
@@ -249,7 +249,7 @@ int start_accept(http_conf *g)
 				
 	 	 	}
 
-			ev ++；
+			ev++；
 
 	 	} 
 	} 
