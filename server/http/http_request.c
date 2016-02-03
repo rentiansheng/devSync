@@ -201,7 +201,7 @@ int start_accept(http_conf *g)
 		count = epoll_wait(g->epfd, ev, MAX_EVENT, -1);
 		evfd = ev;
 		while(count> 0  && (evfd->events & EPOLLIN)){
-			epoll_data = (epoll_data_t *)evfd->.data.ptr;
+			epoll_data = (epoll_data_t *)evfd->data.ptr;
 			if(epoll_data->type  == SERVERFD) {
 				int confd =  accept(g->fd, NULL, NULL);
 				pool_t *p = (pool_t *)pool_create();
@@ -245,12 +245,11 @@ int start_accept(http_conf *g)
 				
 
 			}
-			else if(evfd->.events & EPOLLOUT) {
+			else if(evfd->events & EPOLLOUT) {
 				
 	 	 	}
 
-			evfd++；
-
+	 	 	evfd++;
 	 	} 
 	} 
 }
