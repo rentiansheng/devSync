@@ -190,6 +190,7 @@ int start_accept(http_conf *g)
 {
 	int count;
 	struct epoll_event ev[MAX_EVENT];
+	struct epoll_event evfd ;
 	epoll_extra_data_t *epoll_data;
 	
 	
@@ -198,8 +199,9 @@ int start_accept(http_conf *g)
 	printf("--------------- start server\n--------------");
 	while(1){
 		count = epoll_wait(g->epfd, ev, MAX_EVENT, -1);
-		while(count-- > 0){
-			epoll_data = (epoll_data_t *)ev[count].data.ptr;
+		evfd = ev;
+		while(count> 0  && (evfd->events & EPOLLIN)){
+			epoll_data = (epoll_data_t *)evevfd->.data.ptr;
 			if(epoll_data->type  == SERVERFD) {
 				int confd =  accept(g->fd, NULL, NULL);
 				pool_t *p = (pool_t *)pool_create();
@@ -216,20 +218,20 @@ int start_accept(http_conf *g)
 				epoll_add_fd(g->epfd, confd, EPOLL_R, (void *)data_ptr);//对epoll data结构指向的结构体重新封装，分websit
 	 			//data struct ,  connect  data struct , file data struct , 
 			}
-			else if((ev[count].events & EPOLLIN)) {
+			else if((evfd->events & EPOLLIN)) {
 				http_connect_t * con;
 				
 				con = (http_connect_t *) epoll_data->ptr;
 				switch(epoll_data->type) {
 					case SOCKFD:
 						if(con->in == NULL) {
-							//accept_handler(g, con, ev+count);
-							epoll_edit_fd(g->epfd, ev+count, EPOLL_W);
-                            //epoll_del_fd(g->epfd, ev);
+							//accept_handler(g, con, evfd);
+							epoll_edit_fd(g->epfd, evfd, EPOLL_W);
+                            //epoll_del_fd(g->epfd, evfd);
 						}
 						while(con->next_handle != NULL) {
                             if(con->next_handle(con) == -1) {
-                            	epoll_del_fd(g->epfd, ev+count);
+                            	epoll_del_fd(g->epfd, evfd);
                                 close(con->fd);
                                 pool_destroy(con->p);
                             }
@@ -243,10 +245,11 @@ int start_accept(http_conf *g)
 				
 
 			}
-			else if(ev[count].events & EPOLLOUT) {
+			else if(evfd->.events & EPOLLOUT) {
 				
 	 	 	}
 
+			ev ++；
 
 	 	} 
 	} 
