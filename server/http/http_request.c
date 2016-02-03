@@ -188,7 +188,7 @@ int accept_handler(http_connect_t *con)
 
 int start_accept(http_conf *g)
 {
-	int count; 
+	int count;
 	struct epoll_event ev[MAX_EVENT];
 	epoll_extra_data_t *epoll_data;
 	
@@ -224,12 +224,12 @@ int start_accept(http_conf *g)
 					case SOCKFD:
 						if(con->in == NULL) {
 							//accept_handler(g, con, ev+count);
-							epoll_edit_fd(g->epfd, ev, EPOLL_W);
+							epoll_edit_fd(g->epfd, ev+count, EPOLL_W);
                             //epoll_del_fd(g->epfd, ev);
 						}
 						while(con->next_handle != NULL) {
                             if(con->next_handle(con) == -1) {
-                            	epoll_del_fd(g->epfd, ev);
+                            	epoll_del_fd(g->epfd, ev+count);
                                 close(con->fd);
                                 pool_destroy(con->p);
                             }
