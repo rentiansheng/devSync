@@ -186,23 +186,39 @@ int accept_handler(http_connect_t *con)
 	return 0;
 }
 
+
 int start_accept(http_conf *g)
 {
 	int count;
+	int confd  ;
 	struct epoll_event ev[MAX_EVENT];
 	struct epoll_event *evfd ;
 	epoll_extra_data_t *epoll_data;
-	
-	
+
+
 	start_web_server(g);
-	
+
 	printf("--------------- start server\n--------------");
 	while(1){
 		count = epoll_wait(g->epfd, ev, MAX_EVENT, -1);
 		evfd = ev;
-		while(count> 0  && (evfd->events & EPOLLIN)){
-			epoll_data = (epoll_data_t *)evfd->data.ptr;
-			if(epoll_data->type  == SERVERFD) {
+		while( (confd =  accept(g->fd, NULL, NULL)) && confd > 0) {
+			pool_t *p = (pool_t *)pool_create();
+			http_connect_t * con;
+			epoll_extra_data_t *data_ptr;
+
+			data_ptr = (epoll_extra_data_t *)palloc(p, sizeof(epoll_extra_data_t));
+			con = (http_connect_t *) palloc(p, sizeof(http_connect_t));//换成初始化函数，
+			con->p= p;
+			con->fd = confd;
+			con->next_handle = accept_handler;
+			data_ptr->type = SOCKFD;
+			data_ptr->ptr = (void *) con;
+			epoll_add_fd(g->epfd, confd, EPOLL_R, (void *)data_ptr);//对epoll data结构指向的结构体重新封装，分websit
+			//data struct ,  connect  data struct , file data struct ,
+		}
+		while((evfd->events & EPOLLIN)){
+			/*if(epoll_data->type  == SERVERFD) {
 				int confd =  accept(g->fd, NULL, NULL);
 				pool_t *p = (pool_t *)pool_create();
 				http_connect_t * con;
@@ -216,11 +232,12 @@ int start_accept(http_conf *g)
 				data_ptr->type = SOCKFD;
 				data_ptr->ptr = (void *) con;
 				epoll_add_fd(g->epfd, confd, EPOLL_R, (void *)data_ptr);//对epoll data结构指向的结构体重新封装，分websit
-	 			//data struct ,  connect  data struct , file data struct , 
+	 			//data struct ,  connect  data struct , file data struct ,
 			}
-			else if((evfd->events & EPOLLIN)) {
+			else*/if((evfd->events & EPOLLIN)) {
 				http_connect_t * con;
-				
+				epoll_data = (epoll_data_t *)evfd->data.ptr;
+
 				con = (http_connect_t *) epoll_data->ptr;
 				switch(epoll_data->type) {
 					case SOCKFD:
@@ -242,14 +259,14 @@ int start_accept(http_conf *g)
 		 				break;
 	 	 			}
 	 	 		}
-				
+
 
 			}
 			else if(evfd->events & EPOLLOUT) {
-				
+
 	 	 	}
 
 	 	 	evfd++;
-	 	} 
-	} 
+	 	}
+	}
 }
