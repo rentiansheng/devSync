@@ -10,16 +10,19 @@ var fileWatcher = (function() {
     dir = path.resolve(dir);
     function onChg (event, filename) {
 
-      if(filename[0] == '.') return;
+      if(filename && filename[0] == '.') return;
       var ext = path.extname(filename);
       if(exts && exts.indexOf(ext) === -1) return;
       fs.readFile(dir+'/'+filename, function (err, content) {
         if(err) { return false;}
-        var servfile  = online +'/'+path.relative(offline, dir)+'/'+filename;
+        var relativePath = path.relative(offline, dir);
+        relativePath = relativePath.replace(/\\/g, '/');
+        var servfile  = online +'/'+relativePath+'/'+filename;
+        var start =  new Date().getTime();
 
-        console.log(servfile);
-        console.log(content.length);
         try{
+          console.log('data:'+content.length);
+
           var client = net.connect(
               {host: config.server.host, port: config.server.port},
               function() { //'connect' listener
@@ -32,7 +35,12 @@ var fileWatcher = (function() {
           });
           client.on('end', function() {
             client.end();
-            console.log('disconnected from server');
+            var end = new Date().getTime();
+            var ts = end - start;
+            console.log('end: '+servfile);
+            console.log('end: '+content.length);
+            console.log('end: '+'disconnected from server');
+            console.log('end: start: '+ start+' end: '+ end +' ts:'+ts);
           });
         }catch(err) {
           console.log(err);
@@ -84,10 +92,11 @@ var fileWatcher = (function() {
     }
 
     if(argv.d != '') {
-      console.dir(process.env.PWD);
+      var pwd = process.cwd();
+      console.dir(pwd);
       if(argv.d in config.path ) {
         item = config.path[argv.d];
-        item.offline = process.env.PWD;
+        item.offline = pwd;
         watchDir(item.offline, item.offline, item.online, item.exts);
       } else {
         console.log("error:"+argv.d+"配置不存在");
