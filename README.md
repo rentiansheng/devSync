@@ -51,8 +51,11 @@ Client 需要配置 config.json，config.json 是个数组，其中包含server�
  path 是个数组，每个数据项是同步的配置。每个数据项包含online,exts两个值。
  
   offline：本地需要同步到开发机器的代码路径
+
   exts: 可以同步的文件后缀
+
   host: 开发机地址
+
   port: 端口号
 
  使用方法
