@@ -1,6 +1,6 @@
 # devSync
 ---
-the local machine andmachine synchronization code
+the local machine and develop machine synchronization code
 
 
 #本地代码同步到开发机
@@ -15,9 +15,9 @@ the local machine andmachine synchronization code
 
 Client 需要配置 config.json，config.json 是个数组，其中包含server，local，path等配置
 
-	 server 需要配置开发机器的 host和端口
-	 local 配置本地固定目录方式同步
-	 path 同步到服务器固定目录
+	 server 配置开发机器的默认的host和端口
+	 local  配置本地固定与开发机目录方式同步
+	 path  当前目录同步到开发机固目录
 	 
 
 
@@ -52,6 +52,8 @@ Client 需要配置 config.json，config.json 是个数组，其中包含server�
  
   offline：本地需要同步到开发机器的代码路径
   exts: 可以同步的文件后缀
+  host: 开发机地址
+  port: 端口号
 
  使用方法
  
@@ -73,7 +75,7 @@ Client 需要配置 config.json，config.json 是个数组，其中包含server�
 
 
 
- 未区分错误和正常日志，日志统一放在/tmp/devSync.log中(2015-12-23)//缺少日志
+ 缺少日志
 
  使用方法
 
