@@ -29,14 +29,11 @@ Client 需要配置 config.json，config.json 是个数组，其中包含server�
   通过local配置本地目录和服务器目录来同步数据的。
   
   local 是个数组，每个数据项是一个开发机和本地机器同步的配置。每个数据项包含offline,online,exts,autos四个值。
-
- offline：本地需要同步到开发机器的代码路径
-
- online： 开发机器的线上路径
-
- exts: 可以同步的文件后缀
-
- auto: 是否开启自动同步
+	
+	offline：本地需要同步到开发机器的代码路径
+	online： 开发机器的线上路径
+	exts: 可以同步的文件后缀
+	auto: 是否开启自动同步
  
  
  
