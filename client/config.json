@@ -16,17 +16,19 @@
     "path": {
         "audit":
         {
-            "online":  "/home/users/rentiansheng_iwm/dev1/odp_wmaudit/app/wmaudit/",
-            "exts": [".php",".log"]
+            "online":  "/home/users/rentiansheng_iwm/dev1/bb",
+            "exts": [".php",".log",".js"],
+            "host": "cp01-rdqa04-dev148.cp01.baidu.com",
+            "port": "8484"
         },
         "goods":
         {
-            "online": "/home/users/rentiansheng_iwm/dev1/odp_goods/app/goods/",
-            "exts": [".php",".log"]
+            "online": "/home/users/rentiansheng_iwm/dev1/aa",
+            "exts": [".php",".log",".js"]
         }
     },
     "server": {
-        "host": "xxxx.baidu.com",
+        "host": "cp01-rdqa04-dev148.cp01.baidu.com",
         "port": "8484"
     }
 }

@@ -6,18 +6,18 @@ var net = require('net');
 
 
 var fileWatcher = (function() {
-  function listenToChange(dir, offline, online, exts) {
+  function listenToChange(dir, item) {
     dir = path.resolve(dir);
     function onChg (event, filename) {
 
       if(filename && filename[0] == '.') return;
       var ext = path.extname(filename);
-      if(exts && exts.indexOf(ext) === -1) return;
+      if(item.exts && item.exts.indexOf(ext) === -1) return;
       fs.readFile(dir+'/'+filename, function (err, content) {
         if(err) { return false;}
-        var relativePath = path.relative(offline, dir);
+        var relativePath = path.relative(item.offline, dir);
         relativePath = relativePath.replace(/\\/g, '/');
-        var servfile  = online +'/'+relativePath+'/'+filename;
+        var servfile  = item.online +'/'+relativePath+'/'+filename;
         var start =  new Date().getTime();
 
         try{
@@ -54,8 +54,8 @@ var fileWatcher = (function() {
 
 
 
-  function watchDir(root, offline, online, exts) {
-    listenToChange(root, offline, online, exts);
+  function watchDir(root, item) {
+    listenToChange(root, item);
     fs.lstat(root, function (err, stats) {
       if (stats.isDirectory()) {
         fs.readdir(root, function (err, files) {
@@ -66,7 +66,7 @@ var fileWatcher = (function() {
             fs.lstat(file, function (err, stats) {
               if (err) return;
               if (stats.isDirectory()) {
-                watchDir(file, offline, online, exts, exts);
+                watchDir(file, item);
               }
             });
           });
@@ -91,13 +91,24 @@ var fileWatcher = (function() {
       }
     }
 
+    if(argv.d == null) {
+      console.log("error: 请输入config配置中path配置项目");
+      return ;
+    }
     if(argv.d != '') {
       var pwd = process.cwd();
       console.dir(pwd);
-      if(argv.d in config.path ) {
+      if(config.path.hasOwnProperty(argv.d) ) {
         item = config.path[argv.d];
         item.offline = pwd;
-        watchDir(item.offline, item.offline, item.online, item.exts);
+        if(!item.host) {
+          item.host = config.server.host;
+        }
+        if(!item.port) {
+          item.host = config.server.port;
+        }
+
+        watchDir(item.offline, item);
       } else {
         console.log("error:"+argv.d+"配置不存在");
       }
@@ -105,7 +116,13 @@ var fileWatcher = (function() {
     }else {
       config.local.forEach(function (item) {
         if (item.auto) {
-          watchDir(item.offline, item.offline, item.online, item.exts);
+          if(!item.host) {
+            item.host = config.server.host;
+          }
+          if(!item.port) {
+            item.host = config.server.port;
+          }
+          watchDir(item.offline, item);
         }
       });
     }
