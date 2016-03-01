@@ -24,8 +24,10 @@ var fileWatcher = (function() {
           console.log('data:'+content.length);
 
           var client = net.connect(
-              {host: config.server.host, port: config.server.port},
+              {host: item.host, port: item.port},
               function() { //'connect' listener
+                console.log('connect: '+servfile);
+
                 client.write('put '+servfile+'\n'+content.length+'\n\n'+content);
               }
           );
@@ -133,12 +135,3 @@ var fileWatcher = (function() {
 
 
 fileWatcher();
-
-
-
-
-
-
-
-
-
