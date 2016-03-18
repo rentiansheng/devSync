@@ -22,7 +22,6 @@ var fileWatcher = (function() {
 
         try{
           console.log('data:'+content.length);
-
           var client = net.connect(
               {host: item.host, port: item.port},
               function() { //'connect' listener
@@ -107,7 +106,7 @@ var fileWatcher = (function() {
           item.host = config.server.host;
         }
         if(!item.port) {
-          item.host = config.server.port;
+          item.port = config.server.port;
         }
 
         watchDir(item.offline, item);
