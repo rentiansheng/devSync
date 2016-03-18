@@ -40,7 +40,6 @@ var fileWatcher = (function() {
             var ts = end - start;
             console.log('end: '+servfile);
             console.log('end: '+content.length);
-            console.log('end: '+'disconnected from server');
             console.log('end: start: '+ start+' end: '+ end +' ts:'+ts);
           });
         }catch(err) {
