@@ -58,6 +58,7 @@ Client 需要配置 config.json，config.json 是个数组，其中包含server�
  
  	cd 代码目录
  	node  /client目录/watch.js -d audit //audit 表示使用path的那个配置
+ 	node  /client目录/watch.js all -d audit //audit 表示使用path的那个配置,all表示将本地所有文件同步到服务器
  	
 
 
