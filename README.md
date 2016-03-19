@@ -11,6 +11,8 @@ the local machine and develop machine synchronization code
 ---
  **依赖nodejs。建议装比较搞的版本，避免监控文件过多，出现错误**
  
+ **新加启动参数 all 表示同步所有文件**
+ 
 #### client 配置
 
 Client 需要配置 config.json，config.json 是个数组，其中包含server，local，path等配置
