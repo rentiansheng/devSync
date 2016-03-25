@@ -18,7 +18,7 @@
         {
             "online":  "/home/users/rentiansheng_iwm/dev1/bb",
             "exts": [".php",".log",".js"],
-            "host": "cp01-rdqa04-dev148.cp01.baidu.com",
+            "host": "xxxx.com",
             "port": "8484"
         },
         "goods":
@@ -28,7 +28,7 @@
         }
     },
     "server": {
-        "host": "cp01-rdqa04-dev148.cp01.baidu.com",
+        "host": "xxxxx.com",
         "port": "8484"
     }
 }
