@@ -53,10 +53,22 @@ var fileWatcher = (function() {
     });
   }
 
+
+
+
   function listenToChange(dir, item) {
     dir = path.resolve(dir);
     function onChg (event, filename) {
-      sendFile(dir, filename, item,1);
+      fs.lstat(dir+'/'+filename, function(err, stats) {
+        if(err) {return ;}
+        if(stats.isDirectory()) {
+          item.online = item.online +'/'+filename;
+          listenToChange(dir+'/'+filename, item);
+        } else if(stats.isFile()) {
+          sendFile(dir, filename, item,1);
+        }
+
+      });
     }
 
     fs.watch(dir, onChg);
