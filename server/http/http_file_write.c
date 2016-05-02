@@ -71,6 +71,7 @@ int  open_write_file(http_connect_t *con)
 
     ptr = (char *) palloc(p, sizeof(char)*2048);
     fp = fopen(uri->ptr, "w");
+    make_fd_non_blocking(fileno(fp));
     con->write_file.fp = fp;
     con->write_file.len = 0;
 
@@ -96,6 +97,9 @@ int  write_file_content(http_connect_t * con)
             return con->next_handle(con);
         }
         con->write_file.len += count;
+    }
+    if(count == 0) {
+       return 1;
     }
     if(in->content_length <= con->write_file.len) {
          fclose(con->write_file.fp);

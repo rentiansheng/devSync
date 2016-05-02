@@ -247,11 +247,19 @@ int start_accept(http_conf *g)
                             //epoll_del_fd(g->epfd, evfd);
 						}
 						while(con->next_handle != NULL) {
-                            if(con->next_handle(con) == -1) {
+							int ret = con->next_handle(con);
+							if(ret == -1) {
+								epoll_del_fd(g->epfd, evfd);
+								close(con->fd);
+								pool_destroy(con->p);
+							}else if(ret == 1) {
+								break;
+							}
+                            /*if(con->next_handle(con) == -1) {
                             	epoll_del_fd(g->epfd, evfd);
                                 close(con->fd);
                                 pool_destroy(con->p);
-                            }
+                            }*/
 						}
 	 					break;
 					case CGIFD: {

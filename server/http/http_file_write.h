@@ -13,6 +13,8 @@
 #include "base.h"
 #include "http_request.h"
 #include "http_send_page.h"
+#include "http_mod_connect.h"
+
 
 
 int  _mkdir(char *root, pool_t *p);
