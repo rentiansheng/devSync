@@ -25,7 +25,7 @@ socket_listen(char *ip, unsigned short int port)
 	return res_socket;
 }
 
-static int
+int
 make_fd_non_blocking(int sfd) 
 {
 	int flags, s;
