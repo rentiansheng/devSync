@@ -126,17 +126,22 @@ var fileWatcher = (function() {
     var syncItem = allfile.pop();
     if( syncItem !== undefined && syncItem && sendFileNo < filecount ) {
 
-      sendFileSync(syncItem.dir, syncItem.name, syncItem.item, rootItem);
+      sendFileSync(syncItem.dir, syncItem.name, syncItem.item, rootItem, 0);
       syncItem = undefined;
-      console.log("send "+(++sendFileNo)+"/"+filecount);
+      //console.log("send "+(++sendFileNo)+"/"+filecount);
     } else{
-      //watchDir(rootItem.offline, rootItem);
+      console.log("==============================================");
+      console.log("sync all file end");
+      console.log("==============================================");
+      console.log("start watch file change");
+
+      watchDir(rootItem.offline, rootItem);
     }
 
     return ;
   }
 
-  function sendFileSync(dir, filename, item, rootItem) {
+  function sendFileSync(dir, filename, item, rootItem, retry) {
     if(filename && filename[0] == '.') {syncAllFile(rootItem); return ;};
     var ext = path.extname(filename);
     if(item.exts && item.exts.indexOf(ext) === -1) {syncAllFile(rootItem); return};
@@ -154,6 +159,15 @@ var fileWatcher = (function() {
             syncAllFile(rootItem);
           }
       );
+
+      client.on('error', function() {
+        if(retry < 3) {
+          sendFileSync (dir, filename, item, rootItem, retry+1);
+        } else {
+          syncAllFile(rootItem);
+          console.log('error:'+servfile);
+        }
+      });
 
       client.on('data', function(data) {
         client.end();
@@ -232,14 +246,13 @@ var fileWatcher = (function() {
         item.devSyncAll = argv.devSyncAll;
 
         if(argv.devSyncAll) {
-          console.log("\n get sync file start\n");
+          console.log("get sync file start");
           getSyncFILE(item.offline, item);
-          console.log("\n get sync file end\n");
+          console.log("get sync file end");
 
-          console.log("\nsync all file start\n");
+          console.log("sync all file star");
 
           syncAllFile(item);
-          //console.log("\nsync all file end\n");
         } else {
           watchDir(item.offline, item);
         }
