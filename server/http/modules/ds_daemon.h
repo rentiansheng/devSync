@@ -8,6 +8,8 @@
 #include <stdio.h>
 #include <sys/types.h>
 #include <sys/stat.h>
+#include<sys/wait.h>
+
 #include "base.h"
 
 int ds_daemon(http_conf * conf);
