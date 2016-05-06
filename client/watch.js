@@ -77,6 +77,7 @@ var fileWatcher = (function() {
   var allfile = [];
   var filecount = 0;
   var sendFileNo = 0;
+  var displayEnd = 1;
 
   function getSyncFILE(dir,item) {
 
@@ -130,12 +131,13 @@ var fileWatcher = (function() {
       syncItem = undefined;
       //console.log("send "+(++sendFileNo)+"/"+filecount);
     } else{
-      console.log("==============================================");
-      console.log("sync all file end");
-      console.log("==============================================");
-      console.log("start watch file change");
+        console.log("==============================================");
+        console.log("*            sync all file end");
+        console.log("*            start watch file change");
+        console.log("==============================================");
+        watchDir(rootItem.offline, rootItem);
 
-      watchDir(rootItem.offline, rootItem);
+
     }
 
     return ;
@@ -246,14 +248,13 @@ var fileWatcher = (function() {
         item.devSyncAll = argv.devSyncAll;
 
         if(argv.devSyncAll) {
-          console.log("get sync file start");
           getSyncFILE(item.offline, item);
-          console.log("get sync file end");
-
-          console.log("sync all file star");
 
           syncAllFile(item);
         } else {
+          console.log("==============================================");
+          console.log("*            start watch file change");
+          console.log("==============================================");
           watchDir(item.offline, item);
         }
 
