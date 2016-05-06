@@ -131,11 +131,15 @@ var fileWatcher = (function() {
       syncItem = undefined;
       //console.log("send "+(++sendFileNo)+"/"+filecount);
     } else{
-        console.log("==============================================");
-        console.log("*            sync all file end");
-        console.log("*            start watch file change");
-        console.log("==============================================");
-        watchDir(rootItem.offline, rootItem);
+        if(displayEnd ) {
+          console.log("==============================================");
+          console.log("*            sync all file end");
+          console.log("*            start watch file change");
+          console.log("==============================================");
+          displayEnd = 0;
+          watchDir(rootItem.offline, rootItem);
+        }
+
 
 
     }
