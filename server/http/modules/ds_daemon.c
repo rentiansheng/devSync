@@ -18,6 +18,29 @@ int ds_daemon(http_conf * conf)
             exit(0);
         break;
     }
+    switch(fork()) {
+            case -1:
+                printf("fork failed!" DS_LINEEND);
+            break;
+            case 0:
+            break;
+            default:
+                exit(0);
+            break;
+    }
+
+    while(true) {
+        switch(fork()) {
+            case -1:
+                printf("fork failed!" DS_LINEEND);
+            break;
+            case 0:
+            break;
+            default:
+               wait(&NUll);
+            break;
+        }
+    }
 
     ds_pid = getpid();
     if(setsid() == -1) {  //setsid创建一个新会话

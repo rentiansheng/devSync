@@ -16,9 +16,11 @@ int ds_get_options(int argc, char *argv[]);
 int main(int argc, char *argv[])
 {
 	struct http_conf conf;
+	int isMasterProcess = 1;
 	conf.web = NULL;
 	conf.web_count = 0;
 	conf.mimetype = NULL;
+
 
 	ds_get_options(argc, argv);
 
@@ -45,8 +47,13 @@ int main(int argc, char *argv[])
 
 	start_accept(&conf);
 
+
+
+
 	return 0;
 }
+
+
 
 int ds_get_options(int argc, char *argv[])
 {
