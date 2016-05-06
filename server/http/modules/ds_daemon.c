@@ -18,27 +18,15 @@ int ds_daemon(http_conf * conf)
             exit(0);
         break;
     }
-    switch(fork()) {
-            case -1:
-                printf("fork failed!" DS_LINEEND);
-            break;
-            case 0:
-            break;
-            default:
-                exit(0);
-            break;
-    }
 
-    while(true) {
-        switch(fork()) {
-            case -1:
-                printf("fork failed!" DS_LINEEND);
+
+    while(1) {
+        int forkPid = fork();
+
+        if(forkPid == 0) {
             break;
-            case 0:
-            break;
-            default:
-               wait(&NUll);
-            break;
+        } else {
+            waitpid(-1, NULL, 0);
         }
     }
 
