@@ -251,8 +251,7 @@ var fileWatcher = (function() {
           item.port = config.server.port;
         }
         item.devSyncAll = argv.devSyncAll;
-
-		item.online = item.online.replace(/\\/g, '/');
+        item.online = item.online.replace(/\\/g, '/');
         if(argv.devSyncAll) {
           getSyncFILE(item.offline, item);
 
@@ -278,7 +277,7 @@ var fileWatcher = (function() {
             item.host = config.server.port;
           }
           item.devSyncAll = argv.devSyncAll;
-		  item.online = item.online.replace(/\\/g, '/');
+          item.online = item.online.replace(/\\/g, '/');
           watchDir(item.offline, item);
         }
       });
