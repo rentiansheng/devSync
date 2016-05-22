@@ -10,7 +10,6 @@ var net = require('net');
 var fileWatcher = (function() {
 
   function sendFile(dir, filename, item, display ) {
-
     if(filename && filename[0] == '.') return;
     var ext = path.extname(filename);
     if(item.exts && item.exts.indexOf(ext) === -1) return;
@@ -18,8 +17,8 @@ var fileWatcher = (function() {
       if(err) { return false;}
       var relativePath = path.relative(item.offline, dir);
       relativePath = relativePath.replace(/\\/g, '/');
-      var servfile  = item.online +'/'+relativePath+'/'+filename;
-      var start =  new Date().getTime();
+      var servfile  = item.online +'/'+relativePath+'/'+filename; 
+      var start =  new Date().getTime(); 
 
       try{
         if(display == 1) {
@@ -226,7 +225,7 @@ var fileWatcher = (function() {
         argv.d = options[++i];
       }else if(options[i] == 'all') {
         argv.devSyncAll = true;
-      }
+      } 
     }
 
 
@@ -239,6 +238,8 @@ var fileWatcher = (function() {
 
     if(argv.d != '') {
       var pwd = process.cwd();
+      pwd  =  pwd.replace(/\\/g, '/'); 
+
       console.dir(pwd);
       if(config.path.hasOwnProperty(argv.d) ) {
         item = config.path[argv.d];
@@ -251,6 +252,7 @@ var fileWatcher = (function() {
         }
         item.devSyncAll = argv.devSyncAll;
 
+		item.online = item.online.replace(/\\/g, '/');
         if(argv.devSyncAll) {
           getSyncFILE(item.offline, item);
 
@@ -276,6 +278,7 @@ var fileWatcher = (function() {
             item.host = config.server.port;
           }
           item.devSyncAll = argv.devSyncAll;
+		  item.online = item.online.replace(/\\/g, '/');
           watchDir(item.offline, item);
         }
       });
