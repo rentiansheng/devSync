@@ -1,6 +1,11 @@
 #include "ds_log.h"
 
 
+char * getTime(char * format) {
+
+}
+
+
 int ds_log(http_conf * conf, char * str, int level) {
     switch(level) {
         case 1:

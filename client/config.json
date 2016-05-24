@@ -17,9 +17,9 @@
         "audit":
         {
             "online":  "/home/users/rentiansheng_iwm/dev1/bb",
-            "exts": [".php",".log",".js"],
-            "host": "xxxx.com",
-            "port": "8484"
+            "exts": [".c",".log",".js",".php"],
+            "host": "10.99.19.37",
+            "port": "8485"
         },
         "goods":
         {
@@ -28,7 +28,7 @@
         }
     },
     "server": {
-        "host": "xxxxx.com",
+        "host": "192.168.31.100",
         "port": "8484"
     }
 }

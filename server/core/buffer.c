@@ -20,6 +20,17 @@ read_buffer_init(pool_t *p)
 	return rb;
 }
 
+read_buffer * read_buffer_create_str(pool_t *p, char *b, size_t len) {
+	read_buffer *rb;
+
+	rb =(read_buffer *) palloc(p, sizeof(read_buffer));
+
+	rb->ptr = (void *)palloc(p, sizeof(char)*len);
+	rb->size = len;
+	strncpy(rb->ptr, b, len);
+
+	return rb;
+}
 
 read_buffer * 
 read_buffer_init_str(pool_t *p, char *b, size_t len)

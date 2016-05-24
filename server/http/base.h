@@ -7,6 +7,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <time.h>
+#include <arpa/inet.h>
 #include "buffer.h"
 #include "pool.h"
 #include "http_mod_connect.h"
@@ -123,7 +125,7 @@ typedef struct request{
 	read_buffer * uri;
 	read_buffer * host;
 	read_buffer *args;
-
+	read_buffer *clientIp;
 	
 	read_buffer * authorization;
 	read_buffer * user;

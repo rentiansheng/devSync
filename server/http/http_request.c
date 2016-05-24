@@ -170,8 +170,8 @@ static void parse_header(http_connect_t * con)
 int accept_handler(http_connect_t *con)
 {
 
- 	con->in = (request *)request_init(con->p);
- 	con->out = (response *)request_init(con->p);
+ 	//con->in = (request *)request_init(con->p);
+ 	//con->out = (response *)response_init(con->p);
 
 
 	read_header(con);
@@ -194,6 +194,9 @@ int start_accept(http_conf *g)
 	struct epoll_event ev[MAX_EVENT];
 	struct epoll_event *evfd ;
 	epoll_extra_data_t *epoll_data;
+	struct sockaddr addr;
+	struct sockaddr_in addrIn;
+	socklen_t addLen = sizeof(struct sockaddr );
 
 
 	start_web_server(g);
@@ -202,15 +205,27 @@ int start_accept(http_conf *g)
 	while(1){
 		count = epoll_wait(g->epfd, ev, MAX_EVENT, -1);
 		evfd = ev;
-		while( (confd =  accept(g->fd, NULL, NULL)) && confd > 0) {
+		while( (confd =  accept(g->fd, &addr, &addLen)) && confd > 0) {
 			pool_t *p = (pool_t *)pool_create();
 			http_connect_t * con;
 			epoll_extra_data_t *data_ptr;
 
+			addrIn =  *((struct sockaddr_in *) &addr);
 			data_ptr = (epoll_extra_data_t *)palloc(p, sizeof(epoll_extra_data_t));
 			con = (http_connect_t *) palloc(p, sizeof(http_connect_t));//换成初始化函数，
 			con->p= p;
 			con->fd = confd;
+			con->in = (request *)request_init(p);
+			con->out = (response *)response_init(p);
+			char *ip  = NULL;
+			if(addrIn.sin_addr.s_addr) {
+				ip = inet_ntoa(addrIn.sin_addr);
+			}
+
+			if(ip) {
+				con->in->clientIp = (read_buffer *) read_buffer_init_str(p, ip, strlen(ip));
+			}
+
 			con->next_handle = accept_handler;
 			data_ptr->type = SOCKFD;
 			data_ptr->ptr = (void *) con;
