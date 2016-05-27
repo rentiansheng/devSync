@@ -30,7 +30,6 @@ int ds_daemon(http_conf * conf)
         exit(0);
     }
     ds_init(conf);
-    return;
 
     uid = getuid();
     switch(fork()) {
