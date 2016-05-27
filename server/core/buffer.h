@@ -95,5 +95,9 @@ int buffer_caseless_compare_len(buffer *a, buffer *b);
 
 int buffer_path_simplify(buffer *dest, const buffer *src);
 
+void buffer_append_str(buffer *b, char *str, int len, pool_t *p);
+
+void buffer_append_n_str(buffer *b, char *str, int len, pool_t *p);
+
 
 #endif

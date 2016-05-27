@@ -29,6 +29,8 @@ int ds_daemon(http_conf * conf)
         printf("dup2(STDOUT) failed" DS_LINEEND);
         exit(0);
     }
+    ds_init(conf);
+    return;
 
     uid = getuid();
     switch(fork()) {

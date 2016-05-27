@@ -10,14 +10,17 @@
 #include <sys/stat.h>
 #include "base.h"
 
-#define  LOG_STR_MAX_LEN (255)
+#define  LOG_STR_LEN (1024)
+#define  LOG_LEVEL_DEFAULT 1
+#define  LOG_LEVEL_ERROR 16
+
+
 
 int logFileId;
 int logFileErrorId;
-char logStr[LOG_STR_MAX_LEN];
 
-int ds_log(http_conf * conf, char * str, int level);
+int ds_log(http_connect_t * con, char * str, int level);
 int ds_log_error(http_conf * conf, char * str);
-int ds_init(http_conf * conf);
+int ds_init(http_conf * con);
 
 #endif

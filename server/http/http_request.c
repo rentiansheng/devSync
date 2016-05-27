@@ -176,9 +176,10 @@ int accept_handler(http_connect_t *con)
 
 	read_header(con);
 	parse_header(con);
+	ds_log(con, "  [ACCEPT] ", LOG_LEVEL_DEFAULT);
 	if(con->in->http_method == _PUT) {
-		open_write_file(con);
-		con->next_handle = write_file_content;
+		//open_write_file(con);
+		con->next_handle = open_write_file;
 	} else {
 		con->next_handle = NULL;
 	}
@@ -233,23 +234,7 @@ int start_accept(http_conf *g)
 			//data struct ,  connect  data struct , file data struct ,
 		}
 		while((evfd->events & EPOLLIN)){
-			/*if(epoll_data->type  == SERVERFD) {
-				int confd =  accept(g->fd, NULL, NULL);
-				pool_t *p = (pool_t *)pool_create();
-				http_connect_t * con;
-				epoll_extra_data_t *data_ptr;
-
-				data_ptr = (epoll_extra_data_t *)palloc(p, sizeof(epoll_extra_data_t));
-				con = (http_connect_t *) palloc(p, sizeof(http_connect_t));//换成初始化函数，
-				con->p= p;
-				con->fd = confd;
-				con->next_handle = accept_handler;
-				data_ptr->type = SOCKFD;
-				data_ptr->ptr = (void *) con;
-				epoll_add_fd(g->epfd, confd, EPOLL_R, (void *)data_ptr);//对epoll data结构指向的结构体重新封装，分websit
-	 			//data struct ,  connect  data struct , file data struct ,
-			}
-			else*/if((evfd->events & EPOLLIN)) {
+			if((evfd->events & EPOLLIN)) {
 				http_connect_t * con;
 				epoll_data = (epoll_data_t *)evfd->data.ptr;
 
@@ -264,8 +249,10 @@ int start_accept(http_conf *g)
 						while(con->next_handle != NULL) {
 							int ret = con->next_handle(con);
 							if(ret == -1) {
+								con->next_handle = NULL;
 								epoll_del_fd(g->epfd, evfd);
 								close(con->fd);
+								ds_log(con, "  [END] ", LOG_LEVEL_DEFAULT);
 								pool_destroy(con->p);
 							}else if(ret == 1) {
 								break;

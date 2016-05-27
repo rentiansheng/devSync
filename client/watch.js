@@ -32,7 +32,7 @@ var fileWatcher = (function() {
         );
 
         client.on('data', function(data) {
-          client.end();
+          console.log(data.toString());
         });
         client.on('end', function() {
           client.end();
@@ -44,6 +44,9 @@ var fileWatcher = (function() {
             console.log('end: start: '+ start+' end: '+ end +' ts:'+ts);
           }
 
+        });
+        client.on('error', function(err){
+            //console.log(err);
         });
       }catch(err) {
         console.log(err);

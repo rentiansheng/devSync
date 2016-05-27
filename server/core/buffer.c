@@ -172,6 +172,22 @@ buffer_append_char(buffer *b, char c, pool_t *p)
 
 }
 
+void
+buffer_append_str(buffer *b, char *str, int len, pool_t *p)
+{
+	buffer_prepare_int(p, b, b->used+len);
+	memcpy(b->ptr + b->used, str, len);
+	b->used += len;
+}
+
+void
+buffer_append_n_str(buffer *b, char *str, int len, pool_t *p)
+{
+	buffer_prepare_int(p, b, b->used+len);
+	strncat(b->ptr, str, len);
+	b->used += len;
+}
+
 int  
 buffer_get_word_with_split(buffer *src, read_buffer *dst, char split)
 {
@@ -333,11 +349,11 @@ buffer_prepare_int(pool_t *p, buffer * b, size_t size)
 	if((0 == b->size) ||
 		(size > b->size))
 	{
-		if(b->size) free(b->ptr);
+		char *preValue = b->ptr;
+		b->ptr = (char *)palloc(p, size);
+		memcpy(b->ptr, preValue, b->size);
 		b->size = size;
-		b->ptr = (char *)palloc(p, b->size);
 	}
-	b->used = 0;
 
 	return 0;
 }

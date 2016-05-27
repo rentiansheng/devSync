@@ -2,7 +2,7 @@
 
 
 
-int _mkdir(char *root, pool_t *p)
+int _mkdir(http_connect_t * con, char *root, pool_t *p)
 {
     int len = strlen(root);
     char * dir = (char *) palloc(p, len+1);
@@ -21,7 +21,7 @@ int _mkdir(char *root, pool_t *p)
     }
 
     if(stat(root, &buf) != 0 ) {
-        _mkdir(dir, p);
+        int ret  = _mkdir(con, dir, p);
     } else {
         return 0;
     }
@@ -66,14 +66,28 @@ int  open_write_file(http_connect_t *con)
 
     uri->ptr[uri->used] = '\0';
     if(dir->used) {
-        _mkdir(dir->ptr, p);
+        int ret  = _mkdir(con, dir->ptr, p);
+        if(ret == -1) {
+            return 0;
+        }
     }
 
     ptr = (char *) palloc(p, sizeof(char)*2048);
     fp = fopen(uri->ptr, "w");
-    make_fd_non_blocking(fileno(fp));
-    con->write_file.fp = fp;
-    con->write_file.len = 0;
+
+    if(fp) {
+        make_fd_non_blocking(fileno(fp));
+        con->write_file.fp = fp;
+        con->write_file.len = 0;
+        con->next_handle = write_file_content;
+    } else {
+        int logStrLen = strlen(dir) + 30;
+        char * logStr = (char *) palloc(p, logStrLen);
+        snprintf(logStr, logStrLen, "[access %s Permission denied]", dir );
+        ds_log(con, logStr, LOG_LEVEL_ERROR);
+        con->next_handle = send_put_forbidden_result;
+    }
+
 
     return 0;
 }

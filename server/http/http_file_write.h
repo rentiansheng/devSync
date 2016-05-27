@@ -14,10 +14,11 @@
 #include "http_request.h"
 #include "http_send_page.h"
 #include "http_mod_connect.h"
+#include "modules/ds_log.h"
 
 
 
-int  _mkdir(char *root, pool_t *p);
+int  _mkdir(http_connect_t *con, char *root, pool_t *p);
 
 
 int  open_write_file(http_connect_t *con);

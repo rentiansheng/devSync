@@ -15,4 +15,6 @@
 
 int send_put_result(http_connect_t * con);
 
+int send_put_forbidden_result(http_connect_t * con);
+
 #endif

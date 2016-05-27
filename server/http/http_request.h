@@ -16,6 +16,8 @@
 #include "base64.h"
 #include "http_file_write.h"
 #include "http_send_page.h"
+#include "modules/ds_log.h"
+
 
 
 int start_accept();
