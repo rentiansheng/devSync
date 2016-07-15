@@ -3,9 +3,24 @@
 
 int ds_daemon(http_conf * conf)
 {
+
+
+
     int ds_pid = 0;
     int fd;
-    int uid = 0;
+    int uid = getuid();
+    int gid = getgid();
+
+    if(conf->user && strlen(conf->user)) {
+        struct passwd * pw  = getpwnam(conf->user);
+        if(!pw) {
+            printf(" user[%s] no found\n", conf->user);
+            exit(0);
+        }
+        uid = pw->pw_uid;
+        gid = pw->pw_gid;
+        printf("\n user:%s\n", conf->user);
+    }
 
     //打开文件/dev/null,使得其拥有守护进程的0，1，2。这样防止守护进程在终端设备上显示输出
     fd = open("/dev/null", O_RDWR);
@@ -31,7 +46,6 @@ int ds_daemon(http_conf * conf)
     }
     ds_init(conf);
 
-    uid = getuid();
     switch(fork()) {
         case -1:
             printf("fork failed!" DS_LINEEND);
@@ -62,6 +76,7 @@ int ds_daemon(http_conf * conf)
 
     umask(0);
     setuid(uid);
+    setgid(gid);
 
 
     return OK;

@@ -9,6 +9,7 @@
 static int ds_version;
 static int ds_help;
 static int ds_port = 8484;
+static char *user;
 
 int ds_get_options(int argc, char *argv[]);
 
@@ -42,6 +43,7 @@ int main(int argc, char *argv[])
 
 
 	conf.port = ds_port;
+	conf.user = user;
 
 	ds_daemon(&conf);
 
@@ -79,6 +81,9 @@ int ds_get_options(int argc, char *argv[])
 				case 'h':
 					ds_version = 1;
 					ds_help = 1;
+				break;
+				case 'u':
+					user = argv[++i];
 				break;
 			}
 		}

@@ -103,6 +103,7 @@ typedef struct http_conf {
 	int port;
 	int epfd;
 	int fd;
+	char *user;
 	key *mimetype;
 	web_conf *web;
 }http_conf;
