@@ -71,8 +71,9 @@ Client 需要配置 config.json，config.json 是个数组，其中包含server�
 
  主要要根据自己的情况修改 server/http/reagehttp.c文件中第11行，conf.port来确定端口。
 
- 也可以通过运行函数的时候使用参数自定端口号  -p port   (2015-11-04)
+ 也可以通过运行函数的时候使用参数自定端口号  -p port   (2015-11-04):Eg: obj/devSync -p 8485
 
+ 新加使-u参数，置顶运行的帐户，使用-u参数一定要root或者sudo执行的(2016-7-15)。Eg: obj/devSync -u www
 
 
  缺少日志
