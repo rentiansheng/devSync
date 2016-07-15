@@ -33,6 +33,7 @@ int main(int argc, char *argv[])
 		printf("devSync version: "_Version DS_LINEEND);
 		printf("Usage: devsync [-vh]" DS_LINEEND
 				"[-p port]" DS_LINEEND
+				"[-u user]" DS_LINEEND
 				"Options:" DS_LINEEND
 				"   -v            : show version and exit" DS_LINEEND
 				"   -h            : this help" DS_LINEEND
@@ -79,7 +80,6 @@ int ds_get_options(int argc, char *argv[])
 					ds_version = 1;
 				break;
 				case 'h':
-					ds_version = 1;
 					ds_help = 1;
 				break;
 				case 'u':
