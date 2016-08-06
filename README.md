@@ -6,6 +6,15 @@ the local machine and develop machine synchronization code
 #本地代码同步到开发机
 ---
 
+**target：write code，view result**
+
+优点：
+
+	1. 不依赖网络，断网开发不受影响，只是无法上传代码到服务器
+
+	2. 所有文件存在本地，操作流程。
+
+	3. 多个项目分离，不受影响
 
 
 ####准备工作
@@ -206,7 +215,9 @@ Client 需要配置 config.json，config.json 是个数组，其中包含server�
   **文件目录较多时候，容易出现问题，请设置可以打开的文件个数 ulimit -n 1024**
 
   **同步工具并不会删除服务端的文件**
+
   **服务端当目录不存在的时候会新建目录**
+
   **当client端中文件修改保存的时候，client端会将整个文件的内容发送server端，server将重新写入整个文件**
 
  
