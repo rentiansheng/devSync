@@ -5,15 +5,100 @@ the local machine and develop machine synchronization code
 
 #本地代码同步到开发机
 ---
-有两部分组成 Client和Server；
 
-### Client放在本地有nodejs开发
+
+
+####准备工作
+---
+
+
+整个工具有两部分组成 Client和Server；
+	
+	client 客户端放在个人电脑上，也就是装有IDE的机器上
+	server 服务端放在开发机器，也就是公司提供的开发机器上，通俗饿说就是装nginx的机器上
+
+
+ 
+
+
+#### 安装
+---
+
+$pwd 代表当前路径
+
+
+1. client 
+	
+	安装nodejs
+	
+2. server
+
+	需要是Linux2.4以上的版本，需要支持epoll
+	安装gcc，makefile
+	
+3. 下载devSync代码到client和server的服务器
+
+	 	git clone https://github.com/rentiansheng/devSync.git devSync
+ 		cd devSync
+ 		
+4. 安装服务端
+	
+		cd $pwd/devSync/server/
+ 		make
+ 		
+ 		启动服务端
+ 		$pwd/devSync/server/obj/devSync
+		
+	
+
+ 	
+     
+   
+5. 安装客户端
+ 	
+ 		
+ 		
+ 		cd $pwd/devSync/client/
+ 	
+ 		Linux 客户端安装
+ 		设置alias
+ 	
+ 		alias devSyncd = "node /Users/reage/devSync/client/watch.js -d"
+ 		alias devSync = "node /Users/reage/devSync/client/watch.js" 
+ 		
+ 		Windows 客户端安装
+ 		cd C:\Windows\System32\
+ 		新建devSyncd.bat,devSync.bat两个文件
+ 		
+ 		devSyncd.bat 输入
+ 		@echo off
+		node C:\Users\reage\devSync\client\watch.js -d %1 %2 %4 %5 %6 %7 
+		
+		devSync.bat 输入
+ 		@echo off
+		node C:\Users\reage\devSync\client\watch.js %1 %2 %4 %5 %6 %7 %8
+		
+ 	
+
+
+
+
+#### Client放在本地有nodejs开发
 ---
  **依赖nodejs。建议装比较搞的版本，避免监控文件过多，出现错误**
  
- **新加启动参数 all 表示同步所有文件**
+ **启动参数 all 表示同步所有文件**
+ **启动参数 -d 监控当前目录下（运行client的目录），当clietn的文件修改同步到server**
+ 
+ 
+ 
+ 		
+ 
+ 
+  
  
 #### client 配置
+---
 
 Client 需要配置 config.json，config.json 是个数组，其中包含server，local，path等配置
 
@@ -25,8 +110,9 @@ Client 需要配置 config.json，config.json 是个数组，其中包含server�
 
 
 #### 本地固定目录同步
+---
 
-**适用长期开发使用**
+**适用长期开发使用, 只要启动client端就开始同步config.json文件中local配置项**
 
   通过local配置本地目录和服务器目录来同步数据的。
   
@@ -39,11 +125,18 @@ Client 需要配置 config.json，config.json 是个数组，其中包含server�
  
  
  
-	 **使用方法 直接 node watch.js  **
+	 **使用方法 直接 node $pwd/client/watch.js  **
+	 等同于
+	 Linux,Mac 使用
+	 	devSync 
+	 windows
+	 	在cmd中使用devSync.bat
+	 
+	 
  
  
 ####同步到服务器固定目录
-
+---
 
  将运行程序的目录数据改动同步到path配置的开发机的路径中
  
@@ -57,15 +150,36 @@ Client 需要配置 config.json，config.json 是个数组，其中包含server�
  使用方法
  
  	cd 代码目录
- 	node  /client目录/watch.js -d audit //audit 表示使用path的那个配置
- 	node  /client目录/watch.js all -d audit //audit 表示使用path的那个配置,all表示将本地所有文件同步到服务器
+ 	node  $pwd/client/watch.js -d audit  //audit 表示使用path的那个配置
+ 	node  $pwd/client/watch.js all -d audit //audit 表示使用path的那个配置,all表示将本地所有文件同步到服务器
+ 	
+ 	等同于
+ 	Linux,Mac 使用
+	 	devSync -d audit
+	 	devSyncd audit 
+	 	devSync -d audit all
+	 	devSyncd audit  all 
+	 windows
+	 	在cmd中使用
+	 	devSync.bat -d audit
+	 	devSyncd.bat audit
+	 	devSync.bat -d audit all
+	 	devSyncd.bat audit  all 
+
+ 	
  	
 
 
 
 ### Server放在开发机有C语言写
 ---
+
  **只能在支持epoll的系统使用**
+ 
+ **-p port 可选 默认使用8484端口，提供服务的端口，就是client端中config.json中配置的port的值**
+ 
+ **-u user 可选，默认使用当前运行程序的账户，设置启动server端后运行程序的用户。影响写入文件和对目录的权限，一定要root或者sudo执行服务端**
+
 
  用C语言编写，需要自己编译，进入到server目录下make就行了
 
@@ -73,7 +187,7 @@ Client 需要配置 config.json，config.json 是个数组，其中包含server�
 
  也可以通过运行函数的时候使用参数自定端口号  -p port   (2015-11-04):Eg: obj/devSync -p 8485
 
- 新加使-u参数，置顶运行的帐户，使用-u参数一定要root或者sudo执行的(2016-7-15)。Eg: obj/devSync -u www
+ 新加-u参数，指定运行的帐户，使用-u参数一定要root或者sudo执行服务端(2016-7-15)。Eg: obj/devSync -u www
 
 
  缺少日志
@@ -82,9 +196,12 @@ Client 需要配置 config.json，config.json 是个数组，其中包含server�
 
  	cd obj
  	./devSync
+ 	./devSync -p 8088 //使用8088端口
+ 	./devSync -u www //使用www用户运行程序
 
  
 ### 注意
+---
  
   **文件目录较多时候，容易出现问题，请设置可以打开的文件个数 ulimit -n 1024**
 
