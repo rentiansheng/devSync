@@ -16,7 +16,7 @@ the local machine and develop machine synchronization code
 
 	3. 多个项目分离，不受影响
 
-	4. 不会删除服务文件
+	4. 不会删除服务端文件
 
 
 ####准备工作
