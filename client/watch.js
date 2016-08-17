@@ -17,7 +17,8 @@ var fileWatcher = (function() {
       if(err) { return false;}
       var relativePath = path.relative(item.offline, dir);
       relativePath = relativePath.replace(/\\/g, '/');
-      var servfile  = item.online +'/'+relativePath+'/'+filename; 
+      var servfile  = item.online +'/'+relativePath+'/'+filename;
+
       var start =  new Date().getTime(); 
 
       try{
@@ -60,11 +61,11 @@ var fileWatcher = (function() {
   function listenToChange(dir, item) {
     dir = path.resolve(dir);
     function onChg (event, filename) {
+
       fs.lstat(dir+'/'+filename, function(err, stats) {
-        if(err) {return ;}
+        if(err) { return ;}
         if(stats.isDirectory()) {
-          item.online = item.online +'/'+filename;
-          listenToChange(dir+'/'+filename, item);
+          watchDir(dir+'/'+filename, item);
         } else if(stats.isFile()) {
           sendFile(dir, filename, item,1);
         }
