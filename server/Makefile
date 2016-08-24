@@ -11,24 +11,24 @@ OBJ=obj/devsync.o obj/config.o obj/config.o obj/base64.o obj/buffer.o obj/pool.o
 
 
 obj/devSync:$(OBJ)
-       	echo $^
-       	gcc  $(CFLAGS) $@ $^
+	echo $^
+	gcc  $(CFLAGS) $@ $^
 
 
 $(DST)%.o:http/%.c
-       	echo $^
-       	gcc -c $(CFLAGS) $@ $^
+	echo $^
+	gcc -c $(CFLAGS) $@ $^
 
 $(DST)%.o:core/%.c
-       	echo $^
-       	gcc -c $(CFLAGS) $@ $^
+	echo $^
+	gcc -c $(CFLAGS) $@ $^
 
 $(DST)%.o:http/modules/%.c
-       	echo $^
-       	gcc -c $(CFLAGS) $@ $^
+	echo $^
+	gcc -c $(CFLAGS) $@ $^
 
 
 
 clean:
-       	rm -rf */*.o
-       	rm obj/devSync
+	rm -rf */*.o
+	rm obj/devSync
