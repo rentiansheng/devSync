@@ -1,6 +1,7 @@
 all:obj/devSync
 
 
+
 MYHEAD = -I core/ -I http/ -I http/modules
 CFLAGS = -g -W -Wall $(MYHEAD) -o
 
@@ -31,3 +32,19 @@ $(DST)%.o:http/modules/%.c
 clean:
 	rm -rf */*.o
 	rm obj/devSync
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
