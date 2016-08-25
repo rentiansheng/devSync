@@ -1,6 +1,6 @@
 /*
  *Copyright (c) Reage
- *blog:http:www.rhttp.cn
+ *blog:http:www.ireage.com
  */
 
 #include "base64.h"

@@ -1,4 +1,4 @@
 /*
  * Copyright (C) Reage
- * blog:http://www.rhttp.cn
+ * blog:http://www.ireage.com
  */

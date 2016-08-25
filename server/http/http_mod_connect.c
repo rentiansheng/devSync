@@ -1,3 +1,7 @@
+/*
+ * Copyright (C) Reage
+ * blog:http://www.ireage.com
+ */
 #include "http_mod_connect.h"
 #include <errno.h>
 #include <stdio.h>

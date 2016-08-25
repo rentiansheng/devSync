@@ -1,6 +1,6 @@
 /*
  * Copyright (C) Reage
- * blog:http://www.rhttp.cn
+ * blog:http://www.ireage.com
  */
 
 #ifndef _CORE_POOL_H_
