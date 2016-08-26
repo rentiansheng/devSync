@@ -1,6 +1,6 @@
 /*
  * Copyright (C) Reage
- * blog:http://www.rhttp.cn
+ * blog:http://www.ireage.com
  */
 #ifndef _HTTP_CONFIG_H_
 #define _HTTP_CONFIG_H_

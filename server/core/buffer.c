@@ -2,7 +2,7 @@
  * st: 127.0.0.1
  *
  * Copyright (C) Reage
- * blog:http://www.rhttp.cn
+ * blog:http://www.ireage.com
  */
 
 #include "buffer.h"

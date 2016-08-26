@@ -31,6 +31,7 @@ $(DST)%.o:http/modules/%.c
 
 clean:
 	rm -rf */*.o
+	rm obj/devSync
 
 
 

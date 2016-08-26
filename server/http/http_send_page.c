@@ -1,3 +1,7 @@
+/*
+ * Copyright (C) Reage
+ * blog:http://www.ireage.com
+ */
 #include "http_send_page.h"
 
 int send_put_result(http_connect_t * con)

@@ -1,7 +1,7 @@
 
 /*
  * Copyright (C) Reage
- * BLOG: http://www.rhttp.cn
+ * BLOG: http://www.ireage.com
  */
 
 
