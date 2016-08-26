@@ -1,38 +1,64 @@
-/*
- * Copyright (C) Reage
- * blog:http://www.ireage.com
- */
 {
     "local": [
         {
-            "offline": "/Users/baidu/wmcode/diffdev/goods/",
+            "offline": "/Users/reage/devSync",
             "online": "/home/users/rentiansheng/tmp/odp_goods/app/goods",
             "exts": [".php", ".js"],
             "auto":1
         },
         {
-            "offline": "/Users/baidu/wmcode/diffdev/goods1/",
+            "offline": "/Users/reage/devSync",
             "online": "/home/users/rentiansheng/tmp/odp_goods/app/goods1",
             "exts": [".php", ".js"],
             "auto":1
         }
     ],
     "path": {
-        "audit":
+        "lianjiaweb":
         {
-            "online":  "/home/users/rentiansheng_iwm/dev1/bb",
+            "online":  "/data0/www/lianjiabusweb/",
             "exts": [".php",".log",".js"],
-            "host": "xxxx.com",
+            "host": "10.33.106.196",
             "port": "8484"
         },
-        "goods":
+        "lianjiabus":
         {
-            "online": "/home/users/rentiansheng_iwm/dev1/aa",
-            "exts": [".php",".log",".js"]
+            "online":  "/data0/go/src/lianjiabus",
+            "exts": [".php",".log",".js", ".css", ".phtml", ".go"],
+            "host": "10.33.106.196",
+            "port": "8484"
+        },
+        "zookeeper":
+        {
+            "online":  "/data0/go/src/zookeeper",
+            "exts": [".php",".log",".js", ".css", ".phtml", ".go"],
+            "host": "10.33.106.196",
+            "port": "8484"
+        },
+        "lianjiabusweb":
+        {
+            "online":  "/data0/www/lianjiabusweb",
+            "exts": [".php",".log", ".css", ".js", ".phtml"],
+            "host": "10.33.106.196",
+            "port": "8484"
+        },
+        "devSync":
+        {
+            "online":  "/root/devSync",
+            "exts": [".c",".log",".h"],
+            "host": "10.33.106.196",
+            "port": "8484"
+        },
+        "leetcode":
+        {
+            "online":  "/root/code",
+            "exts": [".c",".log",".h"],
+            "host": "10.33.106.196",
+            "port": "8484"
         }
     },
     "server": {
-        "host": "xxxxx.com",
+        "host": "10.33.106.196",
         "port": "8484"
     }
 }
