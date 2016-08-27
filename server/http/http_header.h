@@ -1,12 +1,11 @@
-
 /*
  * Copyright (C) Reage
  * BLOG: http://www.ireage.com
  */
 
+ #ifndef _HTTP_HEADER_H
+ #define _HTTP_HEADER_H 
 
-#ifndef _HTTP_REQUEST_H_INCLUDED_
-#define _HTTP_REQUEST_H_INCLUDED_
 #include <stdio.h>
 #include <stdlib.h>
 #include <sys/epoll.h>
@@ -14,16 +13,20 @@
 #include "base.h"
 #include "http_mod_connect.h"
 #include "base64.h"
-#include "http_header.h"
 #include "http_file_write.h"
 #include "http_send_page.h"
 #include "modules/ds_log.h"
 
+static int read_http_header(buffer *header, pool_t *p, int fd);
+
+static char * skip_space(char *start, char *end);
+
+static char * find_line(char *start, char *end);
+
+void parse_header(http_connect_t * con);
+
+int read_header(http_connect_t *con);
 
 
-int start_accept();
 
-response * response_init(pool_t *p);
-request * request_init(pool_t *p);
-
-#endif
+ #endif

@@ -13,6 +13,7 @@
 static int ds_version;
 static int ds_help;
 static int ds_port = 8484;
+static int  t = 0;//0:daemon,1:children,2:single
 static char *user;
 
 int ds_get_options(int argc, char *argv[]);
@@ -21,7 +22,6 @@ int ds_get_options(int argc, char *argv[]);
 int main(int argc, char *argv[])
 {
 	struct http_conf conf;
-	int isMasterProcess = 1;
 	conf.web = NULL;
 	conf.web_count = 0;
 	conf.mimetype = NULL;
@@ -38,9 +38,16 @@ int main(int argc, char *argv[])
 		printf("Usage: devsync [-vh]" DS_LINEEND
 				"[-p port]" DS_LINEEND
 				"[-u user]" DS_LINEEND
+				"[-t type]" DS_LINEEND
+				DS_LINEEND
 				"Options:" DS_LINEEND
 				"   -v            : show version and exit" DS_LINEEND
 				"   -h            : this help" DS_LINEEND
+				DS_LINEEND
+				"Descrption:" DS_LINEEND
+				"-t : daemon, children, single"DS_LINEEND
+				"\t daemon: application daemon run, children: application run terminal, handle process is fork; single: run termianal"DS_LINEEND
+
 		);
 
 		return OK;
@@ -50,7 +57,7 @@ int main(int argc, char *argv[])
 	conf.port = ds_port;
 	conf.user = user;
 
-	ds_daemon(&conf);
+	ds_daemon(&conf, t);
 
 	start_accept(&conf);
 
@@ -88,6 +95,18 @@ int ds_get_options(int argc, char *argv[])
 				break;
 				case 'u':
 					user = argv[++i];
+					break;
+				case 't':
+					i++;
+					int slen = strlen(argv[i]);
+					if(strncmp("daemon", argv[i], slen) == 0) {
+						t = 0;
+					} else if(strncmp("children",argv[i], slen) == 0) {
+						t = 1;
+					}else if(strncmp("single",argv[i], slen) == 0){
+						t = 2;
+					} 
+
 				break;
 			}
 		}
