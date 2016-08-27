@@ -25,6 +25,7 @@
 #define WRITEFILE 4
 
 
+int socket_listen_test(char *ip, unsigned short int port);
 
 int socket_listen(char *ip, unsigned short int port);
 
