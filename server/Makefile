@@ -28,6 +28,9 @@ $(DST)%.o:http/modules/%.c
 	echo $^
 	gcc -c $(CFLAGS) $@ $^
 
+$(DST)%:linux/%.c
+	echo $^
+	gcc -c $(CFLAGS) $@ $^
 
 clean:
 	rm -rf */*.o
