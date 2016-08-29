@@ -17,7 +17,7 @@
   
         "devSync":
         {
-            "online":  "/root/devSync",
+            "online":  "/users/rentiansheng/devSync",
             "exts": [".c",".log",".h"],
             "host": "10.33.106.196",
             "port": "8484"
