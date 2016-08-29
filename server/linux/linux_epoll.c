@@ -11,7 +11,7 @@ int epoll_init(long max) {
 static struct epoll_event * epoll_init_r(int fd) {
 	struct epoll_event *ev;
 	
-	make_fd_non_blocking(fd);
+	make_fd_non_blocking(fd);  
 
 	ev = (struct epoll_event *)malloc(sizeof(struct epoll_event));
 	ev->data.fd = fd;

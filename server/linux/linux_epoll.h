@@ -26,7 +26,7 @@
 #define WRITEFILE 4
 
 
-int epoll_init(long max);
+int epoll_init(long max); 
 
 
 int  epoll_edit_fd(int epfd, struct epoll_event *ev, int wr);
