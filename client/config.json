@@ -14,51 +14,17 @@
         }
     ],
     "path": {
-        "lianjiaweb":
-        {
-            "online":  "/data0/www/lianjiabusweb/",
-            "exts": [".php",".log",".js"],
-            "host": "10.33.106.196",
-            "port": "8484"
-        },
-        "lianjiabus":
-        {
-            "online":  "/data0/go/src/lianjiabus",
-            "exts": [".php",".log",".js", ".css", ".phtml", ".go"],
-            "host": "10.33.106.196",
-            "port": "8484"
-        },
-        "zookeeper":
-        {
-            "online":  "/data0/go/src/zookeeper",
-            "exts": [".php",".log",".js", ".css", ".phtml", ".go"],
-            "host": "10.33.106.196",
-            "port": "8484"
-        },
-        "lianjiabusweb":
-        {
-            "online":  "/data0/www/lianjiabusweb",
-            "exts": [".php",".log", ".css", ".js", ".phtml"],
-            "host": "10.33.106.196",
-            "port": "8484"
-        },
+  
         "devSync":
         {
             "online":  "/root/devSync",
             "exts": [".c",".log",".h"],
             "host": "10.33.106.196",
             "port": "8484"
-        },
-        "leetcode":
-        {
-            "online":  "/root/code",
-            "exts": [".c",".log",".h"],
-            "host": "10.33.106.196",
-            "port": "8484"
         }
     },
     "server": {
-        "host": "10.33.106.196",
+        "host": "127.0.0.1",
         "port": "8484"
     }
 }
