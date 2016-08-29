@@ -65,4 +65,6 @@ int ds_init(http_conf * conf) {
     if(logFileErrorId == -1) {
         printf("open devSync error log failed\n");
     }
+
+    return 0;
 }

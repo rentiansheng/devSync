@@ -89,19 +89,22 @@ int ds_daemon(http_conf * conf, int t)
 
    if( t == 0 || t == 1) {
        ds_init_children(conf);
+
+       ds_pid = getpid();
+
+        if(setsid() == -1) {  //setsid创建一个新会话
+            printf("setsid() failed!" DS_LINEEND);
+            exit(0);
+        }
+        
+        umask(0);
+        setuid(uid);
+        setgid(gid);
+        ds_init(conf);
    }
  
 
-    ds_pid = getpid();
-    if(setsid() == -1) {  //setsid创建一个新会话
-        printf("setsid() failed!" DS_LINEEND);
-        exit(0);
-    }
-
-    umask(0);
-    setuid(uid);
-    setgid(gid);
-    ds_init(conf);
+    
 
 
     return OK;

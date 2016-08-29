@@ -77,8 +77,14 @@ int ds_get_options(int argc, char *argv[])
 	for(i = 1; i < argc; i++) {
 		p = (char *)argv[i];
 
+		if(strlen(p) != 2) {
+			printf("\ninvalid option: \"%s\"\n\n", argv[i]);
+			ds_help = 1;
+			return -1;
+		}
 		if(*p++ != '-') {
-			printf("invalid option: \"%s\"\n", argv[i]);
+			printf("\n invalid option: \"%s\"\n\n", argv[i]);
+			return -1;
 		}
 		while(*p) {
 			switch(*p++) {
