@@ -88,13 +88,12 @@ typedef struct fileinfo {
 	void *start;
 }fileinfo_t;
 
+
 typedef struct web_conf {
 	char *root;
-	char *index_file;
-	int index_count;
-	char *err404;
-	char *server;
-	int fd;
+	char *file;
+	char *command;
+	char *type;
 	struct web_conf *next;
 }web_conf;
 
