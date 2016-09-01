@@ -88,6 +88,15 @@ typedef struct fileinfo {
 	void *start;
 }fileinfo_t;
 
+typedef struct mananger_con {
+	struct mananger_con *left;
+	struct mananger_con *right;
+	void * val;
+	struct epoll_event *ev;
+	int type ;
+	int time;
+}mananger_con;
+
 
 typedef struct web_conf {
 	char *root;
