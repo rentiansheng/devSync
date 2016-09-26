@@ -99,14 +99,9 @@ static unsigned int  hash_reinit(pool_t *p, hash *h) {
         }
     }
 
-    memcpy();
-
-
-
+    memcpy(h, rehash, sizeof(hash));
 
     return h;
-    
-    
 }
 
 
