@@ -14,59 +14,25 @@
         }
     ],
     "path": {
-        "lianjiaweb":
-        {
-            "online":  "/data0/www/lianjiabusweb/",
-            "exts": [".php",".log",".js"],
-            "host": "10.33.106.196",
-            "port": "8484"
-        },
-        "lianjiabus":
-        {
-            "online":  "/data0/go/src/lianjiabus",
-            "exts": [".php",".log",".js", ".css", ".phtml", ".go"],
-            "host": "10.33.106.196",
-            "port": "8484"
-        },
-        "zookeeper":
-        {
-            "online":  "/data0/go/src/zookeeper",
-            "exts": [".php",".log",".js", ".css", ".phtml", ".go"],
-            "host": "10.33.106.196",
-            "port": "8484"
-        },
-        "lianjiabusweb":
-        {
-            "online":  "/data0/www/lianjiabusweb",
-            "exts": [".php",".log", ".css", ".js", ".phtml"],
-            "host": "10.33.106.196",
-            "port": "8484"
-        },
-        "platadmin":
-        {
-            "online":  "/data0/www/plat-admin/application/",
-            "exts": [".php", ".ini"],
-            "ignore": ["//static/node_modules/"],
-            "host": "10.33.106.196",
-            "port": "8484"
-        },
         "devSync":
         {
             "online":  "/root/devSyncDev",
             "exts": [".c",".log",".h"],
-            "host": "10.33.106.196",
+            "ignore":["server/obj"],
+            "host": "101.33.106.196",
             "port": "8484"
         },
-        "leetcode":
+
+        "devSync":
         {
-            "online":  "/root/code",
+            "online":  "/users/rentiansheng/devSync",
             "exts": [".c",".log",".h"],
-            "host": "10.33.106.196",
+            "host": "101.33.106.196",
             "port": "8484"
         }
     },
     "server": {
-        "host": "10.33.106.196",
+        "host": "127.0.0.1",
         "port": "8484"
     }
 }
