@@ -5,10 +5,9 @@ var net = require('net');
 
 
 
-
-
 var fileWatcher = (function() {
 
+  var count = 0;
   function sendFile(dir, filename, item, display ) {
     if(filename && filename[0] == '.') return;
     var ext = path.extname(filename);
@@ -19,8 +18,7 @@ var fileWatcher = (function() {
       relativePath = relativePath.replace(/\\/g, '/');
       var servfile  = item.online +'/'+relativePath+'/'+filename;
 
-      var start =  new Date().getTime(); 
-
+      var start =  new Date().getTime();
       try{
         if(display == 1) {
           console.log('data:'+content.length);
@@ -60,6 +58,7 @@ var fileWatcher = (function() {
 
   function listenToChange(dir, item) {
     dir = path.resolve(dir);
+
     function onChg (event, filename) {
 
       fs.lstat(dir+'/'+filename, function(err, stats) {
@@ -193,6 +192,12 @@ var fileWatcher = (function() {
 
 
   function watchDir(root, item) {
+
+    for(var i = 0; i < item.ignore.length; i++) {
+      if(root.indexOf( item.ignore[i]) >= 0) {
+        return;
+      }
+    }
     listenToChange(root, item);
     fs.lstat(root, function (err, stats) {
       if (stats.isDirectory()) {
@@ -256,6 +261,14 @@ var fileWatcher = (function() {
         }
         item.devSyncAll = argv.devSyncAll;
         item.online = item.online.replace(/\\/g, '/');
+        if(item.ignore !== undefined) {
+          for(var index = 0; index < item.ignore.length; index++) {
+            item.ignore[index] = item.ignore[index].trim().replace(/^\/+/g, "").replace(/\/+$/g, "");
+          }
+        } else {
+          item.ignore  = [];
+        }
+
         if(argv.devSyncAll) {
           getSyncFILE(item.offline, item);
 
