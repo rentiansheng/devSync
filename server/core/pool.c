@@ -9,8 +9,7 @@ static void * alloc_memalign(size_t alignment, size_t size);
 static void * palloc_large(pool_t *pool, size_t size);
 static void * palloc_pool(pool_t *pool, size_t size);
 
-pool_t  * 
-pool_create()
+pool_t  * pool_create()
 {
 	pool_t *new;
 	
@@ -31,8 +30,7 @@ pool_create()
 	return new;
 }
 
-void
-free_large_pool(pool_t *p)
+void free_large_pool(pool_t *p)
 {
 	pool_large_t *l;
 	
@@ -48,8 +46,7 @@ free_large_pool(pool_t *p)
 	}
 }
 
-void 
-pool_destroy(pool_t * p) {
+void pool_destroy(pool_t * p) {
 	pool_data_t *tmp, *current;
 
 	free_large_pool(p);
@@ -65,8 +62,7 @@ pool_destroy(pool_t * p) {
 	
 }
 
-static void * 
-palloc_pool(pool_t *pool, size_t size)
+static void * palloc_pool(pool_t *pool, size_t size)
 {
 	pool_data_t *new, *tmp;
 	uchar *m;
@@ -91,8 +87,7 @@ palloc_pool(pool_t *pool, size_t size)
 	return (void *) m;
 }
 
-static void * 
-alloc(size_t size)
+static void * alloc(size_t size)
 {
 	void *p;
 
@@ -104,8 +99,7 @@ alloc(size_t size)
 	return p;
 }
 
-static void *
-rg_calloc(size_t size)
+static void * rg_calloc(size_t size)
 {
 	void * p;
 	
@@ -117,8 +111,7 @@ rg_calloc(size_t size)
 	return 0;
 }
 
-static void *
-alloc_memalign(size_t alignment, size_t size)
+static void * alloc_memalign(size_t alignment, size_t size)
 {
 	void *p;
 	int err;
@@ -134,8 +127,7 @@ alloc_memalign(size_t alignment, size_t size)
 	return p;
 }
 
-static void * 
-palloc_large(pool_t *pool, size_t size)
+static void * palloc_large(pool_t *pool, size_t size)
 {
 	void *data;
 	pool_large_t * large;
@@ -174,8 +166,7 @@ palloc_large(pool_t *pool, size_t size)
 }
 
 
-void *
-palloc(pool_t *p, size_t size) {
+void * palloc(pool_t *p, size_t size) {
 	pool_data_t *current;
 	uchar *m;
 	
@@ -201,8 +192,7 @@ palloc(pool_t *p, size_t size) {
 	return palloc_large(p, size);
 }
 
-void *
-pcalloc(pool_t *p, size_t size) {
+void * pcalloc(pool_t *p, size_t size) {
 	void * m;
 
 	m = palloc(p, size);
