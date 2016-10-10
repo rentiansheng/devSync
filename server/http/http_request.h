@@ -10,6 +10,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include "buffer.h"
+#include "str.h"
 #include "base.h"
 #include "http_mod_connect.h"
 #include "base64.h"
@@ -18,6 +19,7 @@
 #include "http_send_page.h"
 #include "modules/ds_log.h"
 #include "linux_epoll.h"
+
 
 
 

@@ -71,7 +71,7 @@ static int hash_add(pool_t *p, hash *h ,const char * key, int keyLen, void * ptr
 }
 
 static int hash_add_item(pool_t *p, hash *h, item *i) {
-    unsigned int index = hash_init(i->key.val, i->key.len);
+    unsigned int index = hash_init(i->key.ptr, i->key.len);
     
     index = index&h->mask;
 

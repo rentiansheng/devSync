@@ -10,6 +10,7 @@
 #include <time.h>
 #include <arpa/inet.h>
 #include "buffer.h"
+#include "str.h"
 #include "pool.h"
 #include "http_mod_connect.h"
 
@@ -82,7 +83,7 @@ typedef struct key {
 
 
 typedef struct fileinfo {
-	read_buffer * name;
+	string * name;
 	size_t len;
 	FILE * fp;
 	void *start;
@@ -100,9 +101,11 @@ typedef struct mananger_con {
 
 typedef struct web_conf {
 	char *root;
-	char *file;
-	char *command;
-	char *type;
+	char *index_file;
+	int index_count;
+	char *err404;
+	char *server;
+	int fd;
 	struct web_conf *next;
 }web_conf;
 
@@ -131,16 +134,16 @@ typedef struct response{
 }response;
 
 typedef struct request{
-	read_buffer * uri;
-	read_buffer * host;
-	read_buffer *args;
-	read_buffer *clientIp;
+	string * uri;
+	string * host;
+	string *args;
+	string *clientIp;
 	
-	read_buffer * authorization;
-	read_buffer * user;
-	read_buffer * pwd;
+	string * authorization;
+	string * user;
+	string * pwd;
 	http_method_t http_method;
-	read_buffer * http_version;
+	string * http_version;
 	COMPRESS_TYPE accept_encoding;
 	unsigned int  content_length;
 	buffer *header;

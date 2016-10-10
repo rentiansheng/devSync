@@ -11,7 +11,7 @@
 #include "pool.h"
 
 typedef  struct string {
-    char *val;
+    char *ptr;
     int len;
 }string;
 

@@ -71,13 +71,11 @@ static char * find_line(char *start, char *end) {
 void parse_header(http_connect_t * con) {
  	request *in;
 	buffer *header;
-	read_buffer *dst;
 	pool_t *p;
 	char * start, *end;
 
 
 	p = (pool_t *)con->p;
-	dst = (read_buffer *)palloc(p, sizeof(read_buffer));
 	in = con->in;
 	header = in->header;
 	start = (char *)(header->ptr);
@@ -95,10 +93,10 @@ void parse_header(http_connect_t * con) {
 	}
 
 	start = skip_space(start, end);
-	in->uri = (read_buffer *)palloc(p, sizeof(read_buffer));
+	in->uri = string_init(p);
 	in->uri->ptr = start;
 	start = find_line(start, end);
-	in->uri->size = start - in->uri->ptr;
+	in->uri->len = start - in->uri->ptr;
 	start++;
 
 

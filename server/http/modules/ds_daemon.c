@@ -4,8 +4,10 @@
  */
 #include "ds_daemon.h"
 
+int forkPid  = 0;
 
-static int ds_init_daemon(http_conf * conf) {
+static int ds_init_daemon(http_conf * conf) 
+{
       int fd;
     
      if( socket_listen_test("127.0.0.1", conf->port)  ){
@@ -46,9 +48,11 @@ static int ds_init_daemon(http_conf * conf) {
     }
 }
 
-static ds_init_children(http_conf * conf) {
+
+static ds_init_children(http_conf * conf) 
+{
     while(1) {
-        int forkPid = fork();
+        forkPid = fork();
 
         if(forkPid == 0) {
             break;

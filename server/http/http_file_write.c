@@ -25,7 +25,7 @@ int _mkdir(http_connect_t * con, char *root, pool_t *p)
     }
 
     if(stat(root, &buf) != 0 ) {
-        int ret  = _mkdir(con, dir, p);
+        _mkdir(con, dir, p);
     } else {
         return 0;
     }
@@ -51,10 +51,10 @@ int  open_write_file(http_connect_t *con)
 
     uri = buffer_init(p);
     uri->ptr = in->uri->ptr;
-    uri->used = uri->size = in->uri->size;
+    uri->used = uri->size = in->uri->len;
 
 
-    dir = buffer_create_size(con->p, in->uri->size);
+    dir = buffer_create_size(con->p, in->uri->len);
     memcpy(dir->ptr, uri->ptr, uri->used);
     ptr = dir->ptr + uri->used;
     dir->used = uri->used;

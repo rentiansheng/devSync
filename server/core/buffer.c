@@ -7,133 +7,8 @@
 
 #include "buffer.h"
 
-read_buffer * 
-read_buffer_init(pool_t *p)
-{
-	read_buffer *rb;
-	
-	rb =(read_buffer *) palloc(p, sizeof(read_buffer));
-	
-	rb->ptr = NULL;
-	rb->size = 0;
 
-	return rb;
-}
-
-read_buffer * read_buffer_create_str(pool_t *p, char *b, size_t len) {
-	read_buffer *rb;
-
-	rb =(read_buffer *) palloc(p, sizeof(read_buffer));
-
-	rb->ptr = (void *)palloc(p, sizeof(char)*len);
-	rb->size = len;
-	strncpy(rb->ptr, b, len);
-
-	return rb;
-}
-
-read_buffer * 
-read_buffer_init_str(pool_t *p, char *b, size_t len)
-{
-	read_buffer *rb;
-	
-	rb =(read_buffer *) palloc(p, sizeof(read_buffer));
-	
-	rb->ptr = b;
-	rb->size = len;
-
-	return rb;
-}
-
-
-void 
-read_buffer_get_line_split(read_buffer *src, read_buffer *dst, char split)
-{
-	 char *p, *end;
-
-	if(src == NULL || src->ptr == NULL) return;
-
-	p = src->ptr;
-	end =src->ptr + src->size;
-
-	while(p < end){
-		if(*p == split){
-			dst->ptr = ++p;
-			dst->size = end - p;
-	 		return;
-		}
-	 	p++;
-	}
-
-	return ;
-
-}
-
-
-/* turn on in buffer.h*/
-void 
-read_buffer_get_line(read_buffer *src, read_buffer *dst)
-{
-	char *p, *end ;
-	
-	if(src == NULL || dst == NULL) return ;
-
-	p = src->ptr;
-	end = src->ptr+src->size;
-
-	if(NULL == p)return;
-
-	while(' ' == *p && p < end)p++;
-	dst->ptr =  p;
-	for(;   '\r' != *p && '\n' != *p && p < end; p++);
-
-	dst->size = p - dst->ptr; 
-
-	return ; 
-}
-
-int 
-read_buffer_compare(const read_buffer *s1, const read_buffer *s2)
-{
-	int len;
-
-	if(s1->size == s2->size) return strncmp(s1->ptr, s2->ptr, s1->size);
-
-	len = s1->size > s2->size?s2->size:s1->size;
-	if(len > 1) len--;
-
-	return (s1->ptr[len] - s2->ptr[len]);
-	
-}
-
-int 
-read_buffer_compare_str(const read_buffer *s1, const char *s2)
-{
-	int len;
-
-	len = strlen(s2);
-
-
-	if(s1->size == len)  return strncmp(s1->ptr, s2, len);
-
-	len = s1->size >len?len:s1->size;
-	if(len > 1) len--;
-
-	return (s1->ptr[len] - s2[len]);
-}
-
-void 
-read_buffer_to_str_n(read_buffer *b, char *s1, int n)
-{
-	if(b->ptr == NULL || b->size == 0) {*s1 = 0;return;}
-
-
-	strncpy(s1, b->ptr, n);
-	s1[n] = 0;
-}
-
-buffer * 
-buffer_init(pool_t *p)
+buffer * buffer_init(pool_t *p)
 {
 	buffer *b;
 	
@@ -146,8 +21,7 @@ buffer_init(pool_t *p)
 	return b;
 }
 
-buffer *
-buffer_create_size(pool_t *p, size_t len)
+buffer * buffer_create_size(pool_t *p, size_t len)
 {
 	buffer *b = buffer_init(p);
 	b->ptr = (char *)palloc(p, len);
@@ -157,8 +31,7 @@ buffer_create_size(pool_t *p, size_t len)
 	return b;
 }
 
-void
-buffer_append_char(buffer *b, char c, pool_t *p)
+void buffer_append_char(buffer *b, char c, pool_t *p)
 {
 	char * ptr;
 
@@ -172,28 +45,25 @@ buffer_append_char(buffer *b, char c, pool_t *p)
 
 }
 
-void
-buffer_append_str(buffer *b, char *str, int len, pool_t *p)
+void buffer_append_str(buffer *b, char *str, int len, pool_t *p)
 {
 	buffer_prepare_int(p, b, b->used+len);
 	memcpy(b->ptr + b->used, str, len);
 	b->used += len;
 }
 
-void
-buffer_append_n_str(buffer *b, char *str, int len, pool_t *p)
+void buffer_append_n_str(buffer *b, char *str, int len, pool_t *p)
 {
 	buffer_prepare_int(p, b, b->used+len);
 	strncat(b->ptr, str, len);
 	b->used += len;
 }
 
-int  
-buffer_get_word_with_split(buffer *src, read_buffer *dst, char split)
+int buffer_get_word_with_split(buffer *src, string *dst, char split)
 {
 	char *p, *end;
 
-	dst->size = 0;
+	dst->len = 0;
 
 	if(src == NULL || src->ptr == NULL)return -1;
 	p = src->ptr + src->used;
@@ -207,51 +77,48 @@ buffer_get_word_with_split(buffer *src, read_buffer *dst, char split)
 		if(end == p) {dst->ptr = NULL;return -1;}
 	}
 
-	dst->size = p - dst->ptr;
-	src->used += dst->size + 1;
+	dst->len = p - dst->ptr;
+	src->used += dst->len + 1;
 
 	return 0; 
 }
 
 
-int 
-buffer_get_line(buffer *src, read_buffer * dst)
+int buffer_get_line(buffer *src, string * dst)
 {
 	char *p, *end;
 
-	dst->size = 0;
+	dst->len = 0;
 
-	if(src == NULL || src->ptr == NULL || src->size == 0){dst->size=0;return -1;}
+	if(src == NULL || src->ptr == NULL || src->size == 0){dst->len=0;return -1;}
 	p = src->ptr + src->used;
 	end = src->ptr + src->size - 1;
 	while(' ' == *p && p != NULL) {if(end == p)return -1;p++;}
 
 	if(p >= end) {
-		dst->size = 0;
+		dst->len = 0;
 		return 0;
 	}
 
 	dst->ptr = p;
 
-	for(;*p != '\r' && *p != '\n'; p++)if(end == p){ dst->size = p - dst->ptr + 1; return -1;}
+	for(;*p != '\r' && *p != '\n'; p++)if(end == p){ dst->len = p - dst->ptr + 1; return -1;}
 
-	dst->size = p - dst->ptr;
+	dst->len = p - dst->ptr;
 	src->used = p - src->ptr + 1;
 	if(p[1] == '\n') src->used += 1;
 
 	return 0;
 }
 
-void  
-buffer_clear(buffer *b)
+void buffer_clear(buffer *b)
 {
 	free(b->ptr);
 	b->size = 0;
 	b->used = 0;
 }
 
-list_buffer *
-list_buffer_create(pool_t *p)
+list_buffer *list_buffer_create(pool_t *p)
 {
 	list_buffer * b;
 	
@@ -262,8 +129,7 @@ list_buffer_create(pool_t *p)
 	return b;
 }
 
-list_buffer *
-list_buffer_add(pool_t *p, list_buffer *lb)
+list_buffer * list_buffer_add(pool_t *p, list_buffer *lb)
 {	
 	if(lb->b != NULL) {
 		while(lb->next != NULL && lb->b != NULL) lb = lb->next;
@@ -277,16 +143,14 @@ list_buffer_add(pool_t *p, list_buffer *lb)
 	return lb;
 }
 
-list_buffer *
-list_buffer_last(list_buffer *lb)
+list_buffer * list_buffer_last(list_buffer *lb)
 {
 	while(lb->next != NULL) lb = lb->next;
 
 	return lb;
 }
 
-void
-list_buffer_to_lower(list_buffer *lb)
+void list_buffer_to_lower(list_buffer *lb)
 {
 	buffer *b ;
 	
@@ -297,8 +161,7 @@ list_buffer_to_lower(list_buffer *lb)
 }
 
 
-void 
-buffer_n_to_lower(buffer *src, int n)
+void buffer_n_to_lower(buffer *src, int n)
 {
 	if(n > 0) {
 		if(src != NULL && src->ptr != NULL) {
@@ -314,8 +177,8 @@ buffer_n_to_lower(buffer *src, int n)
 	}
 }
 
-void 
-buffer_find_str(buffer *src, buffer *dst, char *str) {
+void buffer_find_str(buffer *src, buffer *dst, char *str) 
+{
 	char *p;
 
 	if(src != NULL && src->ptr != NULL && src->size > 0 && str != NULL) {
@@ -332,8 +195,7 @@ buffer_find_str(buffer *src, buffer *dst, char *str) {
 }
 
 
-void 
-list_buffer_used_to_zero(list_buffer *lb)
+void list_buffer_used_to_zero(list_buffer *lb)
 {
 	while(lb != NULL) {
 		lb->b->size = lb->b->used;
@@ -343,8 +205,7 @@ list_buffer_used_to_zero(list_buffer *lb)
 }
 
 
-int 
-buffer_prepare_int(pool_t *p, buffer * b, size_t size)
+int buffer_prepare_int(pool_t *p, buffer * b, size_t size)
 {
 	if((0 == b->size) ||
 		(size > b->size))
@@ -359,8 +220,7 @@ buffer_prepare_int(pool_t *p, buffer * b, size_t size)
 }
 
 
-int 
-buffer_to_lower(buffer *b)
+int buffer_to_lower(buffer *b)
 {
 	char * c ;
 	if(0 == b->used) return 0;
@@ -376,8 +236,7 @@ buffer_to_lower(buffer *b)
 	return 0;
 }
 
-int 
-buffer_to_upper(buffer *b)
+int buffer_to_upper(buffer *b)
 {
 	char * c ;
 
@@ -395,31 +254,31 @@ buffer_to_upper(buffer *b)
 }
 
 
-int 
-buffer_is_equal(buffer *a, buffer *b) {
+int buffer_is_equal(buffer *a, buffer *b) 
+{
 	if (a->used != b->used) return 0;
 
 	return (0 == strcmp(a->ptr, b->ptr));
 }
 
-int 
-buffer_caseless_compare(buffer *a, buffer *b) {
+int buffer_caseless_compare(buffer *a, buffer *b) 
+{
 	if (a->used != b->used) return 0;
 	if (0 == a->used && 0 == b->used) return 1;
 
 	return (0 == strcasecmp(a->ptr, b->ptr));
 }
 
-int 
-buffer_is_equal_len(buffer *a, buffer *b, size_t len) {
+int buffer_is_equal_len(buffer *a, buffer *b, size_t len) 
+{
 	if (a->used != b->used) return 0;
 	if (0 == a->used && 0 == b->used) return 1;
 
 	return (0 == strncmp(a->ptr, b->ptr, len));
 }
 
-int 
-buffer_caseless_compare_len(buffer *a, buffer *b) {
+int buffer_caseless_compare_len(buffer *a, buffer *b) 
+{
 	if (a->used != b->used) return 0;
 	if (0 == a->used && 0 == b->used) return 1;
 
@@ -428,8 +287,7 @@ buffer_caseless_compare_len(buffer *a, buffer *b) {
 
 
 
-int 
-buffer_path_simplify(buffer *dest, const buffer *src)
+int buffer_path_simplify(buffer *dest, const buffer *src)
 {
 	int count;
 	char c;

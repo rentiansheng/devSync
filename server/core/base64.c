@@ -6,20 +6,21 @@
 #include "base64.h"
 
 
-static int encode_base64(const read_buffer *src, buffer *dst);
-static int decode_base64(const read_buffer *src, buffer *dst);
+
+static int encode_base64(const string *src, buffer *dst);
+static int decode_base64(const string *src, buffer *dst);
 
 int
-read_buffer_move_word(read_buffer * b, char *word)
+string_move_word(string * b, char *word)
 {
 	int len = strlen(word);
 	if(strncasecmp(b->ptr, word, len) == 0) {
 		b->ptr += len;
-		b->size -= len ;
+		b->len -= len ;
 
 		while(*b->ptr == ' ') {
 			b->ptr++;
-			b->size--;
+			b->len--;
 		}
 
 		return 0;
@@ -34,7 +35,7 @@ decoded_usr_pwd(http_connect_t *con)
 	pool_t *p;
 	buffer *dst;
 	request *in;
-	read_buffer *base64code;
+	string *base64code;
 	int len;
 
 	in = con->in;
@@ -42,12 +43,12 @@ decoded_usr_pwd(http_connect_t *con)
 
 	p = (pool_t *)con->p;
 	base64code = in->authorization;
-	if( read_buffer_move_word(base64code, "basic") == 0 ) {
+	if( string_move_word(base64code, "basic") == 0 ) {
 
-		len = 3*(base64code->size/4) + 3; 
+		len = 3*(base64code->len/4) + 3; 
 		dst = (buffer *)buffer_create_size(p, len);
-		in->user = palloc(p, sizeof(read_buffer));
-		in->pwd = palloc(p, sizeof(read_buffer));
+		in->user = string_init(p);
+		in->pwd = string_init(p);
 
 		if(decode_base64(base64code, dst) == 0){
 			dst->size = dst->used;
@@ -63,7 +64,7 @@ decoded_usr_pwd(http_connect_t *con)
 
 
 static int 
-decode_base64(const read_buffer  *rbsrc, buffer *bdst)
+decode_base64(const string  *rbsrc, buffer *bdst)
 {
 	static char base64char[] ={
 		-1 , -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
@@ -78,7 +79,7 @@ decode_base64(const read_buffer  *rbsrc, buffer *bdst)
 
 	int i;
 	char *src, *dst;
-	size_t len = rbsrc->size;
+	size_t len = rbsrc->len;
 	
 	src  = rbsrc->ptr;
 	dst = bdst->ptr;
@@ -123,7 +124,7 @@ decode_base64(const read_buffer  *rbsrc, buffer *bdst)
 
 
 static int 
-encode_base64(const read_buffer *bsrc, buffer *bdst)
+encode_base64(const string *bsrc, buffer *bdst)
 {
 	char *src = bsrc->ptr;
 	size_t len = strlen(src); 

@@ -10,6 +10,7 @@
 #include <stdlib.h>
 #include <sys/epoll.h>
 #include "buffer.h"
+#include "str.h"
 #include "base.h"
 #include "http_mod_connect.h"
 #include "base64.h"

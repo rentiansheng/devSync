@@ -117,7 +117,7 @@ int start_accept(http_conf *g)
 			}
 
 			if(ip) {
-				con->in->clientIp = (read_buffer *) read_buffer_init_str(p, ip, strlen(ip));
+				con->in->clientIp = (string *) string_init_from_str(p, ip, strlen(ip));
 			}
 
 			con->next_handle = accept_handler;
