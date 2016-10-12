@@ -28,7 +28,7 @@ $(DST)%.o:http/modules/%.c
 	echo $^
 	gcc -c $(CFLAGS) $@ $^
 
-$(DST)%:linux/%.c
+$(DST)%.o:linux/%.c
 	echo $^
 	gcc -c $(CFLAGS) $@ $^
 
