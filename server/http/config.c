@@ -4,8 +4,7 @@
  */
 #include "config.h"
 
-char 
-is_char(int c)
+char is_char(int c)
 {
 	if( ('Z' >= c && 'A' <= c) || ('z' >= c && 'a' <= c))
 		return 1;
@@ -19,8 +18,7 @@ is_char(int c)
 *	globle_conf: 读取的配置文件内容存放的位置
 *@result:
 */
-int 
-config_init(char *path, http_conf *g)
+int config_init(char *path, http_conf *g)
 {
 	char line[1024];
 	int row;
@@ -43,8 +41,7 @@ config_init(char *path, http_conf *g)
 
 
 
-int 
-parse_line(FILE *f, char *line,int  *row, http_conf *g) 
+int parse_line(FILE *f, char *line,int  *row, http_conf *g) 
 {
 	char *split;
 	char *name;
@@ -77,8 +74,7 @@ parse_line(FILE *f, char *line,int  *row, http_conf *g)
 }
 
 
-int 
-set_mimetype(FILE * f, http_conf *g, int *row)
+int set_mimetype(FILE * f, http_conf *g, int *row)
 {
 	char line[1024];
 	char *name, *split, *end;
@@ -127,8 +123,7 @@ set_mimetype(FILE * f, http_conf *g, int *row)
 }
 
 
-int 
-set_web(FILE *f, http_conf *g, int *row)
+int set_web(FILE *f, http_conf *g, int *row)
 {
 	char line[1024];
 	char *name, *split, *end;
@@ -200,8 +195,7 @@ set_web(FILE *f, http_conf *g, int *row)
 }
 
 
-int
-read_line(FILE *f, char *line, int *row)
+int read_line(FILE *f, char *line, int *row)
 {
 	int zs = 0;
 	int count;

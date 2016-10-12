@@ -6,9 +6,6 @@
 
 
 
-static int find_header_end(buffer *b);
-
-
 response * response_init(pool_t *p)
 {
 	response *out;
@@ -62,114 +59,6 @@ static int start_web_server(http_conf *g)
 
 	return epfd;
 }
-
-
-
-static int read_http_header(buffer *header, pool_t *p, int fd)
-{
-	buffer *b;
-	int palloc_size = 1024;
-	char *c ;
-	char *ptr;
-
-	c = palloc(p,sizeof(char));
-	header->ptr = palloc(p, palloc_size);
-	header->size = palloc_size;
-
-
-	while(read(fd, c, 1)) {
-		buffer_append_char(header,*c,p);
-		if(*c == '\n' && header->used >= 2) {
-			ptr =  header->ptr + header->used - 2;
-			if(strncasecmp(ptr, "\n\n", 2) == 0) {
-				return;
-			}
-		}
-	}
-
-	return 0;
-}
-
-/**
- *0 读取结束，其他没有结束
- *
- */
-static int read_header(http_connect_t *con)
-{
-	pool_t *p;
-	buffer *header;
-
-
-	p =(pool_t *) con->p;
-
-	if(con->in->header == NULL)con->in->header = buffer_init(p);
-	header = con->in->header;
-	
-	return read_http_header(header, p, con->fd);
-}
-
-
-static char * skip_space(char *start, char *end){
-	if(start == NULL) return NULL;
-	while( *start == ' ' ) {
-		if(start >= end) return NULL;
-		start ++;
-	}
-
-	return start;
-}
-
-static char * find_line(char *start, char *end) {
-	while(*start != '\n') {
-		if(start >= end) return end;
-		start ++;
-	}
-
-	return start;
-}
-
-
-static void parse_header(http_connect_t * con)
-{
- 	request *in;
-	buffer *header;
-	buffer *b;
-	read_buffer *dst;
-	pool_t *p;
-	char * start, *end;
-
-
-	p = (pool_t *)con->p;
-	dst = (read_buffer *)palloc(p, sizeof(read_buffer));
-	in = con->in;
-	header = in->header;
-	start = (char *)(header->ptr);
-	end = (char *)header->ptr + (header->used - 1);
-	if(strncasecmp(start,"put", 3) == 0) {
-		in->http_method = _PUT;
-		start += 3;
-	}if(strncasecmp(start,"get", 3) == 0) {
-		in->http_method = _GET;
-		start += 3;
-	}
-	else if(strncasecmp(start, "post", 4) == 0) {
-		in->http_method = _POST;
-		start += 4;
-	}
-
-	start = skip_space(start, end);
-	in->uri = (read_buffer *)palloc(p, sizeof(read_buffer));
-	in->uri->ptr = start;
-	start = find_line(start, end);
-	in->uri->size = start - in->uri->ptr;
-	start++;
-
-
-	in->content_length = atoi(start);
-	//test_print_header(in);
-	return ;
-}
-
 
 int accept_handler(http_connect_t *con)
 {
@@ -228,7 +117,7 @@ int start_accept(http_conf *g)
 			}
 
 			if(ip) {
-				con->in->clientIp = (read_buffer *) read_buffer_init_str(p, ip, strlen(ip));
+				con->in->clientIp = (string *) string_init_from_str(p, ip, strlen(ip));
 			}
 
 			con->next_handle = accept_handler;

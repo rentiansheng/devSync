@@ -9,6 +9,8 @@
 #include <stdlib.h>
 #include "http_request.h"
 #include "buffer.h"
+#include "str.h"
+
 
 int  decoded_usr_pwd(http_connect_t *con);
 

@@ -8,6 +8,7 @@
 #define _HTTP_FILE_WRITE_H_INCLUDE
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include <sys/stat.h>
 #include <sys/mman.h>
 #include "base.h"
