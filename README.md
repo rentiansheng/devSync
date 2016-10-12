@@ -18,6 +18,8 @@ the local machine and develop machine synchronization code
 
 	4. 不会删除服务端文件
 
+	5. 部分目录可以忽略同步
+
 
 ####准备工作
 ---
@@ -155,6 +157,7 @@ Client 需要配置 config.json，config.json 是个数组，其中包含server�
  
   	offline：本地需要同步到开发机器的代码路径
   	exts: 可以同步的文件后缀
+  	ignore: 不需要同步的目录
   	host: 开发机地址
 	port: 端口号
 
