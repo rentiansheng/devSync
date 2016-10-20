@@ -311,19 +311,19 @@ var fileWatcher = (function() {
                     }
                      if (!item.exts) {
                     item.exts = config.server.exts;
-                }
-                item.devSyncAll = argv.devSyncAll;
-                item.online = item.online.replace(/\\/g, '/');
-                if (item.ignore !== undefined) {
-                    for (var index = 0; index < item.ignore.length; index++) {
-                        item.ignore[index] = item.ignore[index].trim().replace(/^\/+/g, "").replace(/\/+$/g, "");
-                    }
-                } else {
-                    item.ignore = [];
-                }
-                    item.devSyncAll = argv.devSyncAll;
-                    item.online = item.online.replace(/\\/g, '/');
-                    watchDir(item.offline, item);
+                  }
+                  item.devSyncAll = argv.devSyncAll;
+                  item.online = item.online.replace(/\\/g, '/');
+                  if (item.ignore !== undefined) {
+                      for (var index = 0; index < item.ignore.length; index++) {
+                          item.ignore[index] = item.ignore[index].trim().replace(/^\/+/g, "").replace(/\/+$/g, "");
+                      }
+                  } else {
+                      item.ignore = [];
+                  }
+                  item.devSyncAll = argv.devSyncAll;
+                  item.online = item.online.replace(/\\/g, '/');
+                  watchDir(item.offline, item);
                 }
             });
         }
