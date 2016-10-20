@@ -1,39 +1,36 @@
 {
-    "local": [
-        {
+    "local": [{
             "offline": "/Users/reage/devSync",
             "online": "/home/users/rentiansheng/tmp/odp_goods/app/goods",
             "exts": [".php", ".js"],
-            "auto":1
+            "auto": 1
         },
         {
             "offline": "/Users/reage/devSync",
             "online": "/home/users/rentiansheng/tmp/odp_goods/app/goods1",
             "exts": [".php", ".js"],
-            "auto":1
+            "auto": 1
         }
     ],
     "path": {
-        "devSync":
-        {
-            "online":  "/root/devSyncDev",
-            "exts": [".c",".log",".h"],
-            "ignore":["server/obj"],
+        "devSync": {
+            "online": "/root/devSyncDev",
+            "exts": [".c", ".log", ".h"],
+            "ignore": ["server/obj"],
             "host": "101.33.106.196",
             "port": "8484"
         },
 
-        "devSync":
-        {
-            "online":  "/users/rentiansheng/devSync",
-            "exts": [".c",".log",".h"],
+        "devSync": {
+            "online": "/users/rentiansheng/devSync",
+            "exts": [".c", ".log", ".h"],
             "host": "101.33.106.196",
             "port": "8484"
         }
     },
     "server": {
         "host": "127.0.0.1",
-        "port": "8484"
+        "port": "8484",
+        "exts": ["php", ".c", ".go", ".h"]
     }
 }
-
