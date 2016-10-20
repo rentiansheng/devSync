@@ -44,7 +44,6 @@ var fileWatcher = (function() {
             var ts = end - start;
             console.log('end: '+content.length);
             console.log('end: start: '+ start +' end: '+ end +' ts:'+ ts + '【' + cur_time + '】');
-            console.log('-------------------');
           }
 
         });
