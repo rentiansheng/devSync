@@ -8,11 +8,17 @@ var net = require('net');
 var fileWatcher = (function() {
 
     var count = 0;
+    var allfile = [];
+    var filecount = 0;
+    var sendFileNo = 0;
+    var displayEnd = 1;
+    var MaxFileSize = 4000000; //4m
 
+    //发送文件
     function sendFile(dir, filename, item, display) {
         if (filename && filename[0] == '.') return;
         var ext = path.extname(filename);
-        if (item.exts && item.exts.indexOf(ext) === -1) return;
+        if (item.exts && item.exts.length > 0 && item.exts.indexOf(ext) === -1) return;
         fs.readFile(dir + '/' + filename, function(err, content) {
             if (err) { return false; }
             var relativePath = path.relative(item.offline, dir);
@@ -58,18 +64,8 @@ var fileWatcher = (function() {
         });
     }
 
-    //格式化时间戳
-    function formatDate(now) {
-        var year = now.getFullYear();
-        var month = now.getMonth() + 1;
-        var date = now.getDate();
-        var hour = now.getHours();
-        var minute = now.getMinutes();
-        var second = now.getSeconds();
-        return year + "-" + month + "-" + date + " " + hour + ":" + minute + ":" + second;
-    }
 
-
+    //检测目录变化
     function listenToChange(dir, item) {
         dir = path.resolve(dir);
 
@@ -80,7 +76,11 @@ var fileWatcher = (function() {
                 if (stats.isDirectory()) {
                     watchDir(dir + '/' + filename, item);
                 } else if (stats.isFile()) {
-                    sendFile(dir, filename, item, 1);
+                    if (stats.size < MaxFileSize) {
+                        sendFile(dir, filename, item, 1);
+                    } else {
+                        console.log("\n\n\n     You can not synchronize large files! \n\n\n");
+                    }
                 }
 
             });
@@ -89,12 +89,38 @@ var fileWatcher = (function() {
         fs.watch(dir, onChg);
     }
 
+    //为目录加监控时间
+    function watchDir(root, item) {
 
-    var allfile = [];
-    var filecount = 0;
-    var sendFileNo = 0;
-    var displayEnd = 1;
+        for (var i = 0; i < item.ignore.length; i++) {
+            if (root.indexOf(item.ignore[i]) >= 0) {
+                return;
+            }
+        }
+        listenToChange(root, item);
+        fs.lstat(root, function(err, stats) {
+            if (stats.isDirectory()) {
+                fs.readdir(root, function(err, files) {
+                    if (err) return;
+                    files.forEach(function(file) {
+                        fileName = file;
+                        if (file[0] == '.') { return; }
+                        file = root + '/' + file;
+                        fs.lstat(file, function(err, stats) {
+                            if (err) return;
+                            if (stats.isDirectory()) {
+                                watchDir(file, item);
+                            }
+                        });
+                    });
+                });
 
+            }
+
+        });
+    }
+
+    //获取要同步全部的文件，
     function getSyncFILE(dir, item) {
 
         var stats = fs.lstatSync(dir);
@@ -139,19 +165,17 @@ var fileWatcher = (function() {
 
     }
 
+    //同步全部文件
     function syncAllFile(rootItem) {
         var syncItem = allfile.pop();
         if (syncItem !== undefined && syncItem && sendFileNo < filecount) {
 
-            sendFileSync(syncItem.dir, syncItem.name, syncItem.item, rootItem, 0);
+            sendFileForSyncAll(syncItem.dir, syncItem.name, syncItem.item, rootItem, 0);
             syncItem = undefined;
             //console.log("send "+(++sendFileNo)+"/"+filecount);
         } else {
             if (displayEnd) {
-                console.log("==============================================");
-                console.log("*            sync all file end");
-                console.log("*            start watch file change");
-                console.log("==============================================");
+                printSyncAllHeader(false);
                 displayEnd = 0;
                 watchDir(rootItem.offline, rootItem);
             }
@@ -163,10 +187,11 @@ var fileWatcher = (function() {
         return;
     }
 
-    function sendFileSync(dir, filename, item, rootItem, retry) {
+    //同步全部文件，发送文件
+    function sendFileForSyncAll(dir, filename, item, rootItem, retry) {
         if (filename && filename[0] == '.') { syncAllFile(rootItem); return; };
         var ext = path.extname(filename);
-        if (item.exts && item.exts.indexOf(ext) === -1) { syncAllFile(rootItem); return };
+        if (item.exts && item.exts.length > 0 && item.exts.indexOf(ext) === -1) return;
         fs.readFile(dir + '/' + filename, function(err, content) {
             if (err) { return false; }
             var relativePath = path.relative(item.offline, dir);
@@ -204,34 +229,28 @@ var fileWatcher = (function() {
     }
 
 
-    function watchDir(root, item) {
 
-        for (var i = 0; i < item.ignore.length; i++) {
-            if (root.indexOf(item.ignore[i]) >= 0) {
-                return;
-            }
+    //格式化时间戳
+    function formatDate(now) {
+        var year = now.getFullYear();
+        var month = now.getMonth() + 1;
+        var date = now.getDate();
+        var hour = now.getHours();
+        var minute = now.getMinutes();
+        var second = now.getSeconds();
+        return year + "-" + month + "-" + date + " " + hour + ":" + minute + ":" + second;
+    }
+
+    function printSyncAllHeader(isHeader) {
+        if (isHeader == undefined || isHeader) {
+            console.log("==============================================");
+            console.log("*            start sync all start");
+        } else {
+            console.log("*            sync all file end");
+            console.log("*");
+            console.log("*            start watch file change");
+            console.log("==============================================");
         }
-        listenToChange(root, item);
-        fs.lstat(root, function(err, stats) {
-            if (stats.isDirectory()) {
-                fs.readdir(root, function(err, files) {
-                    if (err) return;
-                    files.forEach(function(file) {
-                        fileName = file;
-                        if (file[0] == '.') { return; }
-                        file = root + '/' + file;
-                        fs.lstat(file, function(err, stats) {
-                            if (err) return;
-                            if (stats.isDirectory()) {
-                                watchDir(file, item);
-                            }
-                        });
-                    });
-                });
-
-            }
-
-        });
     }
 
 
@@ -272,9 +291,6 @@ var fileWatcher = (function() {
                 if (!item.port) {
                     item.port = config.server.port;
                 }
-                if (!item.exts) {
-                    item.exts = config.server.exts;
-                }
                 item.devSyncAll = argv.devSyncAll;
                 item.online = item.online.replace(/\\/g, '/');
                 if (item.ignore !== undefined) {
@@ -286,6 +302,7 @@ var fileWatcher = (function() {
                 }
 
                 if (argv.devSyncAll) {
+                    printSyncAllHeader(true);
                     getSyncFILE(item.offline, item);
 
                     syncAllFile(item);
@@ -309,25 +326,24 @@ var fileWatcher = (function() {
                     if (!item.port) {
                         item.host = config.server.port;
                     }
-                     if (!item.exts) {
-                    item.exts = config.server.exts;
-                  }
-                  item.devSyncAll = argv.devSyncAll;
-                  item.online = item.online.replace(/\\/g, '/');
-                  if (item.ignore !== undefined) {
-                      for (var index = 0; index < item.ignore.length; index++) {
-                          item.ignore[index] = item.ignore[index].trim().replace(/^\/+/g, "").replace(/\/+$/g, "");
-                      }
-                  } else {
-                      item.ignore = [];
-                  }
-                  item.devSyncAll = argv.devSyncAll;
-                  item.online = item.online.replace(/\\/g, '/');
-                  watchDir(item.offline, item);
+                    item.devSyncAll = argv.devSyncAll;
+                    item.online = item.online.replace(/\\/g, '/');
+                    if (item.ignore !== undefined) {
+                        for (var index = 0; index < item.ignore.length; index++) {
+                            item.ignore[index] = item.ignore[index].trim().replace(/^\/+/g, "").replace(/\/+$/g, "");
+                        }
+                    } else {
+                        item.ignore = [];
+                    }
+                    item.devSyncAll = argv.devSyncAll;
+                    item.online = item.online.replace(/\\/g, '/');
+                    watchDir(item.offline, item);
                 }
             });
         }
     }
+
+
 
 })();
 
