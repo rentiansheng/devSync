@@ -104,56 +104,20 @@ $pwd 代表当前路径
  **启动参数 -d 监控当前目录下（运行client的目录），当clietn的文件修改同步到server**
  
  
- 
- 		
- 
- 
-  
- 
 #### client 配置
 ---
 
-Client 需要配置 config.json，config.json 是个数组，其中包含server，local，path等配置
+Client的配置文件放在$pwd/client/config.json，config.json 是个object，其中包含server，path等配置,
+
 
 	 server 配置开发机器的默认的host和端口
-	 local  配置本地固定与开发机目录方式同步
-	 path  当前目录同步到开发机固目录
+	 path  开发机固目录相关配置
 	 
-
-
-
-#### 本地固定目录同步
+ 
+#####path 配置详细
 ---
-
-**适用长期开发使用, 只要启动client端就开始同步config.json文件中local配置项**
-
-  通过local配置本地目录和服务器目录来同步数据的。
-  
-  local 是个数组，每个数据项是一个开发机和本地机器同步的配置。每个数据项包含offline,online,exts,autos四个值。
-	
-	offline：本地需要同步到开发机器的代码路径
-	online： 开发机器的线上路径
-	exts: 可以同步的文件后缀
-	auto: 是否开启自动同步
  
- 
- 
-	 **使用方法 直接 node $pwd/client/watch.js  **
-	 等同于
-	 Linux,Mac 使用
-	 	devSync 
-	 windows
-	 	在cmd中使用devSync.bat
-	 
-	 
- 
- 
-####同步到服务器固定目录
----
-
- 将运行程序的目录数据改动同步到path配置的开发机的路径中
- 
- path 是个数组，每个数据项是同步的配置。每个数据项包含online,exts两个值。
+ path 是个数组，每个数据项是同步的配置。每个数据项包含下面的值。
  
   	offline：本地需要同步到开发机器的代码路径
   	exts: 可以同步的文件后缀
@@ -226,3 +190,5 @@ Client 需要配置 config.json，config.json 是个数组，其中包含server�
   **当client端中文件修改保存的时候，client端会将整个文件的内容发送server端，server将重新写入整个文件**
 
  
+
+

@@ -139,6 +139,16 @@ var fileWatcher = (function() {
 
                 file = dir + '/' + file;
 
+                var isSkip = false;
+                for (var i = 0; i < item.ignore.length; i++) {
+                    if (file.indexOf(item.ignore[i]) >= 0) {
+                        isSkip = true;
+                        break;
+                    }
+                }
+                if (isSkip) {
+                    continue;
+                }
                 try {
                     stats = fs.lstatSync(file);
                     if (stats.isDirectory()) {
@@ -169,7 +179,6 @@ var fileWatcher = (function() {
     function syncAllFile(rootItem) {
         var syncItem = allfile.pop();
         if (syncItem !== undefined && syncItem && sendFileNo < filecount) {
-
             sendFileForSyncAll(syncItem.dir, syncItem.name, syncItem.item, rootItem, 0);
             syncItem = undefined;
             //console.log("send "+(++sendFileNo)+"/"+filecount);
@@ -189,9 +198,10 @@ var fileWatcher = (function() {
 
     //同步全部文件，发送文件
     function sendFileForSyncAll(dir, filename, item, rootItem, retry) {
+
         if (filename && filename[0] == '.') { syncAllFile(rootItem); return; };
         var ext = path.extname(filename);
-        if (item.exts && item.exts.length > 0 && item.exts.indexOf(ext) === -1) return;
+        if (item.exts && item.exts.length > 0 && item.exts.indexOf(ext) === -1) { syncAllFile(rootItem); return };
         fs.readFile(dir + '/' + filename, function(err, content) {
             if (err) { return false; }
             var relativePath = path.relative(item.offline, dir);
@@ -206,9 +216,9 @@ var fileWatcher = (function() {
                 }
             );
 
-            client.on('error', function() {
+            client.on('error', function(error) {
                 if (retry < 3) {
-                    sendFileSync(dir, filename, item, rootItem, retry + 1);
+                    sendFileForSyncAll(dir, filename, item, rootItem, retry + 1);
                 } else {
                     syncAllFile(rootItem);
                     console.log('error:' + servfile);
@@ -318,28 +328,7 @@ var fileWatcher = (function() {
             }
 
         } else {
-            config.local.forEach(function(item) {
-                if (item.auto) {
-                    if (!item.host) {
-                        item.host = config.server.host;
-                    }
-                    if (!item.port) {
-                        item.host = config.server.port;
-                    }
-                    item.devSyncAll = argv.devSyncAll;
-                    item.online = item.online.replace(/\\/g, '/');
-                    if (item.ignore !== undefined) {
-                        for (var index = 0; index < item.ignore.length; index++) {
-                            item.ignore[index] = item.ignore[index].trim().replace(/^\/+/g, "").replace(/\/+$/g, "");
-                        }
-                    } else {
-                        item.ignore = [];
-                    }
-                    item.devSyncAll = argv.devSyncAll;
-                    item.online = item.online.replace(/\\/g, '/');
-                    watchDir(item.offline, item);
-                }
-            });
+            console.log("error:错误的工作方式");
         }
     }
 
