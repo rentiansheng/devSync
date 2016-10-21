@@ -26,36 +26,35 @@ var fileWatcher = (function() {
             var servfile = item.online + '/' + relativePath + '/' + filename;
             var start = new Date().getTime();
             try {
-                if (display == 1) {
-                    console.log("\nsync start: file[ " + servfile + ' ]');
-                }
+                console.log("\nsync start: file[ " + servfile + ' ]');
+
                 var client = net.connect({ host: item.host, port: item.port },
                     function() { //'connect' listener
-                        client.write('put ' + servfile + '\n' + content.length + '\n\n' + content);
+                        client.write('put ' + servfile + '\n' + content.length + '\n\n');
+                        client.write(content)
                     }
                 );
 
                 client.on('data', function(data) {
-                    console.log(data.toString());
+                    //console.log(data.toString());
                 });
                 client.on('end', function() {
                     client.end();
-                    if (display == 1) {
-                        console.log('sync file end: fileName[ ' + servfile + ' ]');
-                        var end = new Date().getTime();
-                        var ts = end - start;
-                        console.log('sync file end: file length[ ' + content.length + 'b ]');
+                    console.log('sync file end: fileName[ ' + servfile + ' ]');
+                    var end = new Date().getTime();
+                    var ts = end - start;
+                    console.log('sync file end: file length[ ' + content.length + 'b ]');
 
-                        var strStartTime = formatDate(new Date(start));
+                    var strStartTime = formatDate(new Date(start));
 
-                        console.log('sync file end: start time[ ' + strStartTime + ' ]  sync use time[ ' + ts + 'ms ]');
-                        console.log("\n");
+                    console.log('sync file end: start time[ ' + strStartTime + ' ]  sync use time[ ' + ts + 'ms ]');
+                    console.log("\n");
 
-                    }
+
 
                 });
                 client.on('error', function(err) {
-                    //console.log(err);
+                    console.log(err);
                 });
             } catch (err) {
                 console.log(err);
@@ -77,7 +76,7 @@ var fileWatcher = (function() {
                     watchDir(dir + '/' + filename, item);
                 } else if (stats.isFile()) {
                     if (stats.size < MaxFileSize) {
-                        sendFile(dir, filename, item, 1);
+                        sendFile(dir, filename, item, stats.size);
                     } else {
                         console.log("\n\n\n     You can not synchronize large files! \n\n\n");
                     }

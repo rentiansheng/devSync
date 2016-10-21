@@ -15,16 +15,8 @@
     "path": {
         "devSync": {
             "online": "/root/devSyncDev",
-            "exts": [".c", ".log", ".h"],
             "ignore": ["server/obj"],
-            "host": "101.33.106.196",
-            "port": "8484"
-        },
-
-        "devSync": {
-            "online": "/users/rentiansheng/devSync",
-            "exts": [".c", ".log", ".h"],
-            "host": "101.33.106.196",
+            "host": "10.33.106.196",
             "port": "8484"
         }
     },
