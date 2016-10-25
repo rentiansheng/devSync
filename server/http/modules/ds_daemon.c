@@ -4,8 +4,6 @@
  */
 #include "ds_daemon.h"
 
-int forkPid  = 0;
-
 static int ds_init_daemon(http_conf * conf) 
 {
       int fd;
@@ -51,14 +49,42 @@ static int ds_init_daemon(http_conf * conf)
 
 static ds_init_children(http_conf * conf) 
 {
-    while(1) {
-        forkPid = fork();
+    int forStep = 0;//0标识运行accept和cgi， 1 标识只允许faccept, 2fork cgi进程
+    int forkAcceptPid  = 0;
+    int forkCgiPid = 0;
+    //使用两个pipe 完成accept 和cgi进程的通信
+    pipe(infd);
+	pipe(outfd);
 
-        if(forkPid == 0) {
-            break;
-        } else {
-            waitpid(-1, 0, 0);
+    int status;
+    while(1) {
+        
+        if(forStep == 1 || forStep == 0 ) {
+            forkAcceptPid = fork();
+
+            if(forkAcceptPid == 0) {
+                FORK_PROCESS_WORK_MODE = FORK_PROCESS_WORK_ACCEPT_MODE；
+                break;
+            } 
         }
+        
+       
+        if(forStep == 2 || || forStep == 0) {
+            forkFilePid = fork();
+            if(forkCgiPid == 0) {
+                FORK_PROCESS_WORK_MODE = FORK_PROCESS_WORK_CGI_MODE；
+                break;
+            } 
+        }
+        
+        
+        int pid = wait(&status);
+        if(pid == forkAcceptPid) {
+            forStep == 1;
+        } else if (pid == forkCgiPid) {
+            forStep == 2;
+        }
+
     }
 }
 
