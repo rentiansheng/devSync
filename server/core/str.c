@@ -62,3 +62,61 @@ void string_copy_str_n(const string *b, char *s1, int n){
 	strncpy(s1, b->ptr, n);
 	s1[n] = 0;
 }
+
+int  string_get_line(char  *start, char *end, string *dst) {
+
+	char *p = start;
+	dst->len = 0;
+
+	if(start == NULL || start == NULL ) {
+		return 0;
+	}
+	
+	while(' ' == *p && p != NULL) {
+		if(end >  p) {return 0;}
+		p++;
+	}
+	if(p > end) {
+		return 0;
+	}
+
+
+	while(*p != '\r' && *p != '\n' && p < end) {
+		p++;
+	}
+
+	dst->ptr = start;
+	dst->len = p - start;
+	
+	return 0;
+}
+
+void string_get_word_with_split(string * src, string *dst, char split) {
+
+	char *p, *end;
+	p = src->ptr;
+	end = src->ptr + src->len;
+	dst->len = 0;
+
+	if(src == NULL || src->ptr == NULL || src->len == 0) {
+		return ;
+	}
+	
+	while(' ' == *p && p != NULL) {
+		if(end >  p) {return ;}
+		p++;
+	}
+	
+	if(p > end) {
+		return ;
+	}
+
+	while(*p != split && p < end) {
+		p++;
+	}
+
+	dst->ptr = src->ptr;
+	dst->len = p - src->ptr;
+
+	return ;
+}
