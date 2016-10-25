@@ -12,6 +12,7 @@
 #include "buffer.h"
 #include "str.h"
 #include "pool.h"
+#include "hash.h"
 #include "http_mod_connect.h"
 
 #define OK 0
@@ -41,6 +42,10 @@
 #define HANDLE_STATUS_CONTINUE 1
 #define HANDLE_STATUS_FAILD -1
 
+#define FORK_PROCESS_WORK_HTTP_MODE = 1;
+#define FORK_PROCESS_WORK_CGI_MODE = 2;
+
+int FORK_PROCESS_WORK_MODE = FORK_PROCESS_WORK_HTTP_MODE;
 
 
 typedef enum{
@@ -55,6 +60,13 @@ typedef enum {
 	_GZIP,
 	_DEFLATE
 }COMPRESS_TYPE;
+
+
+typedef enum {
+	CGI_STATUS_RUN, 
+	CGI_STATUS_CLOSEING,
+	CGI_STATUS_END
+}CGI_STATUS;
 
 
 
@@ -146,6 +158,7 @@ typedef struct request{
 	string * http_version;
 	COMPRESS_TYPE accept_encoding;
 	unsigned int  content_length;
+	string * exce_file;
 	buffer *header;
 
 }request;
@@ -177,11 +190,20 @@ typedef struct cgi_ev {
 }cgi_ev_t;
 
 typedef struct epoll_cgi {
-	http_connect_t *con;
+	string *file;
+	pool_t *p;
+	unsigned int pid;
+	unsigned int last_active_ts;
 	int fd;
-	struct list_buffer *cgi_data;
-	list_buffer *out;
+	CGI_STATUS status;//0运行中，1开始回收，2运行结束
+	list_buffer_t *cgi_data;
+	list_buffer_t *out;
 }epoll_cgi_t;
+
+typedef struct exce_cgi_info_manager {
+	hash *h;
+	pool_t *p;//没有写内存回收策略，在hash的bucket多次改变，会出现浪费内存，
+}exce_cgi_info_manager_t;
 
 
 #define _Server "DevSync"
