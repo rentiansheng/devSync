@@ -176,7 +176,11 @@ void * palloc(pool_t *p, size_t size) {
 			m = current->location;
 			if((size_t)(current->end - m) < size) {
 				current->failed ++;
+				if(current->failed > 5) {
+					p->current = current->next;
+				}
 				current = current->next;
+
 				continue;
 			}
 			
@@ -199,4 +203,8 @@ void * pcalloc(pool_t *p, size_t size) {
 	memset(m, 0, size);
 
 	return m;
+}
+
+void reset_pool(pool_t *p) {
+
 }
