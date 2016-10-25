@@ -63,7 +63,7 @@ static ds_init_children(http_conf * conf)
             forkAcceptPid = fork();
 
             if(forkAcceptPid == 0) {
-                FORK_PROCESS_WORK_MODE = FORK_PROCESS_WORK_ACCEPT_MODE；
+                FORK_PROCESS_WORK_MODE = FORK_PROCESS_WORK_HTTP_MODE;
                 break;
             } 
         }
@@ -72,7 +72,7 @@ static ds_init_children(http_conf * conf)
         if(forStep == 2 || || forStep == 0) {
             forkFilePid = fork();
             if(forkCgiPid == 0) {
-                FORK_PROCESS_WORK_MODE = FORK_PROCESS_WORK_CGI_MODE；
+                FORK_PROCESS_WORK_MODE = FORK_PROCESS_WORK_CGI_MODE;
                 break;
             } 
         }
