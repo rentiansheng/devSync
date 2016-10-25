@@ -28,6 +28,7 @@ request * request_init(pool_t *p)
 	request *in;
 
 	in = pcalloc(p, sizeof(request));
+	in->exce_file = NULL;
 
 
 	return in;
@@ -91,7 +92,6 @@ int start_accept(http_conf *g)
 	struct sockaddr addr;
 	struct sockaddr_in addrIn;
 	socklen_t addLen = sizeof(struct sockaddr );
-
 
 	start_web_server(g);
 
@@ -159,6 +159,7 @@ int start_accept(http_conf *g)
 	 					break;
 					case CGIFD: {
 	 					epoll_cgi_t *cgi = (epoll_cgi_t *)epoll_data->ptr;
+						
 		 				break;
 	 	 			}
 	 	 		}
