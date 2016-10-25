@@ -29,11 +29,17 @@ typedef struct {
 } buffer_array;
 
 
+typedef struct list_buffer_item {
+	char *ptr;
+	size_t used;
+	struct list_buffer_item * next;
+}list_buffer_item_t;
 
 typedef struct list_buffer {
-	buffer *b;
-	struct list_buffer *next;
-}list_buffer;
+	list_buffer_item_t *head;
+	list_buffer_item_t *foot;
+	size_t size;
+}list_buffer_t;
 
 
 
@@ -44,22 +50,17 @@ buffer * buffer_create_size(pool_t *p, size_t len);
 
 void buffer_append_char(buffer *b, char c, pool_t *p);
 
-int buffer_get_word_with_split(buffer *src, string *dst, char split);
+int buffer_get_word_with_split(buffer *src, struct string *dst, char split);
 
-int  buffer_get_line(buffer *src, string *dst);
+int  buffer_get_line(buffer *src, struct string *dst);
 
 void buffer_clear(buffer *b);
 
-list_buffer * list_buffer_create(pool_t *p);
+list_buffer_t * list_buffer_create(pool_t *p, size_t size );
 
-list_buffer * list_buffer_add(pool_t *p, list_buffer *lb);
+int  list_buffer_add(pool_t *p, list_buffer_t *b);
 
-list_buffer * list_buffer_last(list_buffer *lb);
-
-void list_buffer_to_lower(list_buffer *lb);
-
-
-void list_buffer_used_to_zero(list_buffer *lb);
+list_buffer_t * list_buffer_last(list_buffer_t *lb);
 
 void buffer_find_str(buffer *src, buffer *dst, char *str);
 

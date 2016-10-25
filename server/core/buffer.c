@@ -118,47 +118,41 @@ void buffer_clear(buffer *b)
 	b->used = 0;
 }
 
-list_buffer *list_buffer_create(pool_t *p)
+list_buffer_t * list_buffer_create(pool_t *p, size_t size )
 {
-	list_buffer * b;
+	list_buffer_t * b;
 	
-	b = (list_buffer *)palloc(p, sizeof(list_buffer));
-	b->b = NULL;
-	b->next = NULL;
+	b = (list_buffer_t *)palloc(p, sizeof(list_buffer_t));
+	b->size = size;
+	b->head = (list_buffer_item_t *)palloc(p, sizeof(list_buffer_item_t));
+	b->head->ptr  = (char *)palloc(p, size);
+	b->head->used = 0;
+	b->foot = b->head;
 	
 	return b;
 }
 
-list_buffer * list_buffer_add(pool_t *p, list_buffer *lb)
+int  list_buffer_add(pool_t *p, list_buffer_t *b)
 {	
-	if(lb->b != NULL) {
-		while(lb->next != NULL && lb->b != NULL) lb = lb->next;
-		
-		if(lb->next != NULL) {
-			lb->next = list_buffer_create(p);
-			lb = lb->next;
-		}
-	}
-
-	return lb;
-}
-
-list_buffer * list_buffer_last(list_buffer *lb)
-{
-	while(lb->next != NULL) lb = lb->next;
-
-	return lb;
-}
-
-void list_buffer_to_lower(list_buffer *lb)
-{
-	buffer *b ;
 	
-	for(b = lb->b; lb  != NULL; lb = lb->next) {
-		b = lb->b;
-		buffer_to_lower(b);
+	list_buffer_item_t * item = (list_buffer_item_t *)palloc(p, sizeof(list_buffer_item_t));
+	item->ptr  = (char *)palloc(p, b->size);
+	if(item->ptr == NULL) {
+		return -1;
 	}
+	item->used = 0;
+	b->foot->next = item;
+	b->foot = item;
+	return 0;
 }
+
+list_buffer_t * list_buffer_last(list_buffer_t *lb)
+{
+
+	return lb->foot;
+}
+
+
 
 
 void buffer_n_to_lower(buffer *src, int n)
@@ -195,14 +189,6 @@ void buffer_find_str(buffer *src, buffer *dst, char *str)
 }
 
 
-void list_buffer_used_to_zero(list_buffer *lb)
-{
-	while(lb != NULL) {
-		lb->b->size = lb->b->used;
-		lb->b->used = 0;
-		lb = lb->next;
-	}
-}
 
 
 int buffer_prepare_int(pool_t *p, buffer * b, size_t size)
