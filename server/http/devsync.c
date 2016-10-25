@@ -59,7 +59,12 @@ int main(int argc, char *argv[])
 
 	ds_daemon(&conf, t);
 
-	start_accept(&conf);
+	if(FORK_PROCESS_WORK_MODE == FORK_PROCESS_WORK_ACCEPT_MODE) {
+		start_accept(&conf);
+	} else {
+		start_cgi(&conf);
+	}
+
 
 
 
