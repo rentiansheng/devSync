@@ -7,6 +7,7 @@
 #define _HTTP_DS_LOG_H_
 #include <stdio.h>
 #include <sys/types.h>
+#include <time.h>
 #include <sys/stat.h>
 #include "base.h"
 
