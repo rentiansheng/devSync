@@ -125,8 +125,7 @@ int hash_del_item(hash_t *h, const char *key, int keyLen) {
     return 0;
 }
 
-
-static hash_item_t * get_hash_item(hash_t *h, const char *key, int keyLen) {
+hash_item_t * get_hash_item(hash_t *h, const char *key, int keyLen) {
     unsigned int index = hash_index(h, key, keyLen);
 
     hash_item_t * item = h->buckets[index].items;
