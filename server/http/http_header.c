@@ -31,24 +31,6 @@ static int read_http_header(buffer *header, pool_t *p, int fd){
 	return 0;
 }
 
-/**
- *0 读取结束，其他没有结束
- *
- */
-int read_header(http_connect_t *con) {
-	pool_t *p;
-	buffer *header;
-
-
-	p =(pool_t *) con->p;
-
-	if(con->in->header == NULL)con->in->header = buffer_init(p);
-	header = con->in->header;
-	
-	return read_http_header(header, p, con->fd);
-}
-
-
 static char * skip_space(char *start, char *end){
 	if(start == NULL) return NULL;
 	while( *start == ' ' ) {
@@ -61,25 +43,15 @@ static char * skip_space(char *start, char *end){
 
 static char * find_line(char *start, char *end) {
 	while(*start != '\n') {
-		if(start >= end) return end;
+		if(start >= end) return NULL;
 		start ++;
 	}
 
 	return start;
 }
 
-void parse_header(http_connect_t * con) {
- 	request *in;
-	buffer *header;
-	pool_t *p;
-	char * start, *end;
+static int parse_http_request_row(pool_t *p, request *in , char *start, char * end) {
 
-
-	p = (pool_t *)con->p;
-	in = con->in;
-	header = in->header;
-	start = (char *)(header->ptr);
-	end = (char *)header->ptr + (header->used - 1);
 	if(strncasecmp(start,"put", 3) == 0) {
 		in->http_method = _PUT;
 		start += 3;
@@ -97,10 +69,125 @@ void parse_header(http_connect_t * con) {
 	in->uri->ptr = start;
 	start = find_line(start, end);
 	in->uri->len = start - in->uri->ptr;
-	start++;
 
+	return 0;
+}
 
+static int parse_content_length_compatible_old(request *in, char *start) {
+	if(start == NULL) {in->content_length= 0; return 0; }
 	in->content_length = atoi(start);
-	//test_print_header(in);
+
+	return 0;
+}
+
+static int parse_http_header_messge(pool_t *p, request *in, char *start, char *end) {
+
+	string *line = string_init(p);
+	string *key = string_init(p);
+	string *value = string_init(p);
+
+
+	while(start != NULL && start < end) {
+		if(*start == '\n') {
+			start ++;
+			continue;
+		}
+		string_get_line(start, end, line);
+		if(line->len == 0 || line->ptr == NULL) {
+			break;
+		}
+		string_get_word_with_split(line, key, ':');
+		if(key->len == 0 || key->ptr == NULL){
+			start = line->ptr + line->len;
+			continue;
+		}
+		start += key->len;
+		string_get_line(start , end, value);
+		if(value->len == 0 || key->ptr == NULL) {
+			start = line->ptr + line->len;
+			continue;
+		}
+		if(strncasecmp("content-length", key->ptr, key->len) == 0) {
+			in->content_length = atoi(key->ptr);
+		}else if(strncasecmp("exce-file", key->ptr, key->len) == 0) {
+			in->exce_file = string_init(p);
+			in->exce_file->ptr = value->ptr;
+			in->exce_file->len = value->len;
+		}
+
+		start = line->ptr + line->len;
+	}
+
+	return 0;
+
+}
+
+
+
+
+static void test_print_header(request *in)
+{
+	printf("uri=%s  len =%d\n", in->uri->ptr, in->uri->len);
+	
+	printf("content_length %d \n", in->content_length);
+
+	if(in->exce_file != NULL) {
+		printf("exce file %s %d", in->exce_file->ptr, in->exce_file->len);
+	}
+
+
+	printf("%s", in->header->ptr);
+
+}
+
+
+/**
+ *0 读取结束，其他没有结束
+ *
+ */
+int read_header(http_connect_t *con) {
+	pool_t *p;
+	buffer *header;
+
+
+	p =(pool_t *) con->p;
+
+	if(con->in->header == NULL)con->in->header = buffer_init(p);
+	header = con->in->header;
+	
+	return read_http_header(header, p, con->fd);
+}
+
+void parse_header(http_connect_t * con) {
+ 	request *in;	
+	buffer *header;
+	pool_t *p;
+	char * start, *end;
+
+
+	p = (pool_t *)con->p;
+	in = con->in;
+	header = in->header;
+	start = (char *)(header->ptr);
+	end = (char *)header->ptr + (header->used - 1);
+	
+	parse_http_request_row(p, in, start, end); //请求行
+
+	start = find_line(start, end);
+	if(start != NULL) {
+		start ++;
+	}
+	parse_content_length_compatible_old(in, start);
+
+	parse_http_header_messge(p, in, start, end);
+
+
+
+	test_print_header(in);
 	return ;
 }
+
+
+
+
+
