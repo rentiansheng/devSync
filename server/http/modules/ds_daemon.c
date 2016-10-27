@@ -52,27 +52,38 @@ static ds_init_children(http_conf * conf)
     int forStep = 0;//0标识运行accept和cgi， 1 标识只允许faccept, 2fork cgi进程
     int forkAcceptPid  = 0;
     int forkCgiPid = 0;
-    //使用两个pipe 完成accept 和cgi进程的通信
-    pipe(infd);
-	pipe(outfd);
+    //使用两个pipe 完成accept 和cgi进程的通信,pipe 0read, 1write
+    int pipHttp[2], pipCgi[2];
+
+    pipe(pipHttp);
+	pipe(pipCgi);
 
     int status;
     while(1) {
         
         if(forStep == 1 || forStep == 0 ) {
             forkAcceptPid = fork();
-
+            
+            
             if(forkAcceptPid == 0) {
-                FORK_PROCESS_WORK_MODE = FORK_PROCESS_WORK_HTTP_MODE;
+                conf->child_pip.in = pipHttp[0];
+                conf->child_pip.out = pipCgi[1];
+                close(pipHttp[1]);
+                close(pipCgi[0]);
+                conf->work_mode = FORK_PROCESS_WORK_HTTP_MODE;
                 break;
             } 
         }
         
        
-        if(forStep == 2 || || forStep == 0) {
-            forkFilePid = fork();
+        if(forStep == 2 || forStep == 0) {
+            forkCgiPid = fork();
             if(forkCgiPid == 0) {
-                FORK_PROCESS_WORK_MODE = FORK_PROCESS_WORK_CGI_MODE;
+                conf->child_pip.in = pipCgi[0];
+                conf->child_pip.out = pipHttp[1];
+                close(pipHttp[0]);
+                close(pipCgi[1]);
+                conf->work_mode = FORK_PROCESS_WORK_CGI_MODE;
                 break;
             } 
         }
@@ -80,9 +91,9 @@ static ds_init_children(http_conf * conf)
         
         int pid = wait(&status);
         if(pid == forkAcceptPid) {
-            forStep == 1;
+            forStep = 1;
         } else if (pid == forkCgiPid) {
-            forStep == 2;
+            forStep = 2;
         }
 
     }
@@ -90,11 +101,7 @@ static ds_init_children(http_conf * conf)
 
 
 int ds_daemon(http_conf * conf, int t)
-{
-
-
-    int ds_pid = 0;
-  
+{  
     int uid = getuid();
     int gid = getgid();
     int status = 0;
@@ -120,7 +127,7 @@ int ds_daemon(http_conf * conf, int t)
    if( t == 0 || t == 1) {
        ds_init_children(conf);
 
-       ds_pid = getpid();
+       //ds_pid = getpid();
 
         if(setsid() == -1) {  //setsid创建一个新会话
             printf("setsid() failed!" DS_LINEEND);
@@ -131,6 +138,27 @@ int ds_daemon(http_conf * conf, int t)
         setuid(uid);
         setgid(gid);
         ds_init(conf);
+   }
+
+   if(t == 2) {
+       //使用两个pipe 完成accept 和cgi进程的通信,pipe 0read, 1write
+       int pipHttp[2], pipCgi[2];
+       pipe(pipHttp);
+       pipe(pipCgi);
+       int forkCgiPid = fork();
+       if(forkCgiPid == 0) {
+            conf->child_pip.in = pipCgi[0];
+            conf->child_pip.out = pipHttp[1];
+            close(pipHttp[0]);
+            close(pipCgi[1]);
+            conf->work_mode = FORK_PROCESS_WORK_CGI_MODE;
+        } else {
+            conf->child_pip.in = pipHttp[0];
+            conf->child_pip.out = pipCgi[1];
+            close(pipHttp[1]);
+            close(pipCgi[0]);
+            conf->work_mode = FORK_PROCESS_WORK_HTTP_MODE;
+        }
    }
  
 

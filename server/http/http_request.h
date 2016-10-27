@@ -18,6 +18,7 @@
 #include "http_file_write.h"
 #include "http_send_page.h"
 #include "modules/ds_log.h"
+#include "http_execute_sh.h"
 #include "linux_epoll.h"
 
 

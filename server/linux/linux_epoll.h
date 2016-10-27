@@ -24,6 +24,7 @@
 #define SOCKFD 2
 #define CGIFD 3
 #define WRITEFILE 4
+#define CGISERVERFD 5
 
 
 int epoll_init(long max); 

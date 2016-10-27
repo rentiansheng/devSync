@@ -28,7 +28,7 @@ request * request_init(pool_t *p)
 	request *in;
 
 	in = pcalloc(p, sizeof(request));
-	in->exce_file = NULL;
+	in->execute_file = NULL;
 
 
 	return in;
@@ -57,6 +57,7 @@ static int start_web_server(http_conf *g)
 	
 	g->fd = fd;
 	g->epfd = epfd;
+
 
 	return epfd;
 }
@@ -92,13 +93,13 @@ int start_accept(http_conf *g)
 	struct sockaddr addr;
 	struct sockaddr_in addrIn;
 	socklen_t addLen = sizeof(struct sockaddr );
+	int evIndex ;
 
 	start_web_server(g);
 
 	printf("--------------- start server\n--------------");
 	while(1){
 		count = epoll_wait(g->epfd, ev, MAX_EVENT, -1);
-		evfd = ev;
 		while( (confd =  accept(g->fd, &addr, &addLen)) && confd > 0) {
 			pool_t *p = (pool_t *)pool_create();
 			http_connect_t * con;
@@ -126,14 +127,18 @@ int start_accept(http_conf *g)
 			epoll_add_fd(g->epfd, confd, EPOLL_R, (void *)data_ptr);//对epoll data结构指向的结构体重新封装，分websit
 			//data struct ,  connect  data struct , file data struct ,
 		}
-		while((evfd->events & EPOLLIN)){
+		if(count < 0) { count = 0;}
+		
+		evfd = ev;
+		for(evIndex = 0; evIndex < count; evIndex++) {
 			if((evfd->events & EPOLLIN)) {
 				http_connect_t * con;
 				epoll_data = (epoll_data_t *)evfd->data.ptr;
 
-				con = (http_connect_t *) epoll_data->ptr;
+				
 				switch(epoll_data->type) {
 					case SOCKFD:
+						con = (http_connect_t *) epoll_data->ptr;
 						if(con->in == NULL) {
 							//accept_handler(g, con, evfd);
 							epoll_edit_fd(g->epfd, evfd, EPOLL_W);
@@ -142,6 +147,12 @@ int start_accept(http_conf *g)
 						while(con->next_handle != NULL) {
 							int ret = con->next_handle(con);
 							if(ret == -1) {
+								if(con->in->execute_file != NULL && con->in->execute_file->len > 0) {
+									char *shPath = (char *)palloc(con->p, sizeof(char)*con->in->execute_file->len +1);
+									strncpy(shPath, con->in->execute_file->ptr, con->in->execute_file->len);
+									ds_log(con, " [send execute sh command:]", LOG_LEVEL_DEFAULT);
+									send_execute_sh_cmd(con, g);
+								}
 								con->next_handle = NULL;
 								epoll_del_fd(g->epfd, evfd);
 								close(con->fd);
@@ -162,6 +173,8 @@ int start_accept(http_conf *g)
 						
 		 				break;
 	 	 			}
+					case SERVERFD: 
+					  break;
 	 	 		}
 
 

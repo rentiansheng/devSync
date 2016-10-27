@@ -3,8 +3,8 @@
  * BLOG: http://www.ireage.com
  */
 
- #ifndef _HTTP_HEADER_H
- #define _HTTP_HEADER_H 
+ #ifndef _HTTP_HEADER_H_
+ #define _HTTP_HEADER_H_
 
 #include <stdio.h>
 #include <stdlib.h>

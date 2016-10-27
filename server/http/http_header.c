@@ -101,7 +101,7 @@ static int parse_http_header_messge(pool_t *p, request *in, char *start, char *e
 			start = line->ptr + line->len;
 			continue;
 		}
-		start += key->len;
+		start += key->len+1;
 		string_get_line(start , end, value);
 		if(value->len == 0 || key->ptr == NULL) {
 			start = line->ptr + line->len;
@@ -109,10 +109,10 @@ static int parse_http_header_messge(pool_t *p, request *in, char *start, char *e
 		}
 		if(strncasecmp("content-length", key->ptr, key->len) == 0) {
 			in->content_length = atoi(key->ptr);
-		}else if(strncasecmp("exce-file", key->ptr, key->len) == 0) {
-			in->exce_file = string_init(p);
-			in->exce_file->ptr = value->ptr;
-			in->exce_file->len = value->len;
+		}else if(strncasecmp("execute-file", key->ptr, key->len) == 0) {
+			in->execute_file = string_init(p);
+			in->execute_file->ptr = value->ptr;
+			in->execute_file->len = value->len;
 		}
 
 		start = line->ptr + line->len;
@@ -131,8 +131,8 @@ static void test_print_header(request *in)
 	
 	printf("content_length %d \n", in->content_length);
 
-	if(in->exce_file != NULL) {
-		printf("exce file %s %d", in->exce_file->ptr, in->exce_file->len);
+	if(in->execute_file != NULL) {
+		printf("execute file %s %d", in->execute_file->ptr, in->execute_file->len);
 	}
 
 
@@ -183,7 +183,7 @@ void parse_header(http_connect_t * con) {
 
 
 
-	test_print_header(in);
+	//test_print_header(in);
 	return ;
 }
 

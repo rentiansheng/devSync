@@ -63,7 +63,7 @@ int hash_get_ptr(hash_t *h, const char *key, int keyLen, void * ret, size_t size
 int hash_del_item(hash_t *h, const char *key, int keyLen);
 int hash_add_item(hash_t *h, hash_item_t *newItem);
 static int hash_add(pool_t *p, hash_t *h ,const char * key, int keyLen, void * ptr, int type);
-static hash_item_t * get_hash_item(hash_t *h, const char *key, int keyLen);
+hash_item_t * get_hash_item(hash_t *h, const char *key, int keyLen);
 static unsigned int  hash_reinit(pool_t *p, hash_t *h);
 
 static unsigned int hash_index(hash_t * h, char *ptr, int len);

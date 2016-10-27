@@ -84,6 +84,8 @@ int buffer_path_simplify(buffer *dest, const buffer *src);
 
 void buffer_append_str(buffer *b, char *str, int len, pool_t *p);
 
+void buffer_append_long(buffer *b, long value, pool_t *p) ;
+
 void buffer_append_n_str(buffer *b, char *str, int len, pool_t *p);
 
 

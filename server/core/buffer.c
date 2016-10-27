@@ -59,6 +59,12 @@ void buffer_append_n_str(buffer *b, char *str, int len, pool_t *p)
 	b->used += len;
 }
 
+void buffer_append_long(buffer *b, long value, pool_t *p) {
+	char strInt[16];
+	snprintf(strInt, 16, "%ld", value);
+	buffer_append_str(b, strInt, strlen(strInt),p);
+}
+
 int buffer_get_word_with_split(buffer *src, string *dst, char split)
 {
 	char *p, *end;

@@ -19,7 +19,7 @@ string * string_init_from_str(pool_t *p, char *b, size_t len) {
 
 	str->ptr = (void *)palloc(p, sizeof(char)*(len+1));
 	str->len = len;
-	strncpy(str->ptr, b, len);
+	memcpy(str->ptr, b, len);
     str->ptr[len] = 0;
 
 	return str;

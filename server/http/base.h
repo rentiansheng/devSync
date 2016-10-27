@@ -42,10 +42,9 @@
 #define HANDLE_STATUS_CONTINUE 1
 #define HANDLE_STATUS_FAILD -1
 
-#define FORK_PROCESS_WORK_HTTP_MODE = 1;
-#define FORK_PROCESS_WORK_CGI_MODE = 2;
+#define FORK_PROCESS_WORK_HTTP_MODE  1
+#define FORK_PROCESS_WORK_CGI_MODE  2
 
-int FORK_PROCESS_WORK_MODE = FORK_PROCESS_WORK_HTTP_MODE;
 
 
 typedef enum{
@@ -121,12 +120,19 @@ typedef struct web_conf {
 	struct web_conf *next;
 }web_conf;
 
+typedef struct fork_child_connect_pipe {
+	int in;
+	int out;
+}fork_child_connect_pipe_t;//用于http和cgi子进程之间通信
+
 typedef struct http_conf {
 	int web_count;
 	int port;
 	int epfd;
 	int fd;
 	char *user;
+	fork_child_connect_pipe_t child_pip;
+	int work_mode;
 	key *mimetype;
 	web_conf *web;
 }http_conf;
@@ -158,7 +164,7 @@ typedef struct request{
 	string * http_version;
 	COMPRESS_TYPE accept_encoding;
 	unsigned int  content_length;
-	string * exce_file;
+	string * execute_file;
 	buffer *header;
 
 }request;
@@ -180,7 +186,7 @@ typedef struct epoll_extra_data {
 	void *ptr;
 }epoll_extra_data_t;
 
-typedef struct cgi_ev {
+typedef struct cgi_ev_t {
 	char *ev[20];
 	int count;
 	int stdin;
@@ -193,17 +199,18 @@ typedef struct epoll_cgi {
 	string *file;
 	pool_t *p;
 	unsigned int pid;
-	unsigned int last_active_ts;
+	unsigned int last_run_ts;
+	unsigned int last_add_ts;
 	int fd;
 	CGI_STATUS status;//0运行中，1开始回收，2运行结束
 	list_buffer_t *cgi_data;
 	list_buffer_t *out;
 }epoll_cgi_t;
 
-typedef struct exce_cgi_info_manager {
-	hash *h;
+typedef struct execute_cgi_info_manager {
+	hash_t *h;
 	pool_t *p;//没有写内存回收策略，在hash的bucket多次改变，会出现浪费内存，
-}exce_cgi_info_manager_t;
+}execute_cgi_info_manager_t;
 
 
 #define _Server "DevSync"

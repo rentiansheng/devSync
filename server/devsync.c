@@ -7,6 +7,7 @@
 #include "config.h"
 #include "base.h"
 #include "http_request.h"
+#include "cgi.h"
 #include "modules/ds_daemon.h"
 
 
@@ -59,7 +60,7 @@ int main(int argc, char *argv[])
 
 	ds_daemon(&conf, t);
 
-	if(FORK_PROCESS_WORK_MODE == FORK_PROCESS_WORK_ACCEPT_MODE) {
+	if(conf.work_mode == FORK_PROCESS_WORK_HTTP_MODE) {
 		start_accept(&conf);
 	} else {
 		start_cgi(&conf);

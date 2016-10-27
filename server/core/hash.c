@@ -144,7 +144,6 @@ hash_item_t * get_hash_item(hash_t *h, const char *key, int keyLen) {
 
 }
 
-
 static int hash_add(pool_t *p, hash_t *h ,const char * key, int keyLen, void * ptr, int type) {
 
     hash_item_t * newItem = (hash_item_t *)pcalloc(p, sizeof(hash_item_t));
@@ -186,7 +185,7 @@ static int hash_add(pool_t *p, hash_t *h ,const char * key, int keyLen, void * p
 
 }
 
-static int hash_add_item(hash_t *h, hash_item_t *newItem) {
+int hash_add_item(hash_t *h, hash_item_t *newItem) {
 
     unsigned int index = hash_index(h, newItem->key->ptr, newItem->key->len);
 
