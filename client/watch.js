@@ -56,7 +56,10 @@ var fileWatcher = (function() {
 
                 });
                 client.on('error', function(err) {
-                    //console.log(err);
+                    console.log("\n\n=============\nfatel error\n")
+                    console.log("* sync file error:[check network or server is start]");
+                    console.log("\n=============\n")
+
                 });
             } catch (err) {
                 console.log(err);
