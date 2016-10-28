@@ -61,8 +61,6 @@ void cgi_handle(epoll_cgi_t *cgi_info, http_conf *g) {
 			close(infd[1]);
 			close(outfd[0]);
 			
-			printf("pid %d \n", pid);
-
 			cgi_info->fd = infd[0];
 			cgi_info->pid = pid;
 			cgi_info->last_run_ts = time((time_t*)NULL);

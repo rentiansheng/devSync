@@ -98,7 +98,7 @@ static void signalhld_handle(int sig) {
         printf("why \n");
         return;
     }
-    printf("signal status%d pid %d %d\n", status, pid, sig);
+
     for(i = 0; i < cgi_info_manager_gloabal->h->size; i++) {
         hitem = cgi_info_manager_gloabal->h->buckets[i].items;
         while(hitem) {
@@ -106,16 +106,13 @@ static void signalhld_handle(int sig) {
                 executeCgi = (epoll_cgi_t *)hitem->value.ptr;
 
                 if(executeCgi->pid == pid ) {
-                    printf("get pid in signal \n");
                     executeCgi->status = CGI_STATUS_END;
                     executeCgi->pid = 0;
                     close(executeCgi->fd);
                     pool_destroy(executeCgi->p);
                     executeCgi->p = NULL;
 
-printf(" signal  ts %d %d \n", executeCgi->last_run_ts,  executeCgi->last_add_ts);
                     if(executeCgi->last_run_ts < executeCgi->last_add_ts) {//执行时间小于
-                        printf("start cgi\n");                    
                         executeCgi->status = CGI_STATUS_CLOSEING;
                         cgi_handle(executeCgi, g_goabal);
 
@@ -176,23 +173,19 @@ int start_cgi(http_conf *g) {
         }
 
         //开始执行cgi任务, 其实可以用回调函数或者hash_filter返回可用的数据。然而我不回写如何将函数做为参数
-        printf("foreach hash \n");
         for(i = 0; i < cgi_info_manager->h->size; i++) {
             hitem = cgi_info_manager->h->buckets[i].items;
             while(hitem) {
 
                 if(hitem->type == HASH_ITEM_VALUE_TYPE_PTR) {
                     executeCgi = (epoll_cgi_t *)hitem->value.ptr;
-                                            printf(" status end %d %d %d \n", executeCgi->status, executeCgi->last_run_ts , executeCgi->last_add_ts);
 
                     if(executeCgi->status == CGI_STATUS_RUN && executeCgi->last_run_ts < executeCgi->last_add_ts) {
                         executeCgi->status = CGI_STATUS_CLOSEING;
-                        printf("kill %d\n", executeCgi->pid);
                         kill(executeCgi->pid, SIGKILL);
                     
                     } else if(executeCgi-> status != CGI_STATUS_CLOSEING ) {
                         if(executeCgi->last_run_ts < executeCgi->last_add_ts ) {//执行时间小于
-                            printf("start cgi\n");
                             executeCgi->status = CGI_STATUS_CLOSEING;
                             cgi_handle(executeCgi, g);
                         }
