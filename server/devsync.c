@@ -57,12 +57,15 @@ int main(int argc, char *argv[])
 
 	conf.port = ds_port;
 	conf.user = user;
+	sprintf(argv[0], "devSync master                                       ");
 
 	ds_daemon(&conf, t);
 
 	if(conf.work_mode == FORK_PROCESS_WORK_HTTP_MODE) {
+		sprintf(argv[0], "devSync HTTP                                    ");
 		start_accept(&conf);
 	} else {
+		sprintf(argv[0], "devSync CGI                                     ");
 		start_cgi(&conf);
 	}
 
