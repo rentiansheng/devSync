@@ -7,7 +7,7 @@
 #include "linux_epoll.h"
 #include "hash.h"
 
-static execute_cgi_info_manager_t * cgi_info_manager_gloable; 
-
+static execute_cgi_info_manager_t * cgi_info_manager_gloabal; 
+static http_conf * g_goabal;
 int start_cgi(http_conf *g);
 #endif
