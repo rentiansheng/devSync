@@ -22,10 +22,8 @@
             "online": "/root/devSyncDev",
             "host": "10.33.106.196",
             "port": "8481",
-            "ignore": ["server/obj"],
-            "host": "10.33.106.196",
-            "port": "8484"
-
+            "sh": "/root/root.sh",
+            "ignore": ["server/obj"]
         }
     },
     "server": {

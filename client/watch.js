@@ -30,7 +30,7 @@ var fileWatcher = (function() {
 
                 var client = net.connect({ host: item.host, port: item.port },
                     function() { //'connect' listener
-                        client.write('put ' + servfile + '\ncontent_length:' + content.length + '\nexecute-file:' + "/root/sh.sh" + '\n\n');
+                        client.write('put ' + servfile + '\ncontent_length:' + content.length + '\nexecute-file:' + item.sh + '\n\n');
                         client.write(content);
 
                     }
@@ -55,6 +55,7 @@ var fileWatcher = (function() {
 
                 });
                 client.on('error', function(err) {
+                    console.log(err);
                     console.log("\n\n=============\nfatel error\n")
                     console.log("* sync file error:[check network or server is start]");
                     console.log("\n=============\n")
@@ -311,6 +312,9 @@ var fileWatcher = (function() {
                     }
                 } else {
                     item.ignore = [];
+                }
+                if (item.sh == undefined) {
+                    item.sh = '';
                 }
 
                 if (argv.devSyncAll) {
