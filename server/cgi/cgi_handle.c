@@ -43,7 +43,7 @@ void cgi_handle(epoll_cgi_t *cgi_info, http_conf *g) {
 			
 			close(infd[0]);
 			close(outfd[1]);
-			if(execve(argv[0], argv, cgi_ev->ev) == 0) {
+			if(execve(argv[0], argv, environ) == 0) {
 			}
 			else {
 			}

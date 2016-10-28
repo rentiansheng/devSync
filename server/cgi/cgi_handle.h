@@ -10,6 +10,7 @@
 #include "str.h"
 #include "linux_epoll.h"
 
+extern char **environ;
 
 void cgi_handle(epoll_cgi_t *cgi_info, http_conf *g);
 
