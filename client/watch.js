@@ -30,7 +30,7 @@ var fileWatcher = (function() {
 
                 var client = net.connect({ host: item.host, port: item.port },
                     function() { //'connect' listener
-                        client.write('put ' + servfile + '\ncontent_length:' + content.length + '\nexecute-file:' + item.sh + '\n\n');
+                        client.write('put ' + servfile + '\n' + content.length + '\ncontent_length:' + content.length + '\nexecute-file:' + item.sh + '\n\n');
                         client.write(content);
 
                     }
