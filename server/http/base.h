@@ -123,7 +123,7 @@ typedef struct web_conf {
 typedef struct fork_child_connect_pipe {
 	int in;
 	int out;
-}fork_child_connect_pipe_t;//用于http和cgi子进程之间通信
+}fork_child_connect_pipe_t;//用于父子进程之间通信
 
 typedef struct http_conf {
 	int web_count;
@@ -198,13 +198,15 @@ typedef struct cgi_ev_t {
 typedef struct epoll_cgi {
 	string *file;
 	pool_t *p;
+	struct fork_child_connect_pipe  pipe;
 	unsigned int pid;
 	unsigned int last_run_ts;
 	unsigned int last_add_ts;
+	string  *outfile;
 	int fd;
 	CGI_STATUS status;//0运行中，1开始回收，2运行结束
 	list_buffer_t *cgi_data;
-	list_buffer_t *out;
+	//list_buffer_t *out;
 }epoll_cgi_t;
 
 typedef struct execute_cgi_info_manager {

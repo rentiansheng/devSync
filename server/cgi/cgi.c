@@ -109,6 +109,8 @@ static void signalhld_handle(int sig) {
                     executeCgi->status = CGI_STATUS_END;
                     executeCgi->pid = 0;
                     close(executeCgi->fd);
+                    close(executeCgi->pipe.in);
+                    close(executeCgi->pipe.out);
                     pool_destroy(executeCgi->p);
                     executeCgi->p = NULL;
 
@@ -138,6 +140,7 @@ int start_cgi(http_conf *g) {
     hash_item_t * hitem;
     epoll_cgi_t * executeCgi;
     int evIndex;
+
 
     g_goabal = g;
 
@@ -181,7 +184,7 @@ int start_cgi(http_conf *g) {
                     executeCgi = (epoll_cgi_t *)hitem->value.ptr;
 
                     if(executeCgi->status == CGI_STATUS_RUN && executeCgi->last_run_ts < executeCgi->last_add_ts) {
-                        executeCgi->status = CGI_STATUS_CLOSEING;
+                        printf("kill pid %d\n", executeCgi->pid);
                         kill(executeCgi->pid, SIGKILL);
                     
                     } else if(executeCgi-> status != CGI_STATUS_CLOSEING ) {

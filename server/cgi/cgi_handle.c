@@ -61,7 +61,9 @@ void cgi_handle(epoll_cgi_t *cgi_info, http_conf *g) {
 			close(infd[1]);
 			close(outfd[0]);
 			
-			cgi_info->fd = infd[0];
+			cgi_info->pipe.in = infd[0];
+			cgi_info->pipe.out = outfd[1];
+			cgi_info->fd =  open(cgi_info->outfile->ptr, O_RDWR|O_CREAT|O_TRUNC|O_NONBLOCK, 0777);
 			cgi_info->pid = pid;
 			cgi_info->last_run_ts = time((time_t*)NULL);
 			cgi_info->p = p;
@@ -83,10 +85,15 @@ void cgi_handle(epoll_cgi_t *cgi_info, http_conf *g) {
 
 int init_cgi_data_struct(string *execute_file, execute_cgi_info_manager_t *cgi_info_manager, unsigned int ts) {
 	epoll_cgi_t * cgiInfo = (epoll_cgi_t *)palloc(cgi_info_manager->p, sizeof(epoll_cgi_t ));
+	int nameSize = 30;
+	char *name =(char *)palloc(cgi_info_manager->p,nameSize); //存储编译输出内容的文件
+	snprintf(name, nameSize, "/tmp/devsync%d.out", ts);
+	
 	cgiInfo->file = string_init_from_str(cgi_info_manager->p, execute_file->ptr, execute_file->len);
 	cgiInfo->last_add_ts = ts;
 	cgiInfo->last_run_ts = 0;
 	cgiInfo->status = CGI_STATUS_END;
+	cgiInfo->outfile = string_init_from_ptr(cgi_info_manager->p, name, nameSize);
 	hash_add_ptr(cgi_info_manager->p, cgi_info_manager->h, cgiInfo->file->ptr, cgiInfo->file->len, cgiInfo);
 	return 0;
 }
@@ -94,24 +101,11 @@ int init_cgi_data_struct(string *execute_file, execute_cgi_info_manager_t *cgi_i
 int get_cgi_operator_handle(epoll_cgi_t *cgi_info) {
 	int size = 1024;
 	int count ;
-
-	if(cgi_info->out == NULL) {
-		cgi_info->out =  list_buffer_create(cgi_info->p, size);
-	}
-	list_buffer_item_t *foot_item = cgi_info->out->foot;
-	if(size <= foot_item->used) {
-		list_buffer_add(cgi_info->p, cgi_info->out);
-		foot_item = cgi_info->out->foot;
-	}
+	char content[1024];
 	
 
-	 while((count = read(cgi_info->fd, foot_item->ptr, (size - foot_item->used))) > 0) {
-
-		 foot_item->used += count;
-		 if(size <= foot_item->used) {
-			list_buffer_add(cgi_info->p, cgi_info->out);
-			foot_item = cgi_info->out->foot;
-		 }
+	 while((count = read(cgi_info->pipe.in, content, size)) > 0) {
+		write(cgi_info->fd, content, count);
     }
 
 }
