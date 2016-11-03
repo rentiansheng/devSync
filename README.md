@@ -102,6 +102,7 @@ $pwd 代表当前路径
  
  **启动参数 all 表示同步所有文件**
  **启动参数 -d 监控当前目录下（运行client的目录），当clietn的文件修改同步到server**
+ **启动参数 -d xxx -o， xxx配置，最近一次运行sh文件的输出结果 执行脚本的结果的rul，在浏览器中打开地址即可**
  
  
 #### client 配置
@@ -120,16 +121,18 @@ Client的配置文件放在$pwd/client/config.json，config.json 是个object，
  path 是个数组，每个数据项是同步的配置。每个数据项包含下面的值。
  
   	offline：本地需要同步到开发机器的代码路径
-  	exts: 可以同步的文件后缀
+  	exts: 可以同步的文件后缀,为空同步所有文件
   	ignore: 不需要同步的目录
   	host: 开发机地址
 	port: 端口号
+	sh: 可执行sh脚本的路径（服务器端）
 
  使用方法
  
  	cd 代码目录
  	node  $pwd/client/watch.js -d audit  //audit 表示使用path的那个配置
  	node  $pwd/client/watch.js all -d audit //audit 表示使用path的那个配置,all表示将本地所有文件同步到服务器
+	node  $pwd/client/watch.js all -d audit -o //查看最近一次运行sh文件的输出结果 
  	
  	等同于
  	Linux,Mac 使用
