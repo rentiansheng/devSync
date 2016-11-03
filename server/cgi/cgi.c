@@ -50,7 +50,7 @@ int parse_cig_header(execute_cgi_info_manager_t  * cgi_info_manager, buffer * he
     file.len = start - header->ptr;
     if(*start == '\n') {
         //string * file = string_init_from_str(cgi_info_manager->p, header->ptr, start- header->ptr);
-        hash_item_t * hitem = get_hash_item(cgi_info_manager->h, file.ptr, file.len-1);
+        hash_item_t * hitem = get_hash_item(cgi_info_manager->h, file.ptr, file.len);
         ts = atoi(start+1);
         if( hitem) {
             epoll_cgi_t *cgi_info = (epoll_cgi_t *) hitem->value.ptr;            
