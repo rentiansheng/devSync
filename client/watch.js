@@ -12,7 +12,7 @@ var fileWatcher = (function() {
     var filecount = 0;
     var sendFileNo = 0;
     var displayEnd = 1;
-    var MaxFileSize = 4000000; //4m
+    var MaxFileSize = 14000000; //14m
 
     //发送文件
     function sendFile(dir, filename, item, display) {
@@ -322,7 +322,7 @@ var fileWatcher = (function() {
                     if (item.sh == '') {
                         console.log("error: no configure execute file ");
                     } else {
-                        console.log("\n    \nhttp://" + item.host + ":" + item.port + item.sh+"\n");
+                        console.log("\n    \nhttp://" + item.host + ":" + item.port + item.sh + "\n");
                     }
                     return;
                 }
