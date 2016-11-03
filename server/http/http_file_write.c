@@ -77,6 +77,7 @@ int  open_write_file(http_connect_t *con)
     }
 
     ptr = (char *) palloc(p, sizeof(char)*2048);
+
     fp = fopen(uri->ptr, "w");
 
     if(fp) {
