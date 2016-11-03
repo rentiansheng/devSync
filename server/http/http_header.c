@@ -55,20 +55,30 @@ static int parse_http_request_row(pool_t *p, request *in , char *start, char * e
 	if(strncasecmp(start,"put", 3) == 0) {
 		in->http_method = _PUT;
 		start += 3;
-	}if(strncasecmp(start,"get", 3) == 0) {
+	}else if(strncasecmp(start,"get", 3) == 0) {
 		in->http_method = _GET;
 		start += 3;
 	}
 	else if(strncasecmp(start, "post", 4) == 0) {
 		in->http_method = _POST;
 		start += 4;
+	}else if(strncasecmp(start, "service", 7) == 0) {
+		in->http_method = _SERVICE;
+		start += 7;
+	}else {
+		in->http_method = _NONE;
 	}
 
 	start = skip_space(start, end);
 	in->uri = string_init(p);
 	in->uri->ptr = start;
 	start = find_line(start, end);
-	in->uri->len = start - in->uri->ptr;
+	char *ptr = in->uri->ptr ;
+	while(ptr < start && *ptr != ' ' && *ptr != '?') {
+		ptr++;
+	}
+
+	in->uri->len = ptr - in->uri->ptr;
 
 	return 0;
 }
