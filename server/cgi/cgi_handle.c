@@ -20,7 +20,6 @@ void cgi_handle(epoll_cgi_t *cgi_info, http_conf *g) {
 
 	cgi_ev_t *cgi_ev;
 	pool_t *p  = pool_create();
-	char *argv[3] = {0};
 	int d = 0;
 	int infd[2], outfd[2];//infd server read, outfd server write;
 	
@@ -30,14 +29,7 @@ void cgi_handle(epoll_cgi_t *cgi_info, http_conf *g) {
 	pipe(infd);
 	pipe(outfd);
 
-	cgi_ev->count = 0;
-	add_envp(p, cgi_ev, "REQUEST_METHOD" , "execve");
-	
 
-	argv[0] = "/bin/bash";
-	argv[1] = cgi_info->file->ptr;
-	argv[2] = 0;
-	//argv[0] = (char *)"/www/aa.cgi";
 
 	int pid = fork();
 
@@ -45,18 +37,24 @@ void cgi_handle(epoll_cgi_t *cgi_info, http_conf *g) {
 		case -1: 
 			break;
 		case 0: 
-	
 			dup2(infd[1], STDOUT_FILENO);
 			dup2(outfd[0], STDIN_FILENO);
 			dup2(infd[1], STDERR_FILENO);
 	
 			close(infd[0]);
 			close(outfd[1]);
-			char title[20];
-			memset(title, 0, 100*sizeof(char));
-			getTime(title, 20);
-			printf("\n\n                %s", title);
-			printf("    compilation result \n");
+			char title[100];
+			char ts[30];
+			
+			getTime(ts, 30);
+			snprintf(title, 100, "\n      %s    compilation result\n\n", ts);
+
+			write(STDOUT_FILENO, title, strlen(title));
+			
+			char *argv[3] = {0} ;
+			argv[0] = "/bin/bash";
+			argv[1] = cgi_info->file->ptr;
+			argv[2] = 0;
 
 			if(execve(argv[0], argv, environ) == 0) {
 			}
@@ -114,7 +112,6 @@ int init_cgi_data_struct(string *execute_file, execute_cgi_info_manager_t *cgi_i
 		}
 	}
 
-	
 	cgiInfo->file = string_init_from_str(cgi_info_manager->p, execute_file->ptr, execute_file->len);
 	cgiInfo->last_add_ts = ts;
 	cgiInfo->last_run_ts = 0;

@@ -9,6 +9,7 @@
 #include "errno.h"
 #include "str.h"
 #include "linux_epoll.h"
+#include "ds_log.h"
 
 extern char **environ;
 
