@@ -23,7 +23,7 @@ void cgi_handle(epoll_cgi_t *cgi_info, http_conf *g) {
 	char *argv[3] = {0};
 	int d = 0;
 	int infd[2], outfd[2];//infd server read, outfd server write;
-
+	
 	cgi_ev = (cgi_ev_t *)pcalloc(p, sizeof(cgi_ev_t));
 
 	cgi_info->p = p;
@@ -49,9 +49,14 @@ void cgi_handle(epoll_cgi_t *cgi_info, http_conf *g) {
 			dup2(infd[1], STDOUT_FILENO);
 			dup2(outfd[0], STDIN_FILENO);
 			dup2(infd[1], STDERR_FILENO);
-			
+	
 			close(infd[0]);
 			close(outfd[1]);
+			char title[20];
+			memset(title, 0, 100*sizeof(char));
+			getTime(title, 20);
+			printf("\n\n                %s", title);
+			printf("    compilation result \n");
 
 			if(execve(argv[0], argv, environ) == 0) {
 			}
@@ -94,16 +99,27 @@ void cgi_handle(epoll_cgi_t *cgi_info, http_conf *g) {
 
 
 int init_cgi_data_struct(string *execute_file, execute_cgi_info_manager_t *cgi_info_manager, unsigned int ts) {
+	int i = 0;
 	epoll_cgi_t * cgiInfo = (epoll_cgi_t *)palloc(cgi_info_manager->p, sizeof(epoll_cgi_t ));
-	int nameSize = 30;
-	char *name =(char *)palloc(cgi_info_manager->p,nameSize); //存储编译输出内容的文件
-	snprintf(name, nameSize, "/tmp/devsync%d.out", 888);//ts);
+	int nameSize = execute_file->len+30;
+	char *fileName =(char *)palloc(cgi_info_manager->p,nameSize); //存储编译输出内容的文件
+
+	execute_file->ptr[execute_file->len] = 0;
+	snprintf(fileName, nameSize, "/tmp/devsync%s.out", execute_file->ptr);//ts);
+
+	//跳过/tmp/devsync
+	for(i = 12 ; i < strlen(fileName); i++) {
+		if(fileName[i] == '/') {
+			fileName[i] = '-';
+		}
+	}
+
 	
 	cgiInfo->file = string_init_from_str(cgi_info_manager->p, execute_file->ptr, execute_file->len);
 	cgiInfo->last_add_ts = ts;
 	cgiInfo->last_run_ts = 0;
 	cgiInfo->status = CGI_STATUS_END;
-	cgiInfo->outfile = string_init_from_ptr(cgi_info_manager->p, name, nameSize);
+	cgiInfo->outfile = string_init_from_ptr(cgi_info_manager->p, fileName, nameSize);
 	hash_add_ptr(cgi_info_manager->p, cgi_info_manager->h, cgiInfo->file->ptr, cgiInfo->file->len, cgiInfo);
 	return 0;
 }
