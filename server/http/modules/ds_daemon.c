@@ -140,6 +140,9 @@ int ds_daemon(http_conf * conf, int t)
         ds_init(conf);
    }
 
+   /*if( t == 2) {
+       conf->work_mode = FORK_PROCESS_WORK_HTTP_MODE;
+   }*/
    if(t == 2) {
        //使用两个pipe 完成accept 和cgi进程的通信,pipe 0read, 1write
        int pipHttp[2], pipCgi[2];
