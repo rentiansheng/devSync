@@ -75,6 +75,8 @@ int accept_handler(http_connect_t *con)
 	if(con->in->http_method == _PUT) {
 		//open_write_file(con);
 		con->next_handle = open_write_file;
+	} else if(con->in->http_method == _GET) {
+		con->next_handle = send_execute;
 	} else {
 		con->next_handle = NULL;
 	}

@@ -51,6 +51,7 @@ typedef enum{
 	_GET,
 	_POST,
 	_PUT,
+	_SERVICE,
 	_NONE
 }http_method_t;
 

@@ -120,7 +120,7 @@ int ds_get_options(int argc, char *argv[])
 						t = 1;
 					}else if(strncmp("single",argv[i], slen) == 0){
 						t = 2;
-					} 
+					}
 
 				break;
 			}
