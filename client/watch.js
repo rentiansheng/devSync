@@ -271,13 +271,15 @@ var fileWatcher = (function() {
         var options = process.argv
         var len = options.length;
         var i;
-        var argv = { 'd': '', 'v': '', 'devSyncAll': false }
+        var argv = { 'd': '', 'v': '', 'devSyncAll': false, "v": false }
 
         for (i = 0; i < len; i++) {
             if (options[i] == '-d') {
                 argv.d = options[++i];
             } else if (options[i] == 'all') {
                 argv.devSyncAll = true;
+            } else if (options[i] == "-v") {
+                argv.view = true;
             }
         }
 
@@ -315,6 +317,16 @@ var fileWatcher = (function() {
                 if (item.sh == undefined) {
                     item.sh = '';
                 }
+
+                if (argv.view == true) {
+                    if (item.sh == '') {
+                        console.log("error: no configure execute file ");
+                    } else {
+                        console.log("\n    \nhttp://" + item.host + ":" + item.port + item.sh+"\n");
+                    }
+                    return;
+                }
+
 
                 if (argv.devSyncAll) {
                     printSyncAllHeader(true);
