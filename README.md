@@ -195,7 +195,7 @@ Client的配置文件放在$pwd/client/config.json，config.json 是个object，
 
   **当client端中文件修改保存的时候，client端会将整个文件的内容发送server端，server将重新写入整个文件**
 
-  **当服务端磁盘满或者权限问题造成的写入失败，不回提示client**
+  **当服务端磁盘满或者权限问题造成的写入失败，不提示client**
 
 
 
