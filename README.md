@@ -102,6 +102,7 @@ $pwd 代表当前路径
  **依赖nodejs。建议装比较搞的版本，避免监控文件过多，出现错误**
  
  **启动参数 all 表示同步所有文件**
+
  **启动参数 -d 监控当前目录下（运行client的目录），当clietn的文件修改同步到server**
 
  **启动参数 -d xxx -o， xxx配置，最近一次运行sh文件的输出结果 执行脚本的结果的url，在浏览器中打开地址即可**
@@ -170,7 +171,7 @@ Client的配置文件放在$pwd/client/config.json，config.json 是个object，
 
  也可以通过运行函数的时候使用参数自定端口号  -p port   (2015-11-04):Eg: obj/devSync -p 8485
 
- 新加-u参数，指定运行的帐户，使用-u参数一定要root或者sudo执行服务端(2016-7-15)。Eg: obj/devSync -u www
+ 新加-u参数，指定运行的帐户，使用-u参数一定要root或者sudo执行服务端(2016-7-15)。Eg: obj/devSync -u www //(注意在没有权限时，不回提示客户端)
 
 
  缺少日志
@@ -194,6 +195,8 @@ Client的配置文件放在$pwd/client/config.json，config.json 是个object，
 
   **当client端中文件修改保存的时候，client端会将整个文件的内容发送server端，server将重新写入整个文件**
 
- 
+  **当服务端磁盘满或者权限问题造成的写入失败，不回提示client**
+
+
 
 
