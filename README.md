@@ -1,8 +1,8 @@
-# devSync
+# devSync tool(代码同步工具)
 ---
 the local machine and develop machine synchronization code
 
-在文件变化时，同步到指定的机器，并且执行打包脚本
+在文件变化时，同步到指定的机器,并且执行脚本
 
 #本地代码同步到开发机
 ---
@@ -103,7 +103,8 @@ $pwd 代表当前路径
  
  **启动参数 all 表示同步所有文件**
  **启动参数 -d 监控当前目录下（运行client的目录），当clietn的文件修改同步到server**
- **启动参数 -d xxx -o， xxx配置，最近一次运行sh文件的输出结果 执行脚本的结果的rul，在浏览器中打开地址即可**
+
+ **启动参数 -d xxx -o， xxx配置，最近一次运行sh文件的输出结果 执行脚本的结果的url，在浏览器中打开地址即可**
  
  
 #### client 配置
