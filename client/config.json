@@ -19,10 +19,9 @@
             "port": "8484"
         },
         "dev": {
-            "online": "/root/devSyncDev",
+            "online": "/tmp/devSync",
             "host": "10.33.106.196",
             "port": "8481",
-            "sh": "/root/root.sh",
             "ignore": ["server/obj"]
         }
     },

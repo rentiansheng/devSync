@@ -218,7 +218,7 @@ typedef struct execute_cgi_info_manager {
 
 #define _Server "DevSync"
 #define _Auth_desc "DevSync"
-#define _Version "0.2.1"
+#define _Version "0.2.2"
 #define DS_LINEEND "\x0a"
 
 #endif
