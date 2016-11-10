@@ -1,26 +1,13 @@
 {
-    "local": [{
-            "offline": "/Users/reage/devSync",
-            "online": "/home/users/rentiansheng/tmp/odp_goods/app/goods",
-            "exts": [".php", ".js"],
-            "auto": 1
-        },
-        {
-            "offline": "/Users/reage/devSync",
-            "online": "/home/users/rentiansheng/tmp/odp_goods/app/goods1",
-            "exts": [".php", ".js"],
-            "auto": 1
-        }
-    ],
     "path": {
         "devSync": {
             "online": "/root/devSyncDev",
-            "host": "10.33.106.196",
+            "host": "127.0.0.1",
             "port": "8484"
         },
         "dev": {
             "online": "/tmp/devSync",
-            "host": "10.33.106.196",
+            "host": "127.0.0.1",
             "port": "8481",
             "ignore": ["server/obj"]
         }
