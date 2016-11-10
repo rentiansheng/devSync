@@ -85,6 +85,13 @@ int accept_handler(http_connect_t *con)
 }
 
 
+void client_request_close() {
+	char msg[] = "pip error, exit(1)\n";
+	write(STDOUT_FILENO, msg, strlen(msg));
+	exit(1);
+}
+
+
 int start_accept(http_conf *g)
 {
 	int count;
@@ -98,6 +105,8 @@ int start_accept(http_conf *g)
 	int evIndex ;
 
 	start_web_server(g);
+
+	signal (SIGPIPE, client_request_close);//test函数只在屏幕中输出了 test close  
 
 	printf("--------------- start server\n--------------");
 	while(1){
@@ -183,7 +192,24 @@ int start_accept(http_conf *g)
 			}
 			else if(evfd->events & EPOLLOUT) {
 
-	 	 	}
+	 	 	} else if(evfd->events & EPOLLRDHUP) {
+				http_connect_t * con;
+				epoll_data = (epoll_data_t *)evfd->data.ptr;
+
+				con = (http_connect_t *) epoll_data->ptr;	
+				if(con->in != NULL) {
+					ds_log(con, "  [END] ", LOG_LEVEL_DEFAULT);
+					epoll_edit_fd(g->epfd, evfd, EPOLL_W);
+					
+					pool_destroy(con->p);
+					close(con->fd);
+
+				}
+				con->next_handle = NULL;
+				epoll_del_fd(g->epfd, evfd);
+
+		
+			}
 
 	 	 	evfd++;
 	 	}

@@ -9,6 +9,7 @@
 #define _HTTP_REQUEST_H_INCLUDED_
 #include <stdio.h>
 #include <stdlib.h>
+#include <signal.h>
 #include "buffer.h"
 #include "str.h"
 #include "base.h"
