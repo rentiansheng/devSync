@@ -50,6 +50,7 @@ typedef struct hash{
 }hash_t;
 
 hash_t * hash_init(pool_t *p);
+hash_t * hash_init_size(pool_t *p, int size) ;
 int hash_add_int(pool_t *p, hash_t *h, const char *key, int keyLen, int  v) ;
 int hash_add_long(pool_t *p,hash_t *h, const char *key, int keyLen, long  v);
 int hash_add_double(pool_t *p, hash_t *h,const char *key, int keyLen, double v);

@@ -9,7 +9,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include "string.h"
-#include <sys/epoll.h>
 #include "buffer.h"
 #include "str.h"
 #include "base.h"

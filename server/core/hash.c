@@ -13,6 +13,19 @@ hash_t * hash_init(pool_t *p) {
     return h;
 }
 
+hash_t * hash_init_size(pool_t *p, int size) {
+     hash_t *h = NULL;
+
+    h =(hash_t  *) palloc(p, sizeof(hash_t));
+    h->buckets = NULL;
+    h->size = size;
+    h->count = 0;
+    h->mask = h->size - 1;
+    h->buckets = (bucket_t *)pcalloc(p, sizeof(bucket_t)*h->size); 
+
+    return h;
+
+}
 
 
 int hash_add_int(pool_t *p, hash_t  *h, const char  *key, int keyLen, int  v) {
