@@ -13,6 +13,11 @@
 #include "base.h"
 #include "http_request.h"
 
+#include <errno.h>
+
+extern int errno ;
+
+
 
 int send_put_result(http_connect_t * con);
 
