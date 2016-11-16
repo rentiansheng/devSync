@@ -27,6 +27,7 @@ var fileWatcher = (function() {
             var start = new Date().getTime();
             try {
                 console.log("\nsync start: file[ " + servfile + ' ]');
+                var isErr = false
 
                 var client = net.connect({ host: item.host, port: item.port },
                     function() { //'connect' listener
@@ -38,6 +39,16 @@ var fileWatcher = (function() {
 
                 client.on('data', function(data) {
                     //console.log(data.toString());
+                    if (isErr == false) {
+                        var header = data.toString()
+                        data = header.split('r\n\r\n')
+                        console.log(header)
+                        if (data.length > 1 && data[1] != "success") {
+                            console.log("\n\n=============\nfatel error\n")
+                            console.log(data[1])
+                            console.log("\n=============\n")
+                        }
+                    }
                 });
                 client.on('end', function() {
                     client.end();
@@ -55,6 +66,7 @@ var fileWatcher = (function() {
 
                 });
                 client.on('error', function(err) {
+                    isErr = true
                     console.log("\n\n=============\nfatel error\n")
                     console.log("* sync file error:[check network or server is start]");
                     console.log("\n=============\n")
