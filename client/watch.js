@@ -46,13 +46,17 @@ var fileWatcher = (function() {
                         header = arrRespone[0].split("\r\n\r\n")
                         header.shift();
                         if (header.length > 0 && header[0] != "success") {
-                            console.log("\n\n=============\nfatel error\n")
+                            isErr = true
+                            console.log("\n\n=============\nfatal error\n")
                             console.log(header.join(""))
                             console.log("\n=============\n")
                         }
                     }
                 });
                 client.on('end', function() {
+                    if (isErr) {
+                        return
+                    }
                     client.end();
                     console.log('sync file end: fileName[ ' + servfile + ' ]');
                     var end = new Date().getTime();
@@ -69,7 +73,7 @@ var fileWatcher = (function() {
                 });
                 client.on('error', function(err) {
                     isErr = true
-                    console.log("\n\n=============\nfatel error\n")
+                    console.log("\n\n=============\nfatal error\n")
                     console.log("* sync file error:[check network or server is start]");
                     console.log("\n=============\n")
                 });
