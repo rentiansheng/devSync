@@ -13,7 +13,7 @@ int send_put_result(http_connect_t * con)
 	if(_Server != NULL)	sprintf(msg, "%sServer: %s\r\n", msg, _Server);
 
 	if(out != NULL && out->status_code == HTTP_OK) {
-		sprintf(msg, "%sn\r\success\r\n\r\n", msg);
+		sprintf(msg, "%s\r\n\success\r\n\r\n", msg);
 	} else {
 		sprintf(msg, "%s\r\nerror %s\r\n\r\n", msg, strerror(errno));
 	}

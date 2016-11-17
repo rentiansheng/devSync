@@ -40,12 +40,14 @@ var fileWatcher = (function() {
                 client.on('data', function(data) {
                     //console.log(data.toString());
                     if (isErr == false) {
-                        var header = data.toString()
-                        data = header.split('r\n\r\n')
-                        console.log(header)
-                        if (data.length > 1 && data[1] != "success") {
+                        var arrRespone = [] // = data.toString()
+                        arrRespone.push(data.toString())
+                        var strRespone = data.toString()
+                        header = arrRespone[0].split("\r\n\r\n")
+                        header.shift();
+                        if (header.length > 0 && header[0] != "success") {
                             console.log("\n\n=============\nfatel error\n")
-                            console.log(data[1])
+                            console.log(header.join(""))
                             console.log("\n=============\n")
                         }
                     }
