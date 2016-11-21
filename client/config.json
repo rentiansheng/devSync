@@ -7,7 +7,7 @@
         },
         "dev": {
             "online": "/tmp/devSync",
-            "host": "10.33.106.196",
+            "host": "127.0.0.1",
             "port": "8481",
             "ignore": ["server/obj"]
         }
