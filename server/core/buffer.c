@@ -11,11 +11,9 @@
 buffer * buffer_init(pool_t *p)
 {
 	buffer *b;
-	
-	b = (buffer *)palloc(p, sizeof(buffer));
-	
-	b->ptr = NULL;
-	b->size = 0;
+		
+	b->ptr = (char *)palloc(p, BUFFER_PIECE_SIZE);
+	b->size = BUFFER_PIECE_SIZE;
 	b->used = 0;
 
 	return b;
@@ -36,9 +34,11 @@ void buffer_append_char(buffer *b, char c, pool_t *p)
 	char * ptr;
 
 	if(b->used  == b->size) {
-		ptr = (char *)palloc(p, 2*b->size);
+		int size = b->size<<1;
+		ptr = (char *)palloc(p, size);
 		memcpy(ptr, b->ptr, b->size);
 		b->ptr = ptr;
+		b->size = size;
 	}
 
 	b->ptr[b->used++] = c;
