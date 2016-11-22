@@ -114,7 +114,7 @@ int  write_file_content(http_connect_t * con)
             con->next_handle =  send_put_result;
             con->out->status_code = HTTP_WRITE_FILE_FAIL;
             return con->next_handle(con);
-        }
+        } 
         con->write_file.len += count;
     }
     if(count == 0) {
