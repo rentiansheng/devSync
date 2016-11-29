@@ -8,29 +8,6 @@
 
 
 
-static int read_http_header(buffer *header, pool_t *p, int fd){
-	int palloc_size = 1024;
-	char *c ;
-	char *ptr;
-
-	c = palloc(p,sizeof(char));
-	header->ptr = palloc(p, palloc_size);
-	header->size = palloc_size;
-
-
-	while(read(fd, c, 1)) {
-		buffer_append_char(header,*c,p);
-		if(*c == '\n' && header->used >= 2) {
-			ptr =  header->ptr + header->used - 2;
-			if(strncasecmp(ptr, "\n\n", 2) == 0) {
-				return 0;
-			}
-		}
-	}
-
-	return 0;
-}
-
 static char * skip_space(char *start, char *end){
 	if(start == NULL) return NULL;
 	while( *start == ' ' ) {
@@ -132,9 +109,6 @@ static int parse_http_header_messge(pool_t *p, request *in, char *start, char *e
 
 }
 
-
-
-
 static void test_print_header(request *in)
 {
 	printf("uri=%s  len =%d\n", in->uri->ptr, in->uri->len);
@@ -150,7 +124,6 @@ static void test_print_header(request *in)
 
 }
 
-
 /**
  *0 读取结束，其他没有结束
  *
@@ -158,14 +131,56 @@ static void test_print_header(request *in)
 int read_header(http_connect_t *con) {
 	pool_t *p;
 	buffer *header;
+	char *ptr;
+	char c;
 
 
 	p =(pool_t *) con->p;
 
-	if(con->in->header == NULL)con->in->header = buffer_init(p);
+	if(con->in->header == NULL) {
+		con->in->header = buffer_create_size(p, MAX_HEADER_SIZE);
+	}
 	header = con->in->header;
+
+	while(read(con->fd, &c, 1) == 1) {
+		if(header->used == MAX_HEADER_SIZE) {
+			con->next_handle = send_put_header_err;
+			return NEXT;
+
+		}
+		buffer_append_char(header,c,p);
+		if(c == '\n' && header->used >= 2) {
+			ptr =  header->ptr + header->used - 2;
+			if(strncasecmp(ptr, "\n\n", 2) == 0) {
+				con->next_handle = parse_http_handler;
+				return NEXT;
+			}
+		}
+		
+	}
 	
-	return read_http_header(header, p, con->fd);
+	return CONTINUE;
+
+}
+
+
+int parse_http_handler(http_connect_t *con)
+{
+
+
+	parse_header(con);
+	ds_log(con, "  [ACCEPT] ", LOG_LEVEL_DEFAULT);
+	if(con->in->http_method == _PUT) {
+		//open_write_file(con);
+		con->next_handle = open_write_file;
+	} else if(con->in->http_method == _GET) {
+		con->next_handle = send_execute;
+	} else {
+		con->next_handle = NULL;//最好输出不支持的信息
+		return DONE;
+	}
+
+	return NEXT;
 }
 
 void parse_header(http_connect_t * con) {
