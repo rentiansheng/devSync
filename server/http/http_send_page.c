@@ -22,9 +22,28 @@ int send_put_result(http_connect_t * con)
   
 
    con->next_handle = NULL;
-   return -1;
+   return DONE;
 }
 
+int send_put_header_err(http_connect_t *con) {
+	
+	response *out = con->out;
+	pool_t *p = con->p;
+	char *msg =  (char *) palloc(p, sizeof(char)*1024);
+	sprintf(msg, "HTTP/1.1 488  OK\r\nConnection: Close\r\nContent-Type: text/html\r\n");
+	if(_Server != NULL)	sprintf(msg, "%sServer: %s\r\n", msg, _Server);
+
+
+	sprintf(msg, "%s\r\n\The http header to large\r\n\r\n", msg);
+	
+
+   write (con->fd, msg, strlen(msg));
+  
+
+   con->next_handle = NULL;
+
+   return DONE;
+}
 
 int send_without_execute_result(http_connect_t * con)
 {
@@ -44,7 +63,7 @@ int send_without_execute_result(http_connect_t * con)
    write (con->fd, msg, strlen(msg));
 
    con->next_handle = NULL;
-   return -1;
+   return DONE;
 }
 
 int send_put_forbidden_result(http_connect_t * con)
@@ -61,7 +80,7 @@ int send_put_forbidden_result(http_connect_t * con)
    write (con->fd, msg, strlen(msg));
 
    con->next_handle = NULL;
-   return -1;
+   return DONE;
 }
 
 int send_execute(http_connect_t * con) {
@@ -105,7 +124,7 @@ int send_execute(http_connect_t * con) {
 	}
 
 	con->next_handle = NULL;
-	return -1;
+	return DONE;
 }
 
 
