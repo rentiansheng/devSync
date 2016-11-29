@@ -72,7 +72,7 @@ int  open_write_file(http_connect_t *con)
     if(dir->used) {
         int ret  = _mkdir(con, dir->ptr, p);
         if(ret == -1) {
-            return 0;
+            return DONE;
         }
     }
 
@@ -94,41 +94,46 @@ int  open_write_file(http_connect_t *con)
     }
 
 
-    return 0;
+    return NEXT;
 }
 
 int  write_file_content(http_connect_t * con)
 {
     request * in;
     response *out;
+    
     char *ptr ;
     pool_t *p = con->p;
     int count = 0;
 
-    ptr = palloc(p, sizeof(char)*2048);
+    ptr = palloc(p, sizeof(char)*CONTENT_SIZE);
     in = con->in;
     out = con->out;
-    while((count = read(con->fd, ptr, 2048)) > 0) {
+    while((count = read(con->fd, ptr, CONTENT_SIZE)) > 0) {
         if(fwrite(ptr, count, 1, con->write_file.fp) != 1) {
             fclose(con->write_file.fp);
             con->next_handle =  send_put_result;
             con->out->status_code = HTTP_WRITE_FILE_FAIL;
-            return con->next_handle(con);
+
+            return NEXT;
+            //return con->next_handle(con);
         } 
         con->write_file.len += count;
     }
-    if(count == 0) {
-       return 1;
-    }
-    if(in->content_length <= con->write_file.len) {
+
+    //尽量的避免文件内容大小，比约定的文件大，出现这种有可能是编码的问题
+    //这个中方法只能减少，并不能从根本上避免问题
+    if(in->content_length <= con->write_file.len && (count == 0 || count == -1)) {
          fclose(con->write_file.fp);
          con->next_handle =  send_put_result;
          con->out->status_code = HTTP_OK;
-         return con->next_handle(con);
+
+         return NEXT;
+         //return con->next_handle(con);
 
     }
 
-    return 0;
+    return CONTINUE;
 }
 
 
