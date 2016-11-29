@@ -18,8 +18,11 @@
 #define OK 0
 #define FILE_NO_EXIST 1
 #define FILE_NO_ACCESS 2
-#define CANCEL 3
-#define DONE 4
+#define CANCEL 2
+#define DONE -1 //end
+#define CONTINUE 1//等到资源就绪后，继续处理
+#define NEXT  0
+
 #define MEMERROR -1
 #define UNDEFINED   -144
 
