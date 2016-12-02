@@ -39,6 +39,13 @@ string * string_init_from_ptr(pool_t *p, char *ptr, size_t len) {
 
 int string_compare(const string *s1, const string *s2){
 	int len;
+	if(s1 == NULL || s2 == NULL) {
+		if(s1 == s2 ) {
+			return 0;
+		} else {
+			return 1;
+		}
+	}
 
 	if(s1->len == s2->len) return strncmp(s1->ptr, s2->ptr, s1->len);
     if(s1->len == 0) {
