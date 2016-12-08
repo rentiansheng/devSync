@@ -21,7 +21,6 @@ int ds_get_options(int argc, char *argv[]);
 
 void signal_exit(int no) 
 {
-	printf("sdfasfasdfas\n");
 	kill(0, SIGTERM);
 	exit(0);
 }
