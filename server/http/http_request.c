@@ -111,6 +111,9 @@ void handle_request_socket(http_conf *g , struct epoll_event *evfd ) {
 				strncpy(shPath, con->in->execute_file->ptr, con->in->execute_file->len);
 				ds_log(con, " [send execute sh command:]", LOG_LEVEL_DEFAULT);
 				send_execute_sh_cmd(con, g);
+			} else if(con->in->http_method == _DEL) {
+				ds_log(con, " [send del sh command:]", LOG_LEVEL_DEFAULT);
+				send_execute_sh_cmd(con, g);
 			}
 			con->next_handle = NULL;
 			epoll_del_fd(g->epfd, evfd);

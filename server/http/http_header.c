@@ -41,11 +41,12 @@ static int parse_http_request_row(pool_t *p, request *in , char *start, char * e
 	}else if(strncasecmp(start, "service", 7) == 0) {
 		in->http_method = _SERVICE;
 		start += 7;
-	}else if(strncasecmp(start, 'CGI', 3) == 0) {
+	}else if(strncasecmp(start, "cgi", 3) == 0) {
 		in->http_method = _CGI;
 		start += 3;
-	}else if(strncasecmp(start, 'del', 3) == 0){
-
+	}else if(strncasecmp(start, "del", 3) == 0){
+		in->http_method = _DEL;
+		start += 3;
 	}else {
 		in->http_method = _NONE;
 	}
@@ -172,17 +173,16 @@ int read_header(http_connect_t *con) {
 
 int parse_http_handler(http_connect_t *con)
 {
-
-
 	parse_header(con);
-	ds_log(con, "  [ACCEPT] ", LOG_LEVEL_DEFAULT);
+
 	if(con->in->http_method == _PUT) {
 		//open_write_file(con);
 		con->next_handle = open_write_file;
 	} else if(con->in->http_method == _GET) {
 		con->next_handle = send_execute;
 	}else if(con->in->http_method == _DEL) {
-		con->next_handle = send_execute_sh_cmd;
+		//
+		con->next_handle = send_put_result;
 		
 	}else {
 		con->next_handle = NULL;//最好输出不支持的信息

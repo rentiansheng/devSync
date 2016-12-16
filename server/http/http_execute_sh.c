@@ -10,10 +10,13 @@ int  send_execute_sh_cmd(http_connect_t * con, http_conf * g )
     
     if(con->in->http_method == _DEL ) {
         buffer_append_str(header, "del ", 4, con->p);
+        buffer_append_n_str(header, con->in->uri->ptr, con->in->uri->len, con->p);
+
     } else {
+
         buffer_append_str(header, "cgi ", 4, con->p);
+        buffer_append_n_str(header, con->in->execute_file->ptr, con->in->execute_file->len, con->p);
     }
-    buffer_append_n_str(header, con->in->execute_file->ptr, con->in->execute_file->len, con->p);
     buffer_append_char(header, '\n', con->p);
     buffer_append_str(header, "time:", 5, con->p);
     buffer_append_long(header, t, con->p);

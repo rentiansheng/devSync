@@ -44,7 +44,7 @@ int parse_cig_header(execute_cgi_info_manager_t  * cgi_info_manager, buffer * he
 
     pool_t *p = (pool_t *)pool_create();
     http_connect_t * con = (http_connect_t *)palloc(p, sizeof(http_connect_t));
-    
+    write(1, header->ptr, header->used);
     request * in = (request *)palloc(p, sizeof(request));
     con->p = p;
     con->in = in;
@@ -52,6 +52,7 @@ int parse_cig_header(execute_cgi_info_manager_t  * cgi_info_manager, buffer * he
 
     parse_header(con);
 
+    
     if(con->in->http_method == _DEL) {
         cgi_del(con);
     } else {

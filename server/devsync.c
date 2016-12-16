@@ -38,6 +38,7 @@ int main(int argc, char *argv[])
 	signal(SIGTERM, signal_exit); //* kill 
 	signal(SIGINT, signal_exit); //按下Ctrl-C得到的结果 
 	signal(SIGQUIT, signal_exit);  //按下Ctrl-得到的结果 
+	signal(SIGSEGV, signal_exit);//段错误
 
 
 	if(ds_version) {
