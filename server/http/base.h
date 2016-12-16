@@ -54,7 +54,9 @@ typedef enum{
 	_GET,
 	_POST,
 	_PUT,
+	_DEL,
 	_SERVICE,
+	_CGI,
 	_NONE
 }http_method_t;
 
@@ -164,6 +166,7 @@ typedef struct request{
 	string * authorization;
 	string * user;
 	string * pwd;
+	uint ts;
 	http_method_t http_method;
 	string * http_version;
 	COMPRESS_TYPE accept_encoding;
