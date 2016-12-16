@@ -15,7 +15,7 @@ var fileWatcher = (function() {
     var MaxFileSize = 14000000; //14m
 
     //发送文件
-    function sendFile(dir, filename, item, display) {
+    function sendFile(dir, filename, item) {
         if (filename && filename[0] == '.') return;
         var ext = path.extname(filename);
         if (item.exts && item.exts.length > 0 && item.exts.indexOf(ext) === -1) return;
@@ -85,32 +85,114 @@ var fileWatcher = (function() {
     }
 
 
+    function sendDelFile(dir, path, item) {
+        if (filename && filename[0] == '.') return;
+        var ext = path.extname(filename);
+        if (item.exts && item.exts.length > 0 && item.exts.indexOf(ext) === -1) return;
+        fs.readFile(dir + '/' + filename, function(err, content) {
+            if (err) { return false; }
+            var relativePath = path.relative(item.offline, dir);
+            relativePath = relativePath.replace(/\\/g, '/');
+            var servfile = item.online + '/' + relativePath + '/' + filename;
+            var start = new Date().getTime();
+            try {
+                console.log("\nsync start: file[ " + servfile + ' ]');
+                var isErr = false
+
+                var client = net.connect({ host: item.host, port: item.port },
+                    function() { //'connect' listener
+                        client.write('del ' + servfile + '\n' + content.length + '\ncontent_length:' + 0 + '\n\n');
+                    }
+                );
+
+                client.on('data', function(data) {
+                    //console.log(data.toString());
+                    if (isErr == false) {
+                        var arrRespone = [] // = data.toString()
+                        arrRespone.push(data.toString())
+                        var strRespone = data.toString()
+                        header = arrRespone[0].split("\r\n\r\n")
+                        header.shift();
+                        if (header.length > 0 && header[0] != "success") {
+                            isErr = true
+                            console.log("\n\n=============\nfatal error\n")
+                            console.log(header.join(""))
+                            console.log("\n=============\n")
+                        }
+                    }
+                });
+                client.on('end', function() {
+                    if (isErr) {
+                        return
+                    }
+                    client.end();
+                    console.log('sync file end: fileName[ ' + servfile + ' ]');
+                    var end = new Date().getTime();
+                    var ts = end - start;
+                    console.log('sync file end: file length[ ' + content.length + 'b ]');
+
+                    var strStartTime = formatDate(new Date(start));
+
+                    console.log('sync file end: start time[ ' + strStartTime + ' ]  sync use time[ ' + ts + 'ms ]');
+                    console.log("\n");
+
+
+
+                });
+                client.on('error', function(err) {
+                    isErr = true
+                    console.log("\n\n=============\nfatal error\n")
+                    console.log("* sync file error:[check network or server is start]");
+                    console.log("\n=============\n")
+                });
+            } catch (err) {
+                console.log(err);
+            }
+
+        });
+    }
+
+
     //检测目录变化
     function listenToChange(dir, item) {
         dir = path.resolve(dir);
 
         function onChg(event, filename) {
-
-            fs.lstat(dir + '/' + filename, function(err, stats) {
-                if (err) { return; }
-                if (stats.isDirectory()) {
-                    watchDir(dir + '/' + filename, item);
-                } else if (stats.isFile()) {
-                    if (stats.size < MaxFileSize) {
-                        sendFile(dir, filename, item, stats.size);
-                    } else {
-                        console.log("\n\n\n     You can not synchronize large files! \n\n\n");
-                    }
+            console.log(event, '---', filename);
+            var file = dir + '/' + filename;
+            fs.exists(file, function(exists) {
+                if (!exists) {
+                    sendDelFile(dir, filename, item);
+                    return;
                 }
+                fs.lstat(dir + '/' + filename, function(err, stats) {
+                    if (err) {
+                        return;
+                    }
+                    if (stats.isDirectory()) {
+                        var isSendFile = 0;
+                        if (event == "rename") {
+                            isSendFile = 1;
+                        }
+                        watchDir(dir + '/' + filename, item, isSendFile);
+                    } else if (stats.isFile()) {
+                        if (stats.size < MaxFileSize) {
+                            sendFile(dir, filename, item);
+                        } else {
+                            console.log("\n\n\n     You can not synchronize large files! \n\n\n");
+                        }
+                    }
 
+                });
             });
+
         }
 
         fs.watch(dir, onChg);
     }
 
     //为目录加监控时间
-    function watchDir(root, item) {
+    function watchDir(root, item, isSendFile) {
 
         for (var i = 0; i < item.ignore.length; i++) {
             if (root.indexOf(item.ignore[i]) >= 0) {
@@ -123,13 +205,15 @@ var fileWatcher = (function() {
                 fs.readdir(root, function(err, files) {
                     if (err) return;
                     files.forEach(function(file) {
-                        fileName = file;
+                        var fileName = file;
                         if (file[0] == '.') { return; }
                         file = root + '/' + file;
                         fs.lstat(file, function(err, stats) {
                             if (err) return;
                             if (stats.isDirectory()) {
-                                watchDir(file, item);
+                                watchDir(file, item, isSendFile);
+                            } else if (isSendFile && stats.isFile()) {
+                                sendFile(root, fileName, item, true);
                             }
                         });
                     });
@@ -206,7 +290,8 @@ var fileWatcher = (function() {
             if (displayEnd) {
                 printSyncAllHeader(false);
                 displayEnd = 0;
-                watchDir(rootItem.offline, rootItem);
+                //不同步目录下文件
+                watchDir(rootItem.offline, rootItem, false);
             }
 
 
@@ -355,7 +440,8 @@ var fileWatcher = (function() {
                     console.log("==============================================");
                     console.log("*            start watch file change");
                     console.log("==============================================");
-                    watchDir(item.offline, item);
+                    //只监控，不同步目录下文件
+                    watchDir(item.offline, item, false);
                 }
 
             } else {
