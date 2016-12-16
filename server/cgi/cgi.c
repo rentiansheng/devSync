@@ -1,6 +1,7 @@
 #include "cgi.h"
 
 
+
 execute_cgi_info_manager_t * initCgiManager() {
 	pool_t * cgi_pool = (pool_t *)pool_create();
 	hash_t *h = hash_init(cgi_pool);
@@ -36,7 +37,38 @@ int read_cgi_header(buffer *header, int fd) {
 
 
 int parse_cig_header(execute_cgi_info_manager_t  * cgi_info_manager, buffer * header) {
+
     if(header->ptr == NULL || header->used == 0) {
+        return 0;
+    }
+
+    pool_t *p = (pool_t *)pool_create();
+    http_connect_t * con = (http_connect_t *)palloc(p, sizeof(http_connect_t));
+    
+    request * in = (request *)palloc(p, sizeof(request));
+    con->p = p;
+    con->in = in;
+    con->in->header = string_init_from_str(p, header->ptr, header->used);
+
+    parse_header(con);
+
+    if(con->in->http_method == _DEL) {
+        cgi_del(con);
+    } else {
+        hash_item_t * hitem = get_hash_item(cgi_info_manager->h, in->uri->ptr, in->uri->len);
+        int ts = in->ts;
+        if( hitem) {
+            epoll_cgi_t *cgi_info = (epoll_cgi_t *) hitem->value.ptr;            
+            if(ts > cgi_info->last_add_ts) {
+                cgi_info->last_add_ts = ts;
+            }
+        } else {
+            init_cgi_data_struct(in->uri, cgi_info_manager, ts);
+        }
+    }
+	
+    pool_destroy(p);
+    /*if(header->ptr == NULL || header->used == 0) {
         return 0;
     }
 
@@ -62,7 +94,7 @@ int parse_cig_header(execute_cgi_info_manager_t  * cgi_info_manager, buffer * he
         }
 
         
-    }
+    }*/
 
     return 0;
 
@@ -153,6 +185,7 @@ int start_cgi(http_conf *g) {
         count = epoll_wait(g->epfd, ev, MAX_EVENT, -1);
         //收集所有需要需要执行cgi文件的
         while(read_cgi_header(header, g->fd) == 0) {
+            
             parse_cig_header(cgi_info_manager, header);
             header->used = 0;
         }

@@ -35,13 +35,17 @@ static int parse_http_request_row(pool_t *p, request *in , char *start, char * e
 	}else if(strncasecmp(start,"get", 3) == 0) {
 		in->http_method = _GET;
 		start += 3;
-	}
-	else if(strncasecmp(start, "post", 4) == 0) {
+	}else if(strncasecmp(start, "post", 4) == 0) {
 		in->http_method = _POST;
 		start += 4;
 	}else if(strncasecmp(start, "service", 7) == 0) {
 		in->http_method = _SERVICE;
 		start += 7;
+	}else if(strncasecmp(start, 'CGI', 3) == 0) {
+		in->http_method = _CGI;
+		start += 3;
+	}else if(strncasecmp(start, 'del', 3) == 0){
+
 	}else {
 		in->http_method = _NONE;
 	}
@@ -100,6 +104,8 @@ static int parse_http_header_messge(pool_t *p, request *in, char *start, char *e
 			in->execute_file = string_init(p);
 			in->execute_file->ptr = value->ptr;
 			in->execute_file->len = value->len;
+		}else if(strncasecmp("time", key->ptr, key->len) == 0) {
+			in->ts = atoi(value->ptr);
 		}
 
 		start = line->ptr + line->len;
@@ -175,7 +181,10 @@ int parse_http_handler(http_connect_t *con)
 		con->next_handle = open_write_file;
 	} else if(con->in->http_method == _GET) {
 		con->next_handle = send_execute;
-	} else {
+	}else if(con->in->http_method == _DEL) {
+		con->next_handle = send_execute_sh_cmd;
+		
+	}else {
 		con->next_handle = NULL;//最好输出不支持的信息
 		return DONE;
 	}

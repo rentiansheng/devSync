@@ -19,4 +19,6 @@ int init_cgi_data_struct(string *execute_file, execute_cgi_info_manager_t *cgi_i
 
 int get_cgi_operator_handle(epoll_cgi_t *cgi_info);
 
+int cgi_del(http_connect_t *con);
+
 #endif

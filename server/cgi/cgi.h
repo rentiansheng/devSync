@@ -6,6 +6,7 @@
 #include "cgi_handle.h"
 #include "linux_epoll.h"
 #include "hash.h"
+#include "http_header.h"
 
 static execute_cgi_info_manager_t * cgi_info_manager_gloabal; 
 static http_conf * g_goabal;

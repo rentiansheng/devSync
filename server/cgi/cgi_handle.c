@@ -1,7 +1,18 @@
 #include "cgi_handle.h"
 
 
-//SIGCHLD
+int cgi_del(http_connect_t *con) {
+	int pid = fork();
+	if(pid  == 0) {
+		buffer *file = buffer_init(con->p);
+		buffer_append_str(file, con->in->uri->ptr, con->in->uri->len, con->p);
+		buffer_append_char(file, 0, con->p);
+		execlp("rm", "rm", "-r", file->ptr, NULL);
+		exit;
+	}
+	return 0;
+}
+
 
 void add_envp(pool_t *p, cgi_ev_t * cgiev, char *left, char *right)
 {
