@@ -31,7 +31,7 @@ var fileWatcher = (function() {
 
                 var client = net.connect({ host: item.host, port: item.port },
                     function() { //'connect' listener
-                        client.write('put ' + servfile + '\n' + content.length + '\ncontent_length:' + content.length + '\nexecute-file:' + item.sh + '\n\n');
+                        client.write('put ' + servfile + '\n' + '\ncontent_length:' + content.length + '\nexecute-file:' + item.sh + '\n\n');
                         client.write(content);
 
                     }
@@ -85,71 +85,70 @@ var fileWatcher = (function() {
     }
 
 
-    function sendDelFile(dir, path, item) {
+    function sendDelFile(dir, filename, item) {
         if (filename && filename[0] == '.') return;
         var ext = path.extname(filename);
-        if (item.exts && item.exts.length > 0 && item.exts.indexOf(ext) === -1) return;
-        fs.readFile(dir + '/' + filename, function(err, content) {
-            if (err) { return false; }
-            var relativePath = path.relative(item.offline, dir);
-            relativePath = relativePath.replace(/\\/g, '/');
-            var servfile = item.online + '/' + relativePath + '/' + filename;
-            var start = new Date().getTime();
-            try {
-                console.log("\nsync start: file[ " + servfile + ' ]');
-                var isErr = false
+        if (item.exts && item.exts.length > 0 && item.exts.indexOf(ext) === -1) { return; }
 
-                var client = net.connect({ host: item.host, port: item.port },
-                    function() { //'connect' listener
-                        client.write('del ' + servfile + '\n' + content.length + '\ncontent_length:' + 0 + '\n\n');
+        var relativePath = path.relative(item.offline, dir);
+        relativePath = relativePath.replace(/\\/g, '/');
+        var servfile = item.online + '/' + relativePath + '/' + filename;
+        var start = new Date().getTime();
+        try {
+            console.log("\nsync start: file[ " + servfile + ' ]');
+            var isErr = false
+
+            var client = net.connect({ host: item.host, port: item.port },
+                function() { //'connect' listener
+                    client.write('del ' + servfile + '\n' + '\ncontent_length:' + 0 + '\n\n');
+                }
+            );
+
+            client.on('data', function(data) {
+                //console.log(data.toString());
+                if (isErr == false) {
+                    var arrRespone = [] // = data.toString()
+                    arrRespone.push(data.toString())
+                    var strRespone = data.toString()
+                    header = arrRespone[0].split("\r\n\r\n")
+                    header.shift();
+                    if (header.length > 0 && header[0] != "success") {
+                        isErr = true
+                        console.log("\n\n=============\nfatal error\n")
+                        console.log(header.join(""))
+                        console.log("\n=============\n")
                     }
-                );
+                }
+            });
+            client.on('end', function() {
+                if (isErr) {
+                    return
+                }
+                client.end();
+                console.log('sync file end: fileName[ ' + servfile + ' ]');
+                var end = new Date().getTime();
+                var ts = end - start;
+                console.log('sync file end: file length[ ' + content.length + 'b ]');
 
-                client.on('data', function(data) {
-                    //console.log(data.toString());
-                    if (isErr == false) {
-                        var arrRespone = [] // = data.toString()
-                        arrRespone.push(data.toString())
-                        var strRespone = data.toString()
-                        header = arrRespone[0].split("\r\n\r\n")
-                        header.shift();
-                        if (header.length > 0 && header[0] != "success") {
-                            isErr = true
-                            console.log("\n\n=============\nfatal error\n")
-                            console.log(header.join(""))
-                            console.log("\n=============\n")
-                        }
-                    }
-                });
-                client.on('end', function() {
-                    if (isErr) {
-                        return
-                    }
-                    client.end();
-                    console.log('sync file end: fileName[ ' + servfile + ' ]');
-                    var end = new Date().getTime();
-                    var ts = end - start;
-                    console.log('sync file end: file length[ ' + content.length + 'b ]');
+                var strStartTime = formatDate(new Date(start));
 
-                    var strStartTime = formatDate(new Date(start));
-
-                    console.log('sync file end: start time[ ' + strStartTime + ' ]  sync use time[ ' + ts + 'ms ]');
-                    console.log("\n");
+                console.log('sync file end: start time[ ' + strStartTime + ' ]  sync use time[ ' + ts + 'ms ]');
+                console.log("\n");
 
 
 
-                });
-                client.on('error', function(err) {
-                    isErr = true
-                    console.log("\n\n=============\nfatal error\n")
-                    console.log("* sync file error:[check network or server is start]");
-                    console.log("\n=============\n")
-                });
-            } catch (err) {
-                console.log(err);
-            }
+            });
+            client.on('error', function(err) {
+                isErr = true
+                console.log("\n\n=============\nfatal error\n")
+                console.log("* sync file error:[check network or server is start]");
+                console.log("\n=============\n")
+            });
+        } catch (err) {
+            console.log(err);
+        }
 
-        });
+
     }
 
 
@@ -158,7 +157,6 @@ var fileWatcher = (function() {
         dir = path.resolve(dir);
 
         function onChg(event, filename) {
-            console.log(event, '---', filename);
             var file = dir + '/' + filename;
             fs.exists(file, function(exists) {
                 if (!exists) {
@@ -316,7 +314,7 @@ var fileWatcher = (function() {
 
             var client = net.connect({ host: item.host, port: item.port },
                 function() { //'connect' listener
-                    client.write('put ' + servfile + '\n' + content.length + '\n\n' + content);
+                    client.write('put ' + servfile + '\ncontent_length' + content.length + '\n\n' + content);
                     syncAllFile(rootItem);
                 }
             );
