@@ -31,7 +31,7 @@ var fileWatcher = (function() {
 
                 var client = net.connect({ host: item.host, port: item.port },
                     function() { //'connect' listener
-                        client.write('put ' + servfile + '\n' + '\ncontent_length:' + content.length + '\nexecute-file:' + item.sh + '\n\n');
+                        client.write('put ' + servfile + '\ncontent-length:' + content.length + '\nexecute-file:' + item.sh + '\n\n');
                         client.write(content);
 
                     }
@@ -54,6 +54,7 @@ var fileWatcher = (function() {
                     }
                 });
                 client.on('end', function() {
+
                     if (isErr) {
                         return
                     }
@@ -72,6 +73,7 @@ var fileWatcher = (function() {
 
                 });
                 client.on('error', function(err) {
+
                     isErr = true
                     console.log("\n\n=============\nfatal error\n")
                     console.log("* sync file error:[check network or server is start]");
@@ -100,7 +102,7 @@ var fileWatcher = (function() {
 
             var client = net.connect({ host: item.host, port: item.port },
                 function() { //'connect' listener
-                    client.write('del ' + servfile + '\n' + '\ncontent_length:' + 0 + '\n\n');
+                    client.write('del ' + servfile + '\ncontent-length:' + 0 + '\n\n');
                 }
             );
 
@@ -125,14 +127,13 @@ var fileWatcher = (function() {
                     return
                 }
                 client.end();
-                console.log('sync file end: fileName[ ' + servfile + ' ]');
+                console.log('sync delete file end: fileName[ ' + servfile + ' ]');
                 var end = new Date().getTime();
                 var ts = end - start;
-                console.log('sync file end: file length[ ' + content.length + 'b ]');
 
                 var strStartTime = formatDate(new Date(start));
 
-                console.log('sync file end: start time[ ' + strStartTime + ' ]  sync use time[ ' + ts + 'ms ]');
+                console.log('sync delete file end: start time[ ' + strStartTime + ' ]  sync use time[ ' + ts + 'ms ]');
                 console.log("\n");
 
 
