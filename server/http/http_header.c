@@ -181,7 +181,7 @@ int parse_http_handler(http_connect_t *con)
 	} else if(con->in->http_method == _GET) {
 		con->next_handle = send_execute;
 	}else if(con->in->http_method == _DEL) {
-		//
+		con->out->next_handle = HTTP_OK;
 		con->next_handle = send_put_result;
 		
 	}else {
