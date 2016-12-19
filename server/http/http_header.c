@@ -100,7 +100,7 @@ static int parse_http_header_messge(pool_t *p, request *in, char *start, char *e
 			continue;
 		}
 		if(strncasecmp("content-length", key->ptr, key->len) == 0) {
-			in->content_length = atoi(key->ptr);
+			in->content_length = atoi(value->ptr);
 		}else if(strncasecmp("execute-file", key->ptr, key->len) == 0) {
 			in->execute_file = string_init(p);
 			in->execute_file->ptr = value->ptr;
@@ -181,7 +181,7 @@ int parse_http_handler(http_connect_t *con)
 	} else if(con->in->http_method == _GET) {
 		con->next_handle = send_execute;
 	}else if(con->in->http_method == _DEL) {
-		con->out->next_handle = HTTP_OK;
+		con->out->status_code = HTTP_OK;
 		con->next_handle = send_put_result;
 		
 	}else {
