@@ -158,7 +158,8 @@ int read_header(http_connect_t *con) {
 		buffer_append_char(header,c,p);
 		if(c == '\n' && header->used >= 2) {
 			ptr =  header->ptr + header->used - 2;
-			if(strncasecmp(ptr, "\n\n", 2) == 0) {
+			if(strncasecmp(ptr, "\n\n", 2) == 0 
+				|| strncasecmp(ptr-2, "\r\n\r\n", 4) == 0) {
 				con->next_handle = parse_http_handler;
 				return NEXT;
 			}
