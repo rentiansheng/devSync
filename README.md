@@ -17,7 +17,7 @@ the local machine and develop machine synchronization code
 
 	3. 多个项目分离，不受影响
 
-	4. 客户端删除文件后服务端也会删除
+	4. 客户端删除文件后，服务端也会删除
 
 	5. 部分目录可以忽略同步
 
