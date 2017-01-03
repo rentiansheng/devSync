@@ -158,6 +158,9 @@ var fileWatcher = (function() {
         dir = path.resolve(dir);
 
         function onChg(event, filename) {
+            if (filename == 'php___jb_tmp___') {
+                return;
+            }
             var file = dir + '/' + filename;
             fs.exists(file, function(exists) {
                 if (!exists) {
