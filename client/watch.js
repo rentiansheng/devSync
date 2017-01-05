@@ -158,7 +158,7 @@ var fileWatcher = (function() {
         dir = path.resolve(dir);
 
         function onChg(event, filename) {
-            if (filename == 'php___jb_tmp___') {
+            if (filename.indexOf('___jb_tmp___') >= 0 || filename.indexOf('___jb_old___') >= 0) {
                 return;
             }
             var file = dir + '/' + filename;
