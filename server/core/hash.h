@@ -26,13 +26,13 @@ typedef union hash_item_value {
     double d;
     string * str;
     void * ptr;
-}hash_item_value_u;
+}hash_item_value_t;
 
 
 typedef struct hash_item {
     string * key;
     int type;
-    hash_item_value_u value;
+    hash_item_value_t value;
     struct hash_item * next;
 
 }hash_item_t;
