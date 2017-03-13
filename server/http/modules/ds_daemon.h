@@ -17,6 +17,9 @@
 
 #include "base.h"
 
+static int cgi_children_pid = 0;
+static int http_children_pid = 0;
+
 int ds_daemon(http_conf * conf, int t);
 
 #endif

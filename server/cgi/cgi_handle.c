@@ -7,8 +7,7 @@ int cgi_del(http_connect_t *con) {
 		buffer *file = buffer_init(con->p);
 		buffer_append_str(file, con->in->uri->ptr, con->in->uri->len, con->p);
 		buffer_append_char(file, 0, con->p);
-		execlp("rm", "rm", "-r", file->ptr, NULL);
-		exit;
+		return execlp("rm", "rm", "-r", file->ptr, NULL);
 	}
 	return 0;
 }

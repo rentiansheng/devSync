@@ -17,13 +17,10 @@ static int ds_port = 8484;
 static int  t = 0;//0:daemon,1:children,2:single
 static char *user;
 
+
 int ds_get_options(int argc, char *argv[]);
 
-void signal_exit(int no) 
-{
-	kill(0, SIGTERM);
-	exit(0);
-}
+
 
 int main(int argc, char *argv[])
 {
@@ -35,11 +32,7 @@ int main(int argc, char *argv[])
 
 	ds_get_options(argc, argv);
 
-	signal(SIGTERM, signal_exit); //* kill 
-	signal(SIGINT, signal_exit); //按下Ctrl-C得到的结果 
-	signal(SIGQUIT, signal_exit);  //按下Ctrl-得到的结果 
-	signal(SIGSEGV, signal_exit);//段错误
-
+	
 
 	if(ds_version) {
 		printf("devSync version: "_Version DS_LINEEND);

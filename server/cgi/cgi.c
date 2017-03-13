@@ -125,7 +125,7 @@ static void signalhld_handle(int sig) {
     epoll_cgi_t * executeCgi;
     int i;
     int status;
-
+    
     int pid = wait(&status);
     if(pid == SIGCHLD) {
         printf("why \n");
@@ -219,7 +219,12 @@ int start_cgi(http_conf *g) {
 
                     if(executeCgi->status == CGI_STATUS_RUN && executeCgi->last_run_ts < executeCgi->last_add_ts) {
                         printf("kill pid %d\n", executeCgi->pid);
-                        kill(executeCgi->pid, SIGKILL);
+
+                        //关闭进程失败，执行脚本
+                        if(!kill(executeCgi->pid, SIGTERM)) {
+                            //executeCgi->status = CGI_STATUS_CLOSEING;
+                            cgi_handle(executeCgi, g);
+                        }
                     
                     } else if(executeCgi-> status != CGI_STATUS_CLOSEING ) {
                         if(executeCgi->last_run_ts < executeCgi->last_add_ts ) {//执行时间小于

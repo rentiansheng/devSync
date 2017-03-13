@@ -50,8 +50,6 @@ static int ds_init_daemon(http_conf * conf)
 static ds_init_children(http_conf * conf) 
 {
     int forStep = 0;//0标识运行accept和cgi， 1 标识只允许faccept, 2fork cgi进程
-    int forkAcceptPid  = 0;
-    int forkCgiPid = 0;
     //使用两个pipe 完成accept 和cgi进程的通信,pipe 0read, 1write
     int pipHttp[2], pipCgi[2];
 
@@ -62,10 +60,11 @@ static ds_init_children(http_conf * conf)
     while(1) {
         
         if(forStep == 1 || forStep == 0 ) {
-            forkAcceptPid = fork();
+            http_children_pid = fork();
             
             
-            if(forkAcceptPid == 0) {
+            if(http_children_pid == 0) {
+                cgi_children_pid = 0;//在http进程中不需要杀死兄弟进程cgi
                 conf->child_pip.in = pipHttp[0];
                 conf->child_pip.out = pipCgi[1];
                 close(pipHttp[1]);
@@ -77,8 +76,9 @@ static ds_init_children(http_conf * conf)
         
        
         if(forStep == 2 || forStep == 0) {
-            forkCgiPid = fork();
-            if(forkCgiPid == 0) {
+            cgi_children_pid = fork();
+            if(cgi_children_pid == 0) {
+                http_children_pid = 0;//在cgi进程中不需要杀死兄弟进程http
                 conf->child_pip.in = pipCgi[0];
                 conf->child_pip.out = pipHttp[1];
                 close(pipHttp[0]);
@@ -90,9 +90,9 @@ static ds_init_children(http_conf * conf)
         
         
         int pid = wait(&status);
-        if(pid == forkAcceptPid) {
+        if(pid == http_children_pid) {
             forStep = 1;
-        } else if (pid == forkCgiPid) {
+        } else if (pid == cgi_children_pid) {
             forStep = 2;
         }
 
@@ -106,6 +106,7 @@ int ds_daemon(http_conf * conf, int t)
     int gid = getgid();
     int status = 0;
 
+    handle_signal_init();
 
     if(conf->user && strlen(conf->user)) {
         struct passwd * pw  = getpwnam(conf->user);
@@ -148,8 +149,8 @@ int ds_daemon(http_conf * conf, int t)
        int pipHttp[2], pipCgi[2];
        pipe(pipHttp);
        pipe(pipCgi);
-       int forkCgiPid = fork();
-       if(forkCgiPid == 0) {
+       cgi_children_pid = fork();
+       if(cgi_children_pid == 0) {
             conf->child_pip.in = pipCgi[0];
             conf->child_pip.out = pipHttp[1];
             close(pipHttp[0]);
@@ -163,10 +164,29 @@ int ds_daemon(http_conf * conf, int t)
             conf->work_mode = FORK_PROCESS_WORK_HTTP_MODE;
         }
    }
- 
 
-    
 
 
     return OK;
 }
+
+void signal_exit(int no) 
+{
+	int pid = getpid();
+
+	if(1 < cgi_children_pid) {
+		kill(cgi_children_pid, SIGTERM);
+	}
+	if(1 < http_children_pid) {
+		kill(http_children_pid, SIGTERM);
+	}
+	exit(0);
+}
+
+void handle_signal_init() {
+    signal(SIGTERM, signal_exit); //* kill 
+	signal(SIGINT, signal_exit); //按下Ctrl-C得到的结果 
+	signal(SIGQUIT, signal_exit);  //按下Ctrl-得到的结果 
+	signal(SIGSEGV, signal_exit);//段错误
+}
+
