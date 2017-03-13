@@ -90,7 +90,7 @@ var fileWatcher = (function() {
     function sendDelFile(dir, filename, item) {
         if (filename && filename[0] == '.') return;
         var ext = path.extname(filename);
-        if (item.exts && item.exts.length > 0 && item.exts.indexOf(ext) === -1) { return; }
+        if (ext.length > 0 && item.exts && item.exts.length > 0 && item.exts.indexOf(ext) === -1) { return; }
 
         var relativePath = path.relative(item.offline, dir);
         relativePath = relativePath.replace(/\\/g, '/');
@@ -158,6 +158,9 @@ var fileWatcher = (function() {
         dir = path.resolve(dir);
 
         function onChg(event, filename) {
+            if (filename.indexOf('___jb_tmp___') >= 0 || filename.indexOf('___jb_old___') >= 0) {
+                return;
+            }
             var file = dir + '/' + filename;
             fs.exists(file, function(exists) {
                 if (!exists) {
