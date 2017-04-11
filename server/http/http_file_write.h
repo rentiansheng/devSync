@@ -17,7 +17,9 @@
 #include "http_mod_connect.h"
 #include "modules/ds_log.h"
 
-#define CONTENT_SIZE  2048
+#define CONTENT_SIZE  4096
+
+static char read_socket_buffer[CONTENT_SIZE]; 
 
 int  _mkdir(http_connect_t *con, char *root, pool_t *p);
 
