@@ -12,76 +12,83 @@ var fileWatcher = (function() {
     var filecount = 0;
     var sendFileNo = 0;
     var displayEnd = 1;
-    var MaxFileSize = 14000000; //14m
+    var MaxFileSize = 14*1024*1024; //14m
 
     //发送文件
     function sendFile(dir, filename, item) {
         if (filename && filename[0] == '.') return;
         var ext = path.extname(filename);
         if (item.exts && item.exts.length > 0 && item.exts.indexOf(ext) === -1) return;
+
+        var relativePath = path.relative(item.offline, dir);
+        relativePath = relativePath.replace(/\\/g, '/');
+        var servfile = item.online + '/' + relativePath + '/' + filename;
+        var localFile = dir + '/' + filename;
+        var stat = fs.statSync(localFile);
+        var start = new Date().getTime();
+        try {
+            console.log("\nsync start: file[ " + servfile + ' ]');
+            var isErr = false
+
+            var client = net.connect({ host: item.host, port: item.port },
+              function() { //'connect' listener
+                  client.write('put ' + servfile + '\ncontent-length:' + stat.size + '\nexecute-file:' + item.sh + '\n\n');
+
+                  var fileStream = fs.createReadStream(localFile);
+                  fileStream.pipe(client);
+
+              }
+            );
+
+            client.on('data', function(data) {
+                //console.log(data.toString());
+                if (isErr == false) {
+                    var arrRespone = [] // = data.toString()
+                    arrRespone.push(data.toString())
+                    //var strRespone = data.toString()
+                    header = arrRespone[0].split("\r\n\r\n")
+                    header.shift();
+                    if (header.length > 0 && header[0] != "success") {
+                        isErr = true
+                        console.log("\n\n=============\nfatal error\n")
+                        console.log(header.join(""))
+                        console.log("\n=============\n")
+                    }
+                }
+            });
+            client.on('end', function() {
+
+                if (isErr) {
+                    return
+                }
+                client.end();
+                console.log('sync file end: fileName[ ' + servfile + ' ]');
+                var end = new Date().getTime();
+                var ts = end - start;
+                console.log('sync file end: file length[ ' + content.length + 'b ]');
+
+                var strStartTime = formatDate(new Date(start));
+
+                console.log('sync file end: start time[ ' + strStartTime + ' ]  sync use time[ ' + ts + 'ms ]');
+                console.log("\n");
+
+
+
+            });
+            client.on('error', function(err) {
+
+                isErr = true
+                console.log("\n\n=============\nfatal error\n")
+                console.log("* sync file error:[check network or server is start]");
+                console.log("\n=============\n")
+            });
+        } catch (err) {
+            console.log(err);
+        }
+        return ;
         fs.readFile(dir + '/' + filename, function(err, content) {
             if (err) { return false; }
-            var relativePath = path.relative(item.offline, dir);
-            relativePath = relativePath.replace(/\\/g, '/');
-            var servfile = item.online + '/' + relativePath + '/' + filename;
-            var start = new Date().getTime();
-            try {
-                console.log("\nsync start: file[ " + servfile + ' ]');
-                var isErr = false
 
-                var client = net.connect({ host: item.host, port: item.port },
-                    function() { //'connect' listener
-                        client.write('put ' + servfile + '\ncontent-length:' + content.length + '\nexecute-file:' + item.sh + '\n\n');
-                        client.write(content);
-
-                    }
-                );
-
-                client.on('data', function(data) {
-                    //console.log(data.toString());
-                    if (isErr == false) {
-                        var arrRespone = [] // = data.toString()
-                        arrRespone.push(data.toString())
-                        var strRespone = data.toString()
-                        header = arrRespone[0].split("\r\n\r\n")
-                        header.shift();
-                        if (header.length > 0 && header[0] != "success") {
-                            isErr = true
-                            console.log("\n\n=============\nfatal error\n")
-                            console.log(header.join(""))
-                            console.log("\n=============\n")
-                        }
-                    }
-                });
-                client.on('end', function() {
-
-                    if (isErr) {
-                        return
-                    }
-                    client.end();
-                    console.log('sync file end: fileName[ ' + servfile + ' ]');
-                    var end = new Date().getTime();
-                    var ts = end - start;
-                    console.log('sync file end: file length[ ' + content.length + 'b ]');
-
-                    var strStartTime = formatDate(new Date(start));
-
-                    console.log('sync file end: start time[ ' + strStartTime + ' ]  sync use time[ ' + ts + 'ms ]');
-                    console.log("\n");
-
-
-
-                });
-                client.on('error', function(err) {
-
-                    isErr = true
-                    console.log("\n\n=============\nfatal error\n")
-                    console.log("* sync file error:[check network or server is start]");
-                    console.log("\n=============\n")
-                });
-            } catch (err) {
-                console.log(err);
-            }
 
         });
     }
@@ -101,9 +108,9 @@ var fileWatcher = (function() {
             var isErr = false
 
             var client = net.connect({ host: item.host, port: item.port },
-                function() { //'connect' listener
-                    client.write('del ' + servfile + '\ncontent-length:' + 0 + '\n\n');
-                }
+              function() { //'connect' listener
+                  client.write('del ' + servfile + '\ncontent-length:' + 0 + '\n\n');
+              }
             );
 
             client.on('data', function(data) {
@@ -158,12 +165,14 @@ var fileWatcher = (function() {
         dir = path.resolve(dir);
 
         function onChg(event, filename) {
-            if (filename.indexOf('___jb_tmp___') >= 0 || filename.indexOf('___jb_old___') >= 0) {
-                return;
+            if(filename.indexOf('___jb_tmp___') >= 0
+              || filename.indexOf('___jb_old___') >= 0) {
+                return ;
             }
             var file = dir + '/' + filename;
             fs.exists(file, function(exists) {
                 if (!exists) {
+
                     sendDelFile(dir, filename, item);
                     return;
                 }
@@ -178,7 +187,7 @@ var fileWatcher = (function() {
                         }
                         watchDir(dir + '/' + filename, item, isSendFile);
                     } else if (stats.isFile()) {
-                        if (stats.size < MaxFileSize) {
+                        if (stats.size < item.maxFileSize) {
                             sendFile(dir, filename, item);
                         } else {
                             console.log("\n\n\n     You can not synchronize large files! \n\n\n");
@@ -201,6 +210,8 @@ var fileWatcher = (function() {
                 return;
             }
         }
+
+
         listenToChange(root, item);
         fs.lstat(root, function(err, stats) {
             if (stats.isDirectory()) {
@@ -309,21 +320,66 @@ var fileWatcher = (function() {
         if (filename && filename[0] == '.') { syncAllFile(rootItem); return; };
         var ext = path.extname(filename);
         if (item.exts && item.exts.length > 0 && item.exts.indexOf(ext) === -1) { syncAllFile(rootItem); return };
+
+        var relativePath = path.relative(item.offline, dir);
+        relativePath = relativePath.replace(/\\/g, '/');
+        var servfile = item.online + '/' + relativePath + '/' + filename;
+        var isErr = false;
+        var localFile = dir + '/' + filename;
+        var stat = fs.statSync(localFile);
+
+
+        var client = net.connect({ host: item.host, port: item.port },
+          function() { //'connect' listener
+              client.write('put ' + servfile + '\ncontent-length:' + stat.size + '\n\n');// + content);
+              var fileStream = fs.createReadStream(localFile);
+              fileStream.pipe(client);
+
+          }
+        );
+
+        client.on('error', function(error) {
+            isErr = true;
+
+            if (retry < 3) {
+                sendFileForSyncAll(dir, filename, item, rootItem, retry + 1);
+            } else {
+                syncAllFile(rootItem);
+                console.log('error:' + servfile);
+            }
+        });
+
+        client.on('data', function(data) {
+            client.end();
+
+        });
+        client.on('end', function() {
+            if(isErr == false) {
+                syncAllFile(rootItem);
+            }
+
+            client.end();
+
+        });
+        return;
         fs.readFile(dir + '/' + filename, function(err, content) {
             if (err) { return false; }
             var relativePath = path.relative(item.offline, dir);
             relativePath = relativePath.replace(/\\/g, '/');
             var servfile = item.online + '/' + relativePath + '/' + filename;
+            var isErr = false;
 
 
             var client = net.connect({ host: item.host, port: item.port },
-                function() { //'connect' listener
-                    client.write('put ' + servfile + '\ncontent_length' + content.length + '\n\n' + content);
-                    syncAllFile(rootItem);
-                }
+              function() { //'connect' listener
+                  client.write('put ' + servfile + '\ncontent-length:' + content.length + '\n\n' + content);
+              }
             );
 
             client.on('error', function(error) {
+                console.log(error);
+                isErr = true;
+
                 if (retry < 3) {
                     sendFileForSyncAll(dir, filename, item, rootItem, retry + 1);
                 } else {
@@ -333,10 +389,15 @@ var fileWatcher = (function() {
             });
 
             client.on('data', function(data) {
+                console.log(data.toString());
                 client.end();
 
             });
             client.on('end', function() {
+                if(isErr == false) {
+                    syncAllFile(rootItem);
+                }
+
                 client.end();
 
             });
@@ -371,6 +432,46 @@ var fileWatcher = (function() {
     }
 
 
+    function getItemConfig(argv) {
+        var pwd = process.cwd();
+        pwd = pwd.replace(/\\/g, '/');
+
+        console.dir(pwd);
+
+        var minFileSize = 1;
+        item = config.path[argv.d];
+        item.maxFileSize = parseInt(item.maxFileSize)
+        item.offline = pwd;
+        if (!item.host) {
+            item.host = config.server.host;
+        }
+        if (!item.port) {
+            item.port = config.server.port;
+        }
+        if(!item.maxFileSize) {
+            item.maxFileSize = config.server.maxFileSize
+        }
+        if(1 > item.maxFileSize ) {
+            item.maxFileSize = 14
+        }
+        item.maxFileSize = item.maxFileSize * 1024*1024;
+        item.devSyncAll = argv.devSyncAll;
+        item.online = item.online.replace(/\\/g, '/');
+        if (item.ignore !== undefined) {
+            for (var index = 0; index < item.ignore.length; index++) {
+                item.ignore[index] = item.ignore[index].trim().replace(/^\/+/g, "").replace(/\/+$/g, "");
+            }
+        } else {
+            item.ignore = [];
+        }
+        if (item.sh == undefined) {
+            item.sh = '';
+        }
+
+        return item;
+    }
+
+
 
     return function() {
         var options = process.argv
@@ -397,31 +498,9 @@ var fileWatcher = (function() {
 
 
         if (argv.d != '') {
-            var pwd = process.cwd();
-            pwd = pwd.replace(/\\/g, '/');
 
-            console.dir(pwd);
             if (config.path.hasOwnProperty(argv.d)) {
-                item = config.path[argv.d];
-                item.offline = pwd;
-                if (!item.host) {
-                    item.host = config.server.host;
-                }
-                if (!item.port) {
-                    item.port = config.server.port;
-                }
-                item.devSyncAll = argv.devSyncAll;
-                item.online = item.online.replace(/\\/g, '/');
-                if (item.ignore !== undefined) {
-                    for (var index = 0; index < item.ignore.length; index++) {
-                        item.ignore[index] = item.ignore[index].trim().replace(/^\/+/g, "").replace(/\/+$/g, "");
-                    }
-                } else {
-                    item.ignore = [];
-                }
-                if (item.sh == undefined) {
-                    item.sh = '';
-                }
+                item = getItemConfig(argv)
 
                 if (argv.view == true) {
                     if (item.sh == '') {
