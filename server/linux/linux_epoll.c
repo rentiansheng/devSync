@@ -39,12 +39,10 @@ static struct epoll_event * epoll_init_wr(int fd, int wr, void *extra) {
 	make_fd_non_blocking(fd);
 
 	ev = (struct epoll_event *)malloc(sizeof(struct epoll_event));
-	if(extra == NULL) {
-		ev->data.fd = fd;
-	}
-	else {
-		ev->data.ptr = extra;
-	}
+	
+	ev->data.fd = fd;
+	ev->data.ptr = extra;
+
 	ev->events = (wr & EPOLL_W?EPOLLOUT:0)|(wr & EPOLL_R?EPOLLIN:0)|EPOLLET;
 	
 	return ev;
