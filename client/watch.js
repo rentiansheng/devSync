@@ -188,7 +188,7 @@ var fileWatcher = (function() {
         if (syncItem !== undefined && syncItem ) {
             sendFileForSyncAll(syncItem.dir, syncItem.name, syncItem.item, rootItem, 0);
             syncItem = undefined;
-            console.info("sync file process: "+(++sendFileNo)+"/"+allFileCount);
+            console.info("start sync file process: "+(++sendFileNo)+"/"+allFileCount);
         } else {
             childProcess --;
             if (childProcess <=  0) {
@@ -215,7 +215,6 @@ var fileWatcher = (function() {
         var isErr = false;
         var localFile = dir + '/' + filename;
         var stat = fs.statSync(localFile);
-
         var client = client = net.connect({ host: item.host, port: item.port },
 
           function() { //'connect' listener

@@ -105,7 +105,7 @@ $pwd 代表当前路径
 
  **启动参数 -d 监控当前目录下（运行client的目录），当clietn的文件修改同步到server**
 
- **启动参数 -d xxx -o， xxx配置，最近一次运行sh文件的输出结果 执行脚本的结果的url，在浏览器中打开地址即可**
+ **启动参数 -d xxx -v， xxx配置，最近一次运行sh文件的输出结果 执行脚本的结果的url，在浏览器中打开地址即可**
  
  
 #### client 配置
@@ -114,7 +114,7 @@ $pwd 代表当前路径
 Client的配置文件放在$pwd/client/config.json，config.json 是个object，其中包含server，path等配置,
 
 
-	 server 配置开发机器的默认的host和端口
+	 server 配置开发机器的默认的host和端口,允许上传的最大文件
 	 path  开发机固目录相关配置
 	 
  
@@ -127,8 +127,9 @@ Client的配置文件放在$pwd/client/config.json，config.json 是个object，
   	exts: 可以同步的文件后缀,为空同步所有文件
   	ignore: 不需要同步的目录
   	host: 开发机地址
-	port: 端口号
-	sh: 可执行sh脚本的路径（服务器端）
+	  port: 端口号
+	  sh: 可执行sh脚本的路径（服务器端）
+	  maxFileSize:允许上传的最大文件 单位为M
 
  使用方法
  

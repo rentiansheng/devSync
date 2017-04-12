@@ -2,13 +2,12 @@
     "path": {
         "devSync": {
             "online": "/root/devSyncDev",
-            "host": "127.0.0.1",
+            "host": "devSync.ireage.com",
             "port": "8484"
         },
         "dev": {
-            "maxFileSize":"1400",
             "online": "/tmp/devSync",
-            "host": "127.0.0.1",
+            "host": "devSync.ireage.com",
             "port": "8484",
             "ignore": ["server/obj", ".vscode", "client", "server", "test"]
         }
