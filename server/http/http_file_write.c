@@ -106,11 +106,12 @@ int  write_file_content(http_connect_t * con)
     pool_t *p = con->p;
     int count = 0;
 
-    ptr = palloc(p, sizeof(char)*CONTENT_SIZE);
+    //存在内存泄露
+    //ptr = palloc(p, sizeof(char)*CONTENT_SIZE);
     in = con->in;
     out = con->out;
-    while((count = read(con->fd, ptr, CONTENT_SIZE)) > 0) {
-        if(fwrite(ptr, count, 1, con->write_file.fp) != 1) {
+    while((count = read(con->fd, read_socket_buffer, CONTENT_SIZE)) > 0) {
+        if(fwrite(read_socket_buffer, count, 1, con->write_file.fp) != 1) {
             fclose(con->write_file.fp);
             con->next_handle =  send_put_result;
             con->out->status_code = HTTP_WRITE_FILE_FAIL;
