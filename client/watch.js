@@ -228,7 +228,6 @@ var fileWatcher = (function() {
 
         client.on('error', function(error) {
             isErr = true;
-console.log(error.toString());
             if (retry < 3) {
                 sendFileForSyncAll(dir, filename, item, rootItem, retry + 1);
             } else {

@@ -6,13 +6,15 @@
             "port": "8484"
         },
         "dev": {
+            "maxFileSize":"1400",
             "online": "/tmp/devSync",
-            "host": "10.33.106.196",
-            "port": "8481",
-            "ignore": ["server/obj"]
+            "host": "127.0.0.1",
+            "port": "8484",
+            "ignore": ["server/obj", ".vscode", "client", "server", "test"]
         }
     },
     "server": {
+        "maxFileSize":"1400",
         "host": "127.0.0.1",
         "port": "8484"
     }
