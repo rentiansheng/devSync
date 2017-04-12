@@ -9,10 +9,14 @@ var fileWatcher = (function() {
 
     var count = 0;
     var allfile = [];
-    var filecount = 0;
+    var allFileCount = 0;
     var sendFileNo = 0;
-    var displayEnd = 1;
     var MaxFileSize = 14*1024*1024; //14m
+    var SYNC_METHOD_UPLOAD = 'upload';
+    var SYNC_METHOD_DELETE = 'delete';
+    var maxProcess = 20;
+    var childProcess = 0;
+
 
     //发送文件
     function sendFile(dir, filename, item) {
@@ -25,72 +29,8 @@ var fileWatcher = (function() {
         var servfile = item.online + '/' + relativePath + '/' + filename;
         var localFile = dir + '/' + filename;
         var stat = fs.statSync(localFile);
-        var start = new Date().getTime();
-        try {
-            console.log("\nsync start: file[ " + servfile + ' ]');
-            var isErr = false
 
-            var client = net.connect({ host: item.host, port: item.port },
-              function() { //'connect' listener
-                  client.write('put ' + servfile + '\ncontent-length:' + stat.size + '\nexecute-file:' + item.sh + '\n\n');
-
-                  var fileStream = fs.createReadStream(localFile);
-                  fileStream.pipe(client);
-
-              }
-            );
-
-            client.on('data', function(data) {
-                //console.log(data.toString());
-                if (isErr == false) {
-                    var arrRespone = [] // = data.toString()
-                    arrRespone.push(data.toString())
-                    //var strRespone = data.toString()
-                    header = arrRespone[0].split("\r\n\r\n")
-                    header.shift();
-                    if (header.length > 0 && header[0] != "success") {
-                        isErr = true
-                        console.log("\n\n=============\nfatal error\n")
-                        console.log(header.join(""))
-                        console.log("\n=============\n")
-                    }
-                }
-            });
-            client.on('end', function() {
-
-                if (isErr) {
-                    return
-                }
-                client.end();
-                console.log('sync file end: fileName[ ' + servfile + ' ]');
-                var end = new Date().getTime();
-                var ts = end - start;
-                console.log('sync file end: file length[ ' + content.length + 'b ]');
-
-                var strStartTime = formatDate(new Date(start));
-
-                console.log('sync file end: start time[ ' + strStartTime + ' ]  sync use time[ ' + ts + 'ms ]');
-                console.log("\n");
-
-
-
-            });
-            client.on('error', function(err) {
-
-                isErr = true
-                console.log("\n\n=============\nfatal error\n")
-                console.log("* sync file error:[check network or server is start]");
-                console.log("\n=============\n")
-            });
-        } catch (err) {
-            console.log(err);
-        }
-        return ;
-        fs.readFile(dir + '/' + filename, function(err, content) {
-            if (err) { return false; }
-
-
-        });
+        getConnectClientWithEvent(item, servfile, localFile, stat.size, SYNC_METHOD_UPLOAD)
     }
 
 
@@ -102,60 +42,10 @@ var fileWatcher = (function() {
         var relativePath = path.relative(item.offline, dir);
         relativePath = relativePath.replace(/\\/g, '/');
         var servfile = item.online + '/' + relativePath + '/' + filename;
-        var start = new Date().getTime();
-        try {
-            console.log("\nsync start: file[ " + servfile + ' ]');
-            var isErr = false
-
-            var client = net.connect({ host: item.host, port: item.port },
-              function() { //'connect' listener
-                  client.write('del ' + servfile + '\ncontent-length:' + 0 + '\n\n');
-              }
-            );
-
-            client.on('data', function(data) {
-                //console.log(data.toString());
-                if (isErr == false) {
-                    var arrRespone = [] // = data.toString()
-                    arrRespone.push(data.toString())
-                    var strRespone = data.toString()
-                    header = arrRespone[0].split("\r\n\r\n")
-                    header.shift();
-                    if (header.length > 0 && header[0] != "success") {
-                        isErr = true
-                        console.log("\n\n=============\nfatal error\n")
-                        console.log(header.join(""))
-                        console.log("\n=============\n")
-                    }
-                }
-            });
-            client.on('end', function() {
-                if (isErr) {
-                    return
-                }
-                client.end();
-                console.log('sync delete file end: fileName[ ' + servfile + ' ]');
-                var end = new Date().getTime();
-                var ts = end - start;
-
-                var strStartTime = formatDate(new Date(start));
-
-                console.log('sync delete file end: start time[ ' + strStartTime + ' ]  sync use time[ ' + ts + 'ms ]');
-                console.log("\n");
+        var localFile = dir + '/' + filename;
 
 
-
-            });
-            client.on('error', function(err) {
-                isErr = true
-                console.log("\n\n=============\nfatal error\n")
-                console.log("* sync file error:[check network or server is start]");
-                console.log("\n=============\n")
-            });
-        } catch (err) {
-            console.log(err);
-        }
-
+        getConnectClientWithEvent(item, servfile, localFile, 0, SYNC_METHOD_DELETE);
 
     }
 
@@ -276,7 +166,7 @@ var fileWatcher = (function() {
                     } else if (stats.isFile()) {
                         file = path.parse(file);
                         if (!file['base']) { continue; }
-                        allfile[filecount++] = { 'dir': dir, 'name': file['base'], 'item': item };
+                        allfile[allFileCount++] = { 'dir': dir, 'name': file['base'], 'item': item };
                     }
                 } catch (err) {
 
@@ -295,26 +185,24 @@ var fileWatcher = (function() {
     //同步全部文件
     function syncAllFile(rootItem) {
         var syncItem = allfile.pop();
-        if (syncItem !== undefined && syncItem && sendFileNo < filecount) {
+        if (syncItem !== undefined && syncItem ) {
             sendFileForSyncAll(syncItem.dir, syncItem.name, syncItem.item, rootItem, 0);
             syncItem = undefined;
-            //console.log("send "+(++sendFileNo)+"/"+filecount);
+            console.info("sync file process: "+(++sendFileNo)+"/"+allFileCount);
         } else {
-            if (displayEnd) {
+            childProcess --;
+            if (childProcess <=  0) {
                 printSyncAllHeader(false);
-                displayEnd = 0;
                 //不同步目录下文件
                 watchDir(rootItem.offline, rootItem, false);
             }
-
-
-
         }
 
         return;
     }
 
-    //同步全部文件，发送文件
+    var sendFileCount = {'succ':0, 'error':0};
+    //用于同步全部文件时发送文件
     function sendFileForSyncAll(dir, filename, item, rootItem, retry) {
 
         if (filename && filename[0] == '.') { syncAllFile(rootItem); return; };
@@ -328,8 +216,8 @@ var fileWatcher = (function() {
         var localFile = dir + '/' + filename;
         var stat = fs.statSync(localFile);
 
+        var client = client = net.connect({ host: item.host, port: item.port },
 
-        var client = net.connect({ host: item.host, port: item.port },
           function() { //'connect' listener
               client.write('put ' + servfile + '\ncontent-length:' + stat.size + '\n\n');// + content);
               var fileStream = fs.createReadStream(localFile);
@@ -340,7 +228,7 @@ var fileWatcher = (function() {
 
         client.on('error', function(error) {
             isErr = true;
-
+console.log(error.toString());
             if (retry < 3) {
                 sendFileForSyncAll(dir, filename, item, rootItem, retry + 1);
             } else {
@@ -355,57 +243,94 @@ var fileWatcher = (function() {
         });
         client.on('end', function() {
             if(isErr == false) {
+                sendFileCount['succ'] ++;
                 syncAllFile(rootItem);
+            } else {
+                sendFileCount['error'] ++;
             }
 
             client.end();
 
         });
-        return;
-        fs.readFile(dir + '/' + filename, function(err, content) {
-            if (err) { return false; }
-            var relativePath = path.relative(item.offline, dir);
-            relativePath = relativePath.replace(/\\/g, '/');
-            var servfile = item.online + '/' + relativePath + '/' + filename;
-            var isErr = false;
+    }
 
+    function syncAllStartProcess(rootItem) {
+        childProcess = 20;
+        for(i = 0; i < 20; i++) {
+            syncAllFile(rootItem);
+        }
+    }
 
-            var client = net.connect({ host: item.host, port: item.port },
-              function() { //'connect' listener
-                  client.write('put ' + servfile + '\ncontent-length:' + content.length + '\n\n' + content);
-              }
-            );
+    function getConnectClientWithEvent(item, servfile, localFile, fileSize, method) {
+        var start = new Date().getTime();
+        console.log("\nsync start: file[ " + servfile + ' ]');
+        var isErr = false
 
-            client.on('error', function(error) {
-                console.log(error);
-                isErr = true;
+        var client = net.connect({ host: item.host, port: item.port });
 
-                if (retry < 3) {
-                    sendFileForSyncAll(dir, filename, item, rootItem, retry + 1);
-                } else {
-                    syncAllFile(rootItem);
-                    console.log('error:' + servfile);
+        client.on('data', function(data) {
+            //console.log(data.toString());
+            if (isErr == false) {
+                var arrRespone = [] // = data.toString()
+                arrRespone.push(data.toString())
+                var strRespone = data.toString()
+                header = arrRespone[0].split("\r\n\r\n")
+                header.shift();
+                if (header.length > 0 && header[0] != "success") {
+                    isErr = true
+                    console.log("\n\n=============\nfatal error\n")
+                    console.log(header.join(""))
+                    console.log("\n=============\n")
                 }
-            });
+            }
+        });
+        client.on('end', function() {
+            if (isErr) {
+                return
+            }
+            client.end();
+            console.log('sync ' + method + ' file end: fileName[ ' + servfile + ' ]');
+            var end = new Date().getTime();
+            var ts = end - start;
 
-            client.on('data', function(data) {
-                console.log(data.toString());
-                client.end();
+            var strStartTime = formatDate(new Date(start));
+            if(SYNC_METHOD_UPLOAD == method) {
+                console.log('sync file end: file length[ ' + fileSize + 'b ]');
+            }
 
-            });
-            client.on('end', function() {
-                if(isErr == false) {
-                    syncAllFile(rootItem);
-                }
+            console.log('sync ' + method + ' file end: start time[ ' + strStartTime + ' ]  sync use time[ ' + ts + 'ms ]');
+            console.log("\n");
 
-                client.end();
-
-            });
 
 
         });
+        client.on('error', function(err) {
+            isErr = true
+            console.log("\n\n=============\nfatal error\n")
+            console.log("* sync file error:[check network or server is start]");
+            console.log("\n=============\n")
+        });
+
+        client.write('put ' + servfile + '\ncontent-length:' + fileSize + '\n\n');// + content);
+        if(method == SYNC_METHOD_UPLOAD) {
+            var fileStream = fs.createReadStream(localFile);
+            fileStream.pipe(client);
+        }
+
     }
 
+    function getConnectClient(item, servfile, localFile, fileSize) {
+
+        return client = net.connect({ host: item.host, port: item.port },
+
+          function() { //'connect' listener
+              client.write('put ' + servfile + '\ncontent-length:' + fileSize + '\n\n');// + content);
+              var fileStream = fs.createReadStream(localFile);
+              fileStream.pipe(client);
+
+          }
+        );
+    }
 
 
     //格式化时间戳
@@ -490,7 +415,6 @@ var fileWatcher = (function() {
         }
 
 
-
         if (argv.d == null) {
             console.log("error: 请输入config配置中path配置项目");
             return;
@@ -511,12 +435,12 @@ var fileWatcher = (function() {
                     return;
                 }
 
+                process.setMaxListeners(0);
 
                 if (argv.devSyncAll) {
                     printSyncAllHeader(true);
                     getSyncFILE(item.offline, item);
-
-                    syncAllFile(item);
+                    syncAllStartProcess(item);
                 } else {
                     console.log("==============================================");
                     console.log("*            start watch file change");
