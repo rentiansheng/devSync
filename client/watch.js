@@ -18,7 +18,8 @@ var fileWatcher = (function() {
     var childProcess = 0;
 
 
-    //发送文件
+
+  //发送文件
     function sendFile(dir, filename, item) {
         if (filename && filename[0] == '.') return;
         var ext = path.extname(filename);
@@ -93,7 +94,7 @@ var fileWatcher = (function() {
     }
 
     //为目录加监控时间
-    function watchDir(root, item, isSendFile) {
+    function watchDir(root, item) {
 
         for (var i = 0; i < item.ignore.length; i++) {
             if (root.indexOf(item.ignore[i]) >= 0) {
@@ -102,29 +103,28 @@ var fileWatcher = (function() {
         }
 
 
-        listenToChange(root, item);
-        fs.lstat(root, function(err, stats) {
+        var dirPath = [];
+        dirPath.push(root)
+
+        //采用非递归方式监控目录变化，避免callback 层级过多
+        while(0 < dirPath.length) {
+          var dir = dirPath.pop(dirPath);
+
+          listenToChange(dir, item);
+          var files = fs.readdirSync(dir);
+          for(var i = 0; i < files.length; i++) {
+            var file = files[i];
+
+            if (file[0] == '.') { continue; }
+            file = dir + '/' + file;
+            var stats = fs.lstatSync(file);
             if (stats.isDirectory()) {
-                fs.readdir(root, function(err, files) {
-                    if (err) return;
-                    files.forEach(function(file) {
-                        var fileName = file;
-                        if (file[0] == '.') { return; }
-                        file = root + '/' + file;
-                        fs.lstat(file, function(err, stats) {
-                            if (err) return;
-                            if (stats.isDirectory()) {
-                                watchDir(file, item, isSendFile);
-                            } else if (isSendFile && stats.isFile()) {
-                                sendFile(root, fileName, item, true);
-                            }
-                        });
-                    });
-                });
-
+              dirPath.push(file);
             }
+          }
 
-        });
+        }
+
     }
 
     //获取要同步全部的文件，
@@ -169,8 +169,8 @@ var fileWatcher = (function() {
                         allfile[allFileCount++] = { 'dir': dir, 'name': file['base'], 'item': item };
                     }
                 } catch (err) {
-
-                    console.log("error" + dir + "\t" + file);
+                    console.log("\n error:" + err.toString())
+                    console.log("file:"+ dir + "/" + file);
                 }
 
             }
@@ -184,8 +184,10 @@ var fileWatcher = (function() {
 
     //同步全部文件
     function syncAllFile(rootItem) {
-        var syncItem = allfile.pop();
-        if (syncItem !== undefined && syncItem ) {
+
+      var syncItem = allfile.pop();
+      if (syncItem !== undefined && syncItem ) {
+
             sendFileForSyncAll(syncItem.dir, syncItem.name, syncItem.item, rootItem, 0);
             syncItem = undefined;
             console.info("start sync file process: "+(++sendFileNo)+"/"+allFileCount);
@@ -194,7 +196,9 @@ var fileWatcher = (function() {
             if (childProcess <=  0) {
                 printSyncAllHeader(false);
                 //不同步目录下文件
-                watchDir(rootItem.offline, rootItem, false);
+                watchDir(item.offline, item);
+
+              return;
             }
         }
 
@@ -204,7 +208,6 @@ var fileWatcher = (function() {
     var sendFileCount = {'succ':0, 'error':0};
     //用于同步全部文件时发送文件
     function sendFileForSyncAll(dir, filename, item, rootItem, retry) {
-
         if (filename && filename[0] == '.') { syncAllFile(rootItem); return; };
         var ext = path.extname(filename);
         if (item.exts && item.exts.length > 0 && item.exts.indexOf(ext) === -1) { syncAllFile(rootItem); return };
@@ -230,7 +233,8 @@ var fileWatcher = (function() {
             if (retry < 3) {
                 sendFileForSyncAll(dir, filename, item, rootItem, retry + 1);
             } else {
-                syncAllFile(rootItem);
+                setTimeout(function() {syncAllFile(rootItem);}, 0)
+                //syncAllFile(rootItem);
                 console.log('error:' + servfile);
             }
         });
@@ -243,6 +247,7 @@ var fileWatcher = (function() {
             if(isErr == false) {
                 sendFileCount['succ'] ++;
                 syncAllFile(rootItem);
+
             } else {
                 sendFileCount['error'] ++;
             }
@@ -253,8 +258,8 @@ var fileWatcher = (function() {
     }
 
     function syncAllStartProcess(rootItem) {
-        childProcess = 20;
-        for(i = 0; i < 20; i++) {
+        childProcess = maxProcess;
+        for(var i = 0; i < maxProcess; i++) {
             syncAllFile(rootItem);
         }
     }
@@ -317,18 +322,6 @@ var fileWatcher = (function() {
 
     }
 
-    function getConnectClient(item, servfile, localFile, fileSize) {
-
-        return client = net.connect({ host: item.host, port: item.port },
-
-          function() { //'connect' listener
-              client.write('put ' + servfile + '\ncontent-length:' + fileSize + '\n\n');// + content);
-              var fileStream = fs.createReadStream(localFile);
-              fileStream.pipe(client);
-
-          }
-        );
-    }
 
 
     //格式化时间戳
@@ -435,6 +428,7 @@ var fileWatcher = (function() {
 
                 process.setMaxListeners(0);
 
+
                 if (argv.devSyncAll) {
                     printSyncAllHeader(true);
                     getSyncFILE(item.offline, item);
@@ -444,13 +438,13 @@ var fileWatcher = (function() {
                     console.log("*            start watch file change");
                     console.log("==============================================");
                     //只监控，不同步目录下文件
-                    watchDir(item.offline, item, false);
+                    watchDir(item.offline, item);
+
                 }
 
             } else {
                 console.log("error:" + argv.d + "配置不存在");
             }
-
         } else {
             console.log("error:错误的工作方式");
         }
