@@ -23,12 +23,18 @@ var fileWatcher = (function() {
     function sendFile(dir, filename, item) {
         if (filename && filename[0] == '.') return;
         var ext = path.extname(filename);
-        if (item.exts && item.exts.length > 0 && item.exts.indexOf(ext) === -1) return;
+        if (item.exts && item.exts.length > 0 && item.exts.indexOf(ext) === -1) {return;}
 
         var relativePath = path.relative(item.offline, dir);
         relativePath = relativePath.replace(/\\/g, '/');
         var servfile = item.online + '/' + relativePath + '/' + filename;
         var localFile = dir + '/' + filename;
+
+        for (var i = 0; i < item.ignore.length; i++) { 
+            if (localFile.indexOf(item.ignore[i]) >= 0) {
+               return 
+            }
+        }
         var stat = fs.statSync(localFile);
 
         getConnectClientWithEvent(item, servfile, localFile, stat.size, SYNC_METHOD_UPLOAD)
