@@ -28,10 +28,11 @@ var fileWatcher = (function() {
         var relativePath = path.relative(item.offline, dir);
         relativePath = relativePath.replace(/\\/g, '/');
         var servfile = item.online + '/' + relativePath + '/' + filename;
-        var localFile = dir + '/' + filename;
+        var localFile = dir + '//' + filename;
+        localFile = localFile.replace('//', "/")
 
         for (var i = 0; i < item.ignore.length; i++) { 
-            if (localFile.indexOf(item.ignore[i]) >= 0) {
+            if (localFile.indexOf(item.ignore[i]) >= 0) { 
                return 
             }
         }
