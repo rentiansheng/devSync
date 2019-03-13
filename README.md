@@ -4,7 +4,7 @@ the local machine and develop machine synchronization code
 
 在文件变化时，同步到指定的机器,并且执行脚本
 
-#本地代码同步到开发机
+# 本地代码同步到开发机
 ---
 
 **target：write code，view result**
