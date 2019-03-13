@@ -22,7 +22,7 @@ the local machine and develop machine synchronization code
 	5. 部分目录可以忽略同步
 
 
-####准备工作
+#### 准备工作
 ---
 
 
@@ -118,7 +118,7 @@ Client的配置文件放在$pwd/client/config.json，config.json 是个object，
 	 path  开发机固目录相关配置
 	 
  
-#####path 配置详细
+##### path 配置详细
 ---
  
  path 是个数组，每个数据项是同步的配置。每个数据项包含下面的值。
