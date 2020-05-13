@@ -114,22 +114,27 @@ $pwd 代表当前路径
 Client的配置文件放在$pwd/client/config.json，config.json 是个object，其中包含server，path等配置,
 
 
-	 server 配置开发机器的默认的host和端口,允许上传的最大文件
-	 path  开发机固目录相关配置
+	 server 配置开发机器的默认的host和端口,允许上传的最大文件，相当于对path 的全局配置，path 中key 没有配置该项目的时候，就是使用server
+	 path   开发机目录相关配置， 是一个object就是一个同步项目
 	 
- 
+##### server 配置详细
+
+  	host: 开发机地址， 不填写使用server的配置
+	port: 端口号， 不填写使用server的配置
+	maxFileSize:允许上传的最大文件 单位为M
+	
 ##### path 配置详细
 ---
  
- path 是个数组，每个数据项是同步的配置。每个数据项包含下面的值。
+ path 是个对象，每个key数据项是同步的配置。key 就是同步项目的名称，用来跟在client 中node -d 后面， 每个数据项包含下面的值。
  
   	offline：本地需要同步到开发机器的代码路径
   	exts: 可以同步的文件后缀,为空同步所有文件
   	ignore: 不需要同步的目录
-  	host: 开发机地址
-	  port: 端口号
-	  sh: 可执行sh脚本的路径（服务器端）
-	  maxFileSize:允许上传的最大文件 单位为M
+  	host: 开发机地址， 不填写使用server的配置
+	port: 端口号， 不填写使用server的配置
+	sh: 可执行sh脚本的路径（文件必须在服务器端存在）
+	maxFileSize:允许上传的最大文件 单位为M
 
  使用方法
  
@@ -153,6 +158,59 @@ Client的配置文件放在$pwd/client/config.json，config.json 是个object，
 
  	
  	
+eg: 
+
+同步文件到单个开发机单个目录
+```
+配置文件如下：
+
+{
+    "path": {
+        "devSync127": {
+            "online": "/tmp/test"
+        }
+    },
+    "server": {
+        "maxFileSize":"1400",
+        "host": "127.0.0.1",
+        "port": "8484"
+    }
+}
+
+同步当前目录的内容到开发机127.0.0.1的/tmp/test目录
+node  $pwd/client/watch.js -d devSync127
+```
+
+同步文件到多个开发机单个目录
+```
+配置文件如下：
+
+{
+    "path": {
+       "devSync127": {
+            "online": "/tmp/test"
+        },
+        "devSync10": {
+            "online": "/tmp/test"
+	    "host": "10.0.0.1",
+            "port": "8484"
+        },
+       
+    },
+    "server": {
+        "maxFileSize":"1400",
+        "host": "127.0.0.1",
+        "port": "8484"
+    }
+}
+同步当前目录的内容到开发机10.0.0.1的/tmp/test目录
+node  $pwd/client/watch.js -d devSync10
+
+同步当前目录的内容到开发机127.0.0.1的/tmp/test目录
+node  $pwd/client/watch.js -d devSync127
+
+```
+
 
 
 
