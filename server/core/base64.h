@@ -11,7 +11,6 @@
 #include "buffer.h"
 #include "str.h"
 
-
-int  decoded_usr_pwd(http_connect_t *con);
+int decoded_usr_pwd(request *in, pool_t *p);
 
 #endif

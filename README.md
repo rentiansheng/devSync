@@ -44,6 +44,11 @@ $pwd 代表当前路径
 1. client 
 	
 	安装nodejs
+
+	安装依赖包
+
+	npm install nodejs-base64-converter --save
+
 	
 2. server
 
@@ -106,7 +111,9 @@ $pwd 代表当前路径
  **启动参数 -d 监控当前目录下（运行client的目录），当clietn的文件修改同步到server**
 
  **启动参数 -d xxx -v， xxx配置，最近一次运行sh文件的输出结果 执行脚本的结果的url，在浏览器中打开地址即可**
- 
+
+ **启动参数 -a user:password 可选，是否开启授权模式，有服务端配置，默认不开启，开启后需要传递用户名和密码.**
+
  
 #### client 配置
 ---
@@ -222,7 +229,7 @@ node  $pwd/client/watch.js -d devSync127
  **-p port 可选 默认使用8484端口，提供服务的端口，就是client端中config.json中配置的port的值**
  
  **-u user 可选，默认使用当前运行程序的账户，设置启动server端后运行程序的用户。影响写入文件和对目录的权限，一定要root或者sudo执行服务端**
-
+ **-a user:password 可选，是否开启授权模式，默认不开启，开启后需要传递用户名和密码， 基于HTTP 协议的401 状态码实现，浏览器中也可以使用**
 
  用C语言编写，需要自己编译，进入到server目录下make就行了
 
@@ -239,8 +246,9 @@ node  $pwd/client/watch.js -d devSync127
 
  	cd obj
  	./devSync
- 	./devSync -p 8088 //使用8088端口
- 	./devSync -u www //使用www用户运行程序
+ 	./devSync -p 8088 // 使用8088端口
+ 	./devSync -u www // 使用www用户运行程序
+ 	./devSync -a cc:dd // 使用授权模式，用户名:密码 
 
  
 ### 注意
