@@ -8,21 +8,21 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include "buffer.h"
 #include "pool.h"
 
-typedef  struct string {
+typedef struct string
+{
     char *ptr;
     int len;
-}string;
+} string;
 
-string * string_init(pool_t *p);
-string * string_init_from_str(pool_t *p, char *b, size_t len);
-string * string_init_from_ptr(pool_t *p, char *ptr, size_t len);
+string *string_init(pool_t *p);
+string *string_init_from_str(pool_t *p, char *b, size_t len);
+string *string_init_from_ptr(pool_t *p, char *ptr, size_t len);
 int string_compare(const string *s1, const string *s2);
 void string_copy_str_n(const string *b, char *s1, int n);
-int  string_get_line(char  *start, char *end, string *dst);
-void string_get_word_with_split(string * src, string *dst, char split);
-
+int string_get_line(char *start, char *end, string *dst);
+void string_get_word_with_split(string *src, string *dst, char split);
+void string_append_str(string *b, char *str, int len, pool_t *p);
 
 #endif

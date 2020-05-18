@@ -2,16 +2,18 @@ var fs = require('fs');
 var path = require('path');
 var config = require('./config.json');
 var net = require('net');
+// npm install nodejs-base64-converter --save
+var nodeBase64 = require('nodejs-base64-converter');
 
 
 
-var fileWatcher = (function() {
+var fileWatcher = (function () {
 
     var count = 0;
     var allfile = [];
     var allFileCount = 0;
     var sendFileNo = 0;
-    var MaxFileSize = 14*1024*1024; //14m
+    var MaxFileSize = 14 * 1024 * 1024; //14m
     var SYNC_METHOD_UPLOAD = 'upload';
     var SYNC_METHOD_DELETE = 'delete';
     var maxProcess = 20;
@@ -19,11 +21,11 @@ var fileWatcher = (function() {
 
 
 
-  //发送文件
+    //发送文件
     function sendFile(dir, filename, item) {
         if (filename && filename[0] == '.') return;
         var ext = path.extname(filename);
-        if (item.exts && item.exts.length > 0 && item.exts.indexOf(ext) === -1) {return;}
+        if (item.exts && item.exts.length > 0 && item.exts.indexOf(ext) === -1) { return; }
 
         var relativePath = path.relative(item.offline, dir);
         relativePath = relativePath.replace(/\\/g, '/');
@@ -31,9 +33,9 @@ var fileWatcher = (function() {
         var localFile = dir + '//' + filename;
         localFile = localFile.replace('//', "/")
 
-        for (var i = 0; i < item.ignore.length; i++) { 
-            if (localFile.indexOf(item.ignore[i]) >= 0) { 
-               return 
+        for (var i = 0; i < item.ignore.length; i++) {
+            if (localFile.indexOf(item.ignore[i]) >= 0) {
+                return
             }
         }
         var stat = fs.statSync(localFile);
@@ -63,18 +65,18 @@ var fileWatcher = (function() {
         dir = path.resolve(dir);
 
         function onChg(event, filename) {
-            if(filename.indexOf('___jb_tmp___') >= 0
-              || filename.indexOf('___jb_old___') >= 0) {
-                return ;
+            if (filename.indexOf('___jb_tmp___') >= 0
+                || filename.indexOf('___jb_old___') >= 0) {
+                return;
             }
             var file = dir + '/' + filename;
-            fs.exists(file, function(exists) {
+            fs.exists(file, function (exists) {
                 if (!exists) {
 
                     sendDelFile(dir, filename, item);
                     return;
                 }
-                fs.lstat(dir + '/' + filename, function(err, stats) {
+                fs.lstat(dir + '/' + filename, function (err, stats) {
                     if (err) {
                         return;
                     }
@@ -114,21 +116,21 @@ var fileWatcher = (function() {
         dirPath.push(root)
 
         //采用非递归方式监控目录变化，避免callback 层级过多
-        while(0 < dirPath.length) {
-          var dir = dirPath.pop(dirPath);
+        while (0 < dirPath.length) {
+            var dir = dirPath.pop(dirPath);
 
-          listenToChange(dir, item);
-          var files = fs.readdirSync(dir);
-          for(var i = 0; i < files.length; i++) {
-            var file = files[i];
+            listenToChange(dir, item);
+            var files = fs.readdirSync(dir);
+            for (var i = 0; i < files.length; i++) {
+                var file = files[i];
 
-            if (file[0] == '.') { continue; }
-            file = dir + '/' + file;
-            var stats = fs.lstatSync(file);
-            if (stats.isDirectory()) {
-              dirPath.push(file);
+                if (file[0] == '.') { continue; }
+                file = dir + '/' + file;
+                var stats = fs.lstatSync(file);
+                if (stats.isDirectory()) {
+                    dirPath.push(file);
+                }
             }
-          }
 
         }
 
@@ -177,7 +179,7 @@ var fileWatcher = (function() {
                     }
                 } catch (err) {
                     console.log("\n error:" + err.toString())
-                    console.log("file:"+ dir + "/" + file);
+                    console.log("file:" + dir + "/" + file);
                 }
 
             }
@@ -192,27 +194,27 @@ var fileWatcher = (function() {
     //同步全部文件
     function syncAllFile(rootItem) {
 
-      var syncItem = allfile.pop();
-      if (syncItem !== undefined && syncItem ) {
+        var syncItem = allfile.pop();
+        if (syncItem !== undefined && syncItem) {
 
             sendFileForSyncAll(syncItem.dir, syncItem.name, syncItem.item, rootItem, 0);
             syncItem = undefined;
-            console.info("start sync file process: "+(++sendFileNo)+"/"+allFileCount);
+            console.info("start sync file process: " + (++sendFileNo) + "/" + allFileCount);
         } else {
-            childProcess --;
-            if (childProcess <=  0) {
+            childProcess--;
+            if (childProcess <= 0) {
                 printSyncAllHeader(false);
                 //不同步目录下文件
                 watchDir(item.offline, item);
 
-              return;
+                return;
             }
         }
 
         return;
     }
 
-    var sendFileCount = {'succ':0, 'error':0};
+    var sendFileCount = { 'succ': 0, 'error': 0 };
     //用于同步全部文件时发送文件
     function sendFileForSyncAll(dir, filename, item, rootItem, retry) {
         if (filename && filename[0] == '.') { syncAllFile(rootItem); return; };
@@ -227,36 +229,38 @@ var fileWatcher = (function() {
         var stat = fs.statSync(localFile);
         var client = client = net.connect({ host: item.host, port: item.port },
 
-          function() { //'connect' listener
-              client.write('put ' + servfile + '\ncontent-length:' + stat.size + '\n\n');// + content);
-              var fileStream = fs.createReadStream(localFile);
-              fileStream.pipe(client);
+            function () { //'connect' listener 
+                var httpHeader = 'put ' + servfile + '\ncontent-length:' + stat.size
+                    + "\nAuthorization: Basic " + nodeBase64.encode(item.auth) + '\n\n'
+                client.write(httpHeader);// + content);
+                var fileStream = fs.createReadStream(localFile);
+                fileStream.pipe(client);
 
-          }
+            }
         );
 
-        client.on('error', function(error) {
+        client.on('error', function (error) {
             isErr = true;
             if (retry < 3) {
                 sendFileForSyncAll(dir, filename, item, rootItem, retry + 1);
             } else {
-                setTimeout(function() {syncAllFile(rootItem);}, 0)
+                setTimeout(function () { syncAllFile(rootItem); }, 0)
                 //syncAllFile(rootItem);
-                console.log('error:' + servfile);
+                console.log('[error] file name:' + servfile + "err:" + error.toString());
             }
         });
 
-        client.on('data', function(data) {
+        client.on('data', function (data) {
             client.end();
 
         });
-        client.on('end', function() {
-            if(isErr == false) {
-                sendFileCount['succ'] ++;
+        client.on('end', function () {
+            if (isErr == false) {
+                sendFileCount['succ']++;
                 syncAllFile(rootItem);
 
             } else {
-                sendFileCount['error'] ++;
+                sendFileCount['error']++;
             }
 
             client.end();
@@ -266,7 +270,7 @@ var fileWatcher = (function() {
 
     function syncAllStartProcess(rootItem) {
         childProcess = maxProcess;
-        for(var i = 0; i < maxProcess; i++) {
+        for (var i = 0; i < maxProcess; i++) {
             syncAllFile(rootItem);
         }
     }
@@ -278,7 +282,7 @@ var fileWatcher = (function() {
 
         var client = net.connect({ host: item.host, port: item.port });
 
-        client.on('data', function(data) {
+        client.on('data', function (data) {
             //console.log(data.toString());
             if (isErr == false) {
                 var arrRespone = [] // = data.toString()
@@ -294,7 +298,7 @@ var fileWatcher = (function() {
                 }
             }
         });
-        client.on('end', function() {
+        client.on('end', function () {
             if (isErr) {
                 return
             }
@@ -304,7 +308,7 @@ var fileWatcher = (function() {
             var ts = end - start;
 
             var strStartTime = formatDate(new Date(start));
-            if(SYNC_METHOD_UPLOAD == method) {
+            if (SYNC_METHOD_UPLOAD == method) {
                 console.log('sync file end: file length[ ' + fileSize + 'b ]');
             }
 
@@ -314,15 +318,20 @@ var fileWatcher = (function() {
 
 
         });
-        client.on('error', function(err) {
+        client.on('error', function (err) {
+            if (isErr) {
+                return
+            }
             isErr = true
             console.log("\n\n=============\nfatal error\n")
-            console.log("* sync file error:[check network or server is start]");
+            console.log("* sync file error: error ", err.toString());
             console.log("\n=============\n")
         });
 
-        client.write('put ' + servfile + '\ncontent-length:' + fileSize + '\n\n');// + content);
-        if(method == SYNC_METHOD_UPLOAD) {
+
+        var httpHeader = 'put ' + servfile + "\nAuthorization: Basic " + nodeBase64.encode(item.auth) + '\n\n'
+        client.write(httpHeader);// + content);
+        if (method == SYNC_METHOD_UPLOAD) {
             var fileStream = fs.createReadStream(localFile);
             fileStream.pipe(client);
         }
@@ -371,14 +380,15 @@ var fileWatcher = (function() {
         if (!item.port) {
             item.port = config.server.port;
         }
-        if(!item.maxFileSize) {
+        if (!item.maxFileSize) {
             item.maxFileSize = config.server.maxFileSize
         }
-        if(1 > item.maxFileSize ) {
+        if (1 > item.maxFileSize) {
             item.maxFileSize = 14
         }
-        item.maxFileSize = item.maxFileSize * 1024*1024;
+        item.maxFileSize = item.maxFileSize * 1024 * 1024;
         item.devSyncAll = argv.devSyncAll;
+        item.auth = argv.auth;
         item.online = item.online.replace(/\\/g, '/');
         if (item.ignore !== undefined) {
             for (var index = 0; index < item.ignore.length; index++) {
@@ -396,11 +406,11 @@ var fileWatcher = (function() {
 
 
 
-    return function() {
+    return function () {
         var options = process.argv
         var len = options.length;
         var i;
-        var argv = { 'd': '', 'v': '', 'devSyncAll': false, "v": false }
+        var argv = { 'd': '', 'v': '', 'devSyncAll': false, "v": false, "auth": "" }
 
         for (i = 0; i < len; i++) {
             if (options[i] == '-d') {
@@ -409,6 +419,8 @@ var fileWatcher = (function() {
                 argv.devSyncAll = true;
             } else if (options[i] == "-v") {
                 argv.view = true;
+            } else if (options[i] == "-a") {
+                argv.auth = options[++i];
             }
         }
 

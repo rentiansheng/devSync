@@ -15,16 +15,16 @@
 #include "http_request.h"
 #include <errno.h>
 
-extern int errno ;
+extern int errno;
 
+int send_put_result(http_connect_t *con);
 
+int send_put_forbidden_result(http_connect_t *con);
 
-int send_put_result(http_connect_t * con);
-
-int send_put_forbidden_result(http_connect_t * con);
-
-int send_execute(http_connect_t * con);
+int send_execute(http_connect_t *con);
 
 int send_put_header_err(http_connect_t *con);
+
+int send_unauthorized(http_connect_t *con);
 
 #endif

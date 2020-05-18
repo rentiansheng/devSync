@@ -4,7 +4,6 @@
  * BLOG: http://www.ireage.com
  */
 
-
 #ifndef _HTTP_REQUEST_H_INCLUDED_
 #define _HTTP_REQUEST_H_INCLUDED_
 #include <stdio.h>
@@ -22,12 +21,9 @@
 #include "http_execute_sh.h"
 #include "linux_epoll.h"
 
+int start_accept(http_conf *g);
 
-
-
-int start_accept();
-
-response * response_init(pool_t *p);
-request * request_init(pool_t *p);
+response *response_init(pool_t *p);
+request *request_init(pool_t *p);
 
 #endif
