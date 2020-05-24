@@ -8,8 +8,6 @@ int http_mod_auth(http_connect_t *con)
 {
 
     ds_log(con, "[ AUTH ]", LOG_LEVEL_ERROR);
-    ds_log(con, con->auth->ptr, LOG_LEVEL_ERROR);
-    ds_log(con, con->in->auth->ptr, LOG_LEVEL_ERROR);
 
     //      没有启用授权模式, 或者通过授权
     if (con->auth == NULL || (con->auth->len == con->in->auth->len && string_compare(con->auth, con->in->auth) == 0))
