@@ -59,10 +59,10 @@ static int parse_http_request_row(pool_t *p, request *in, char *start, char *end
 		in->http_method = _CGI;
 		start += 3;
 	}
-	else if (strncasecmp(start, "del", 3) == 0)
+	else if (strncasecmp(start, "delete", 6) == 0)
 	{
 		in->http_method = _DEL;
-		start += 3;
+		start += 6;
 	}
 	else
 	{

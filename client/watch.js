@@ -14,7 +14,7 @@ var fileWatcher = (function () {
     var allFileCount = 0;
     var sendFileNo = 0;
     var MaxFileSize = 14 * 1024 * 1024; //14m
-    var SYNC_METHOD_UPLOAD = 'upload';
+    var SYNC_METHOD_UPLOAD = 'put';
     var SYNC_METHOD_DELETE = 'delete';
     var maxProcess = 20;
     var childProcess = 0;
@@ -279,7 +279,6 @@ var fileWatcher = (function () {
         var start = new Date().getTime();
         console.log("\nsync start: file[ " + servfile + ' ]');
         var isErr = false
-
         var client = net.connect({ host: item.host, port: item.port });
 
         client.on('data', function (data) {
@@ -329,7 +328,7 @@ var fileWatcher = (function () {
         });
 
 
-        var httpHeader = 'put ' + servfile + "\nAuthorization: Basic " + nodeBase64.encode(item.auth) + '\n\n'
+        var httpHeader = method + ' ' + servfile + "\nAuthorization: Basic " + nodeBase64.encode(item.auth) + '\n\n'
         client.write(httpHeader);// + content);
         if (method == SYNC_METHOD_UPLOAD) {
             var fileStream = fs.createReadStream(localFile);
