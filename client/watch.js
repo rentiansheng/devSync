@@ -38,9 +38,8 @@ var fileWatcher = (function () {
                 return
             }
         }
-        var stat = fs.statSync(localFile);
 
-        getConnectClientWithEvent(item, servfile, localFile, stat.size, SYNC_METHOD_UPLOAD)
+        getConnectClientWithEvent(item, servfile, localFile, SYNC_METHOD_UPLOAD)
     }
 
 
@@ -55,7 +54,7 @@ var fileWatcher = (function () {
         var localFile = dir + '/' + filename;
 
 
-        getConnectClientWithEvent(item, servfile, localFile, 0, SYNC_METHOD_DELETE);
+        getConnectClientWithEvent(item, servfile, localFile, SYNC_METHOD_DELETE);
 
     }
 
@@ -275,11 +274,33 @@ var fileWatcher = (function () {
         }
     }
 
-    function getConnectClientWithEvent(item, servfile, localFile, fileSize, method) {
+    function getConnectClientWithEvent(item, servfile, localFile, method) {
         var start = new Date().getTime();
         console.log("\nsync start: file[ " + servfile + ' ]');
         var isErr = false
         var client = net.connect({ host: item.host, port: item.port });
+        // 获取文件状态的
+        var fileStat = null;
+        // 是否为同步文件的命令
+        var isUplaodFile = true
+        // 等待同步的文件大小
+        var fileSize = 0;
+        // 文件创建时间的时间戳
+        var cTime = 0;
+        // 文件修改的时间戳
+        var mTime = 0;
+        // 文件访问的时间戳
+        var aTime = 0;
+
+        if (method == SYNC_METHOD_DELETE) {
+            isUplaodFile = false;
+        } else {
+            fileStat = fs.statSync(localFile);
+            fileSize = fileStat.size;
+            cTime = Math.trunc(fileStat.ctimeMs / 1000);
+            mTime = Math.trunc(fileStat.mtimeMs / 1000);
+            aTime = Math.trunc(fileStat.atimeMs / 1000);
+        }
 
         client.on('data', function (data) {
             //console.log(data.toString());
@@ -297,6 +318,7 @@ var fileWatcher = (function () {
                 }
             }
         });
+
         client.on('end', function () {
             if (isErr) {
                 return
@@ -317,6 +339,7 @@ var fileWatcher = (function () {
 
 
         });
+
         client.on('error', function (err) {
             if (isErr) {
                 return
@@ -328,9 +351,15 @@ var fileWatcher = (function () {
         });
 
 
-        var httpHeader = method + ' ' + servfile + "\nAuthorization: Basic " + nodeBase64.encode(item.auth) + '\n\n'
+        var httpHeader = method + ' ' + servfile + "\nAuthorization: Basic " + nodeBase64.encode(item.auth) + "\n";
+        if (isUplaodFile) {
+            httpHeader += "sync_ctime: " + cTime + "\n";
+            httpHeader += "sync_atime: " + aTime + "\n";
+            httpHeader += "sync_mtime: " + mTime + "\n";
+        }
+        httpHeader += '\n'
         client.write(httpHeader);// + content);
-        if (method == SYNC_METHOD_UPLOAD) {
+        if (isUplaodFile) {
             var fileStream = fs.createReadStream(localFile);
             fileStream.pipe(client);
         }
