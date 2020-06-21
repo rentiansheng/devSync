@@ -177,6 +177,12 @@ typedef struct request
 	string *execute_file;
 	buffer *header;
 
+	buffer *physicalURI;
+	// sync file time
+	long int ctime;
+	long int atime;
+	long int mtime;
+
 } request;
 
 typedef struct http_connect

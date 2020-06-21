@@ -151,6 +151,23 @@ static int parse_http_header_messge(pool_t *p, request *in, char *start, char *e
 			in->rawAuthorization = string_init_from_ptr(p, value->ptr, value->len);
 			decoded_usr_pwd(in, p);
 		}
+		else if (key->len == 10 && strncasecmp("sync_ctime", key->ptr, key->len) == 0)
+		{
+			in->ctime = atol(value->ptr);
+		}
+		else if (key->len == 10 && strncasecmp("sync_atime", key->ptr, key->len) == 0)
+		{
+			in->atime = atol(value->ptr);
+		}
+		else if (key->len == 10 && strncasecmp("sync_mtime", key->ptr, key->len) == 0)
+		{
+			in->mtime = atol(value->ptr);
+		}
+		else
+		{
+			// TODO 将所有的header 接卸后放到hash 中， 现在这样些等于写死了。
+			// 每次新加header头都需要单独处理。
+		}
 
 		start = line->ptr + line->len;
 	}

@@ -2,31 +2,34 @@
  * Copyright (C) Reage
  * blog:http://www.ireage.com
  */
- #include "http_file_write.h"
+#include "http_file_write.h"
 
-
-
-int _mkdir(http_connect_t * con, char *root, pool_t *p)
+int _mkdir(http_connect_t *con, char *root, pool_t *p)
 {
     int len = strlen(root);
-    char * dir = (char *) palloc(p, len+1);
+    char *dir = (char *)palloc(p, len + 1);
     char *end = dir + len;
     struct stat buf;
 
-    memcpy(dir, root, len+1);
+    memcpy(dir, root, len + 1);
 
-    while(end > dir) {
-        if(*end == '/') {
-            *end= '\0';
+    while (end > dir)
+    {
+        if (*end == '/')
+        {
+            *end = '\0';
             break;
         }
 
         end--;
     }
 
-    if(stat(root, &buf) != 0 ) {
+    if (stat(root, &buf) != 0)
+    {
         _mkdir(con, dir, p);
-    } else {
+    }
+    else
+    {
         return 0;
     }
     mkdir(root, S_IRWXU | S_IRGRP | S_IXGRP | S_IROTH | S_IXOTH);
@@ -34,75 +37,79 @@ int _mkdir(http_connect_t * con, char *root, pool_t *p)
     return 0;
 }
 
-
-int  open_write_file(http_connect_t *con)
+int open_write_file(http_connect_t *con)
 {
-    request * in;
+    request *in;
     response *out;
     buffer *uri, *tmp, *dir;
-    char *ptr ;
-    FILE * fp;
+    char *ptr;
+    FILE *fp;
     pool_t *p = con->p;
     int count = 0;
 
     in = con->in;
     out = con->out;
 
-
     uri = buffer_init(p);
     uri->ptr = in->uri->ptr;
     uri->used = uri->size = in->uri->len;
-
 
     dir = buffer_create_size(con->p, in->uri->len);
     memcpy(dir->ptr, uri->ptr, uri->used);
     ptr = dir->ptr + uri->used;
     dir->used = uri->used;
-    while(ptr >= dir->ptr) {
-        if(*ptr == '/') {
+    while (ptr >= dir->ptr)
+    {
+        if (*ptr == '/')
+        {
             *ptr = '\0';
             break;
         }
         ptr--;
         dir->used--;
-
     }
 
     uri->ptr[uri->used] = '\0';
-    if(dir->used) {
-        int ret  = _mkdir(con, dir->ptr, p);
-        if(ret == -1) {
+    if (dir->used)
+    {
+        int ret = _mkdir(con, dir->ptr, p);
+        if (ret == -1)
+        {
             return DONE;
         }
     }
 
-    ptr = (char *) palloc(p, sizeof(char)*2048);
+    // 记录
+    in->physicalURI = uri;
 
     fp = fopen(uri->ptr, "w");
 
-    if(fp) {
+    if (fp)
+    {
         make_fd_non_blocking(fileno(fp));
         con->write_file.fp = fp;
         con->write_file.len = 0;
         con->next_handle = write_file_content;
-    } else {
+    }
+    else
+    {
         int logStrLen = strlen(dir) + 30;
-        char * logStr = (char *) palloc(p, logStrLen);
-        snprintf(logStr, logStrLen, "[access %s Permission denied]", dir );
+        char *logStr = (char *)palloc(p, logStrLen);
+        snprintf(logStr, logStrLen, "[access %s Permission denied]", dir);
         ds_log(con, logStr, LOG_LEVEL_ERROR);
         con->next_handle = send_put_forbidden_result;
     }
 
-
     return NEXT;
 }
 
-int  write_file_content(http_connect_t * con)
+int write_file_content(http_connect_t *con)
 {
-    request * in;
+    request *in;
     response *out;
-    
-    char *ptr ;
+    char read_socket_buffer[CONTENT_SIZE];
+
+    char *ptr;
     pool_t *p = con->p;
     int count = 0;
 
@@ -110,35 +117,40 @@ int  write_file_content(http_connect_t * con)
     //ptr = palloc(p, sizeof(char)*CONTENT_SIZE);
     in = con->in;
     out = con->out;
-    while((count = read(con->fd, read_socket_buffer, CONTENT_SIZE)) > 0) {
-        if(fwrite(read_socket_buffer, count, 1, con->write_file.fp) != 1) {
+    while ((count = read(con->fd, read_socket_buffer, CONTENT_SIZE)) > 0)
+    {
+        if (fwrite(read_socket_buffer, count, 1, con->write_file.fp) != 1)
+        {
             fclose(con->write_file.fp);
-            con->next_handle =  send_put_result;
+            con->next_handle = send_put_result;
             con->out->status_code = HTTP_WRITE_FILE_FAIL;
 
             return NEXT;
             //return con->next_handle(con);
-        } 
+        }
         con->write_file.len += count;
     }
 
     //尽量的避免文件内容大小，比约定的文件大，出现这种有可能是编码的问题
     //这个中方法只能减少，并不能从根本上避免问题
-    if(in->content_length <= con->write_file.len && (count == 0 || count == -1)) {
-         fclose(con->write_file.fp);
-         con->next_handle =  send_put_result;
-         con->out->status_code = HTTP_OK;
+    if (in->content_length <= con->write_file.len && (count == 0 || count == -1))
+    {
+        fclose(con->write_file.fp);
+        con->next_handle = send_put_result;
+        con->out->status_code = HTTP_OK;
 
-         return NEXT;
-         //return con->next_handle(con);
+        if (in->atime || in->mtime)
+        {
+            // sync time
+            struct timeval tv[2];
+            tv[0].tv_sec = in->atime;
+            tv[1].tv_sec = in->mtime;
+            utimes(in->physicalURI->ptr, tv);
+        }
 
+        return NEXT;
+        //return con->next_handle(con);
     }
 
     return CONTINUE;
 }
-
-
-
-
-
-
